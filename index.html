@@ -2270,13 +2270,14 @@ function pgDoneExpress(){
   const client=state.salesCustomer?state.salesCustomer.name:'Carlos Eduardo Ramírez Flores';
   const refNum=state._expressRef||(state._expressRef='EXP-'+Math.floor(100000+Math.random()*900000));
   const isNew=state.outcome===3;
+  const needsBio=state.outcome!==2;
   const phone=state.pqData.phone||state.salesCustomer?.phone||'+503 7890-1234';
   const bioSent=state.bioSent;
   const bioVerified=state.bioVerified;
-  const canProceed=!isNew||bioVerified;
+  const canProceed=!needsBio||bioVerified;
 
   let bioSection='';
-  if(isNew){
+  if(needsBio){
     if(bioVerified){
       bioSection=`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--success);background:var(--success-light);margin-bottom:14px;">
         <div style="text-align:center;">
@@ -2360,13 +2361,87 @@ function pgApproved(){
   const act=sol.action;
   const isPre=act==='preapprove';
   const isCash=act==='cash';
-  const needsBio=sol.isNew&&!state.bioVerified;
+  const useOTP=sol.outcome===2;
+  const useBio=!useOTP;
   const bioSent=state.bioSent;
+  const bioVerified=state.bioVerified;
+  const canProceed=bioVerified;
   const title=isPre?t('approvedPreTitle'):t('approvedTitle');
   const steps=isPre?[t('approvedPreNext1'),t('approvedPreNext2'),t('approvedPreNext3')]
     :isCash?[t('approvedCashNext1'),t('approvedCashNext2'),t('approvedCashNext3')]
     :[t('approvedMercNext1'),t('approvedMercNext2'),t('approvedMercNext3')];
   const btnLabel=isPre?t('approvedActivate'):isCash?t('approvedDisburse'):t('approvedBill');
+
+  // Verification section — biometric or OTP
+  let verifySection='';
+  if(useBio){
+    // Biometric for outcomes 0, 1, 3
+    if(bioVerified){
+      verifySection=`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--success);background:var(--success-light);margin-bottom:14px;">
+        <div style="text-align:center;">
+          <div style="display:flex;justify-content:center;margin-bottom:8px;"><div style="width:40px;height:40px;border-radius:50%;background:var(--success-light);border:2px solid var(--success);display:flex;align-items:center;justify-content:center;color:var(--success);">${icon('check',20,'var(--success)')}</div></div>
+          <div style="font-size:14px;font-weight:700;color:var(--success);margin-bottom:4px;">${t('approvedBioSuccess')}</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${t('approvedBioReady')}</div>
+        </div>
+      </div>`;
+    } else if(bioSent){
+      verifySection=`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--white);margin-bottom:14px;">
+        <div style="text-align:center;">
+          <div style="display:flex;justify-content:center;margin-bottom:10px;"><div style="width:44px;height:44px;border-radius:50%;background:var(--primary-light);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;color:var(--primary);">${icon('smartphone',20)}</div></div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px;">${t('otpWaitBio')}</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;max-width:340px;margin:0 auto 12px;">${t('otpWaitBioDesc')}</div>
+          <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;background:var(--warning-light);border:1px solid var(--warning-border);font-size:11px;font-weight:700;color:var(--warning);margin-bottom:8px;">${icon('clock',12)} ${t('approvedBioWaiting')}</div>
+          <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);">${sol.phone}</div>
+          <div style="margin-top:12px;"><button class="btn btn-secondary" id="btnSimBioApproved" style="font-size:11px;padding:6px 16px;border-style:dashed;">${state.lang==='es'?'Simular verificación exitosa':'Simulate successful verification'}</button></div>
+        </div>
+      </div>`;
+    } else {
+      verifySection=`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--warning);background:var(--warning-light);margin-bottom:14px;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <span style="flex-shrink:0;display:flex;color:var(--warning);margin-top:2px;">${icon('shield',18)}</span>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('approvedBioTitle')}</div>
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:10px;">${t('approvedBioDesc')}</div>
+            <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);margin-bottom:10px;">${sol.phone}</div>
+            <button class="btn btn-primary" id="btnSendBioApproved" style="padding:8px 20px;font-size:12px;display:inline-flex;align-items:center;gap:6px;">${icon('smartphone',14)} ${t('approvedBioSend')}</button>
+          </div>
+        </div>
+      </div>`;
+    }
+  } else {
+    // OTP for outcome 2
+    if(bioVerified){
+      verifySection=`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--success);background:var(--success-light);margin-bottom:14px;">
+        <div style="text-align:center;">
+          <div style="display:flex;justify-content:center;margin-bottom:8px;"><div style="width:40px;height:40px;border-radius:50%;background:var(--success-light);border:2px solid var(--success);display:flex;align-items:center;justify-content:center;color:var(--success);">${icon('check',20,'var(--success)')}</div></div>
+          <div style="font-size:14px;font-weight:700;color:var(--success);margin-bottom:4px;">${t('otpDone')}</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${t('otpDoneDesc')}</div>
+        </div>
+      </div>`;
+    } else if(bioSent){
+      verifySection=`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--white);margin-bottom:14px;">
+        <div style="text-align:center;">
+          <div style="display:flex;justify-content:center;margin-bottom:10px;"><div style="width:44px;height:44px;border-radius:50%;background:var(--primary-light);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;color:var(--primary);">${icon('smartphone',20)}</div></div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px;">${t('otpTitle')}</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;max-width:340px;margin:0 auto 12px;">${state.lang==='es'?'Se ha enviado un código OTP al número del cliente.':'An OTP code has been sent to the customer\'s number.'}</div>
+          <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;background:var(--success-light);border:1px solid var(--success-border);font-size:11px;font-weight:700;color:var(--success);">${icon('check',12)} ${t('otpSentTo')} ${sol.phone}</div>
+          <div style="margin-top:12px;"><button class="btn btn-secondary" id="btnSimBioApproved" style="font-size:11px;padding:6px 16px;border-style:dashed;">${state.lang==='es'?'Simular verificación exitosa':'Simulate successful verification'}</button></div>
+        </div>
+      </div>`;
+    } else {
+      verifySection=`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--white);margin-bottom:14px;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <span style="flex-shrink:0;display:flex;color:var(--primary);margin-top:2px;">${icon('smartphone',18)}</span>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('otpTitle')}</div>
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:10px;">${state.lang==='es'?'Se requiere verificación OTP del cliente para proceder con la facturación.':'Customer OTP verification is required to proceed with billing.'}</div>
+            <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);margin-bottom:10px;">${sol.phone}</div>
+            <button class="btn btn-primary" id="btnSendBioApproved" style="padding:8px 20px;font-size:12px;display:inline-flex;align-items:center;gap:6px;">${icon('smartphone',14)} ${t('otpSendBtn')}</button>
+          </div>
+        </div>
+      </div>`;
+    }
+  }
 
   return`<div class="card"><div class="success-screen">
     <div class="success-circle" style="background:var(--success-light);border-color:var(--success);">${icon('check',28,'var(--success)')}</div>
@@ -2384,79 +2459,22 @@ function pgApproved(){
         <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;background:var(--white);border:1px solid var(--success-border);font-size:12px;font-weight:700;color:var(--success);">${icon('checkCircle',14,'var(--success)')} ${t('dashStatusApproved')}</div>
       </div>
 
-      ${sol.isNew?`
-      <div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid ${state.bioVerified?'var(--success)':bioSent?'var(--primary)':'var(--warning)'};background:${state.bioVerified?'var(--success-light)':bioSent?'var(--white)':'var(--warning-light)'};margin-bottom:14px;">
-        ${state.bioVerified?`
-          <div style="text-align:center;">
-            <div style="display:flex;justify-content:center;margin-bottom:8px;"><div style="width:40px;height:40px;border-radius:50%;background:var(--success-light);border:2px solid var(--success);display:flex;align-items:center;justify-content:center;color:var(--success);">${icon('check',20,'var(--success)')}</div></div>
-            <div style="font-size:14px;font-weight:700;color:var(--success);margin-bottom:4px;">${t('approvedBioSuccess')}</div>
-            <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${t('approvedBioReady')}</div>
-          </div>
-        `:bioSent?`
-          <div style="text-align:center;">
-            <div style="display:flex;justify-content:center;margin-bottom:10px;"><div style="width:44px;height:44px;border-radius:50%;background:var(--primary-light);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;color:var(--primary);">${icon('smartphone',20)}</div></div>
-            <div style="font-size:14px;font-weight:700;margin-bottom:4px;">${t('otpWaitBio')}</div>
-            <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;max-width:340px;margin:0 auto 12px;">${t('otpWaitBioDesc')}</div>
-            <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;background:var(--warning-light);border:1px solid var(--warning-border);font-size:11px;font-weight:700;color:var(--warning);margin-bottom:8px;">${icon('clock',12)} ${t('approvedBioWaiting')}</div>
-            <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);">${sol.phone}</div>
-            <div style="margin-top:12px;"><button class="btn btn-secondary" id="btnSimBioApproved" style="font-size:11px;padding:6px 16px;border-style:dashed;">${state.lang==='es'?'Simular verificación exitosa':'Simulate successful verification'}</button></div>
-          </div>
-        `:`
-          <div style="display:flex;align-items:flex-start;gap:10px;">
-            <span style="flex-shrink:0;display:flex;color:var(--warning);margin-top:2px;">${icon('shield',18)}</span>
-            <div style="flex:1;">
-              <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('approvedBioTitle')}</div>
-              <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:10px;">${t('approvedBioDesc')}</div>
-              <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);margin-bottom:10px;">${sol.phone}</div>
-              <button class="btn btn-primary" id="btnSendBioApproved" style="padding:8px 20px;font-size:12px;display:inline-flex;align-items:center;gap:6px;">${icon('smartphone',14)} ${t('approvedBioSend')}</button>
-            </div>
-          </div>
-        `}
-      </div>
-      `:` 
-      <div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid ${state.bioVerified?'var(--success)':bioSent?'var(--primary)':'var(--primary)'};background:${state.bioVerified?'var(--success-light)':'var(--white)'};margin-bottom:14px;">
-        ${state.bioVerified?`
-          <div style="text-align:center;">
-            <div style="display:flex;justify-content:center;margin-bottom:8px;"><div style="width:40px;height:40px;border-radius:50%;background:var(--success-light);border:2px solid var(--success);display:flex;align-items:center;justify-content:center;color:var(--success);">${icon('check',20,'var(--success)')}</div></div>
-            <div style="font-size:14px;font-weight:700;color:var(--success);margin-bottom:4px;">${t('otpDone')}</div>
-            <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${t('otpDoneDesc')}</div>
-          </div>
-        `:bioSent?`
-          <div style="text-align:center;">
-            <div style="display:flex;justify-content:center;margin-bottom:10px;"><div style="width:44px;height:44px;border-radius:50%;background:var(--primary-light);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;color:var(--primary);">${icon('smartphone',20)}</div></div>
-            <div style="font-size:14px;font-weight:700;margin-bottom:4px;">${t('otpTitle')}</div>
-            <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;max-width:340px;margin:0 auto 12px;">${state.lang==='es'?'Se ha enviado un código OTP al número del cliente.':'An OTP code has been sent to the customer\'s number.'}</div>
-            <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;background:var(--success-light);border:1px solid var(--success-border);font-size:11px;font-weight:700;color:var(--success);">${icon('check',12)} ${t('otpSentTo')} ${sol.phone}</div>
-            <div style="margin-top:12px;"><button class="btn btn-secondary" id="btnSimBioApproved" style="font-size:11px;padding:6px 16px;border-style:dashed;">${state.lang==='es'?'Simular verificación exitosa':'Simulate successful verification'}</button></div>
-          </div>
-        `:`
-          <div style="display:flex;align-items:flex-start;gap:10px;">
-            <span style="flex-shrink:0;display:flex;color:var(--primary);margin-top:2px;">${icon('smartphone',18)}</span>
-            <div style="flex:1;">
-              <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('otpTitle')}</div>
-              <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:10px;">${state.lang==='es'?'Se requiere verificación OTP del cliente para proceder con la facturación.':'Customer OTP verification is required to proceed with billing.'}</div>
-              <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);margin-bottom:10px;">${sol.phone}</div>
-              <button class="btn btn-primary" id="btnSendBioApproved" style="padding:8px 20px;font-size:12px;display:inline-flex;align-items:center;gap:6px;">${icon('smartphone',14)} ${t('otpSendBtn')}</button>
-            </div>
-          </div>
-        `}
-      </div>
-      `}
+      ${verifySection}
 
       <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--white);border:1px solid var(--border);margin-bottom:14px;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">${state.lang==='es'?'Próximos pasos':'Next steps'}</div>
         ${steps.map((s,i)=>`<div style="display:flex;align-items:flex-start;gap:10px;${i<steps.length-1?'margin-bottom:10px;':''}">
-          <div style="width:22px;height:22px;border-radius:50%;background:${!state.bioVerified&&i===0?'var(--text-dim)':'var(--primary)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">${i+1}</div>
-          <div style="font-size:12px;color:${!state.bioVerified?'var(--text-dim)':'var(--text-secondary)'};line-height:1.5;">${s}</div>
+          <div style="width:22px;height:22px;border-radius:50%;background:${!canProceed&&i===0?'var(--text-dim)':'var(--primary)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">${i+1}</div>
+          <div style="font-size:12px;color:${!canProceed?'var(--text-dim)':'var(--text-secondary)'};line-height:1.5;">${s}</div>
         </div>`).join('')}
       </div>
 
       ${isPre?`
-        <button class="btn btn-primary" id="btnApprovedPrint" style="width:100%;justify-content:center;display:flex;align-items:center;gap:6px;" ${!state.bioVerified?'disabled':''}>${icon('fileText',16)} ${t('approvedPrint')}</button>
+        <button class="btn btn-primary" id="btnApprovedPrint" style="width:100%;justify-content:center;display:flex;align-items:center;gap:6px;" ${!canProceed?'disabled':''}>${icon('fileText',16)} ${t('approvedPrint')}</button>
       `:`
       <div style="display:flex;gap:10px;">
-        <button class="btn btn-secondary" id="btnApprovedPrint" style="flex:1;justify-content:center;display:flex;align-items:center;gap:6px;" ${!state.bioVerified?'disabled':''}>${icon('fileText',16)} ${t('approvedPrint')}</button>
-        <button class="btn btn-primary" id="btnApprovedAction" style="flex:1;justify-content:center;display:flex;align-items:center;gap:6px;" ${!state.bioVerified?'disabled':''}>${icon('checkCircle',16)} ${btnLabel}</button>
+        <button class="btn btn-secondary" id="btnApprovedPrint" style="flex:1;justify-content:center;display:flex;align-items:center;gap:6px;" ${!canProceed?'disabled':''}>${icon('fileText',16)} ${t('approvedPrint')}</button>
+        <button class="btn btn-primary" id="btnApprovedAction" style="flex:1;justify-content:center;display:flex;align-items:center;gap:6px;" ${!canProceed?'disabled':''}>${icon('checkCircle',16)} ${btnLabel}</button>
       </div>
       `}
     </div>
@@ -3027,13 +3045,13 @@ function pgSalesCart(){
     const shipCost=state.salesShipMethod==='home'?5.00:0;
     const grandTotal=total+shipCost;
     const hasCredit=(customer.isNewCredit||state.salesScenario==='existing')&&!customer.creditRejected;
-    const mercLimit=customer.limitMerc||(state.outcome===2?Math.floor(71.50*29.41):2500);
+    const mercLimit=customer.limitMerc||2500;
     
     const hasPromo=items.some(it=>it.creditPromo);
     
     let methods=[];
     if(hasCredit){
-      methods.push({id:'credit',label:t('salesPayCredit'),desc:t('salesPayCreditDesc'),extra:`<div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--success);margin-top:4px;">${state.lang==='es'?'Límite Mercadería':'Merchandise Limit'}: $${mercLimit.toLocaleString('en')}</div>`,highlight:true});
+      methods.push({id:'credit',label:t('salesPayCredit'),desc:t('salesPayCreditDesc'),extra:`<div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--success);margin-top:4px;">${state.lang==='es'?'Límite Disponible Mercadería':'Available Merchandise Limit'}: $${mercLimit.toLocaleString('en')}</div>${grandTotal>mercLimit?`<div style="font-size:11px;color:var(--danger);font-weight:600;margin-top:4px;">${state.lang==='es'?'El total excede el límite disponible':'Total exceeds available limit'}</div>`:``}`,highlight:true});
     }
     if(!hasPromo){
       methods.push({id:'card',label:t('salesPayCard'),desc:t('salesPayCardDesc'),extra:'',highlight:false});
@@ -3380,7 +3398,7 @@ function bind(){
   document.querySelectorAll('[data-salesscenario]').forEach(el=>{el.onclick=()=>{state.salesScenario=el.dataset.salesscenario;render();};});
   const snx=$('btnSalesScenarioNext');if(snx)snx.onclick=()=>{
     if(state.salesScenario==='existing'){
-      state.salesCustomer={name:'ROSA ANGELICA MARTINEZ RUIZ',doc:(state.salesIdType||'Cédula')+': '+(state.salesIdNumber||'901270362'),since:'2019',rating:'A'};
+      state.salesCustomer={name:'ROSA ANGELICA MARTINEZ RUIZ',doc:(state.salesIdType||'Cédula')+': '+(state.salesIdNumber||'901270362'),since:'2019',rating:'A',limitMerc:Math.floor((120-48.50)*29.41),limitCash:Math.floor((120-48.50)*17.65),maxCuota:120-48.50};
       state.screen='salesCart';state.salesTab='cart';
     } else if(state.salesScenario==='existingPrequal'){
       // Existing pre-qualified but not pre-approved — show offer directly
