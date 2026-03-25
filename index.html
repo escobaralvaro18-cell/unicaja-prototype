@@ -223,6 +223,22 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .sales-content-wrap{max-width:500px;margin:0 auto;}
 .inner-container{max-width:500px;margin:0 auto;}
 
+/* ── Home desktop layout ── */
+.home-grid{display:flex;flex-direction:column;gap:12px;}
+@media(min-width:900px){
+  .home-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;}
+  .home-grid .home-col-full{grid-column:1 / -1;}
+  .home-grid .home-col-actions{order:1;}
+  .home-grid .home-col-dash{order:2;}
+}
+
+/* ── Hamburger menu overlay ── */
+.hmenu-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:500;animation:fadeIn .2s;}
+.hmenu-overlay.open{display:flex;justify-content:flex-end;}
+.hmenu-panel{width:280px;max-width:85vw;background:var(--white);height:100%;display:flex;flex-direction:column;animation:slideLeft .25s ease;box-shadow:-4px 0 20px rgba(0,0,0,.15);}
+@keyframes slideLeft{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
 @media(min-width:900px){
   .sales-layout{flex-direction:row;padding-bottom:0;overflow:hidden;height:100vh;}
   .sales-tab-mobile{display:none !important;}
@@ -359,7 +375,7 @@ es:{
   salesPayCard:'Tarjeta',salesPayCardDesc:'Pago con tarjeta crédito / débito',
   salesPayCash:'Efectivo',salesPayCashDesc:'Pago en efectivo al momento de la entrega',
   salesPaySubtotal:'Subtotal',salesPayShipping:'Envío',salesPayTotal:'TOTAL',salesPayContinue:'Continuar con el pago',
-  dashTitle:'Mis Solicitudes',dashEmpty:'No hay solicitudes recientes',
+  dashTitle:'Mis solicitudes de crédito',dashEmpty:'No hay solicitudes recientes',
   dashRef:'Ref.',dashClient:'Cliente',dashProduct:'Producto',dashAmount:'Monto',dashDate:'Fecha',
   dashStatusAnalysis:'En análisis',dashStatusApproved:'Aprobado',dashStatusPendingBill:'Pendiente facturar',dashStatusRejected:'Rechazado',dashStatusVisit:'Visita pendiente',dashStatusObserved:'Observada',dashStatusAnalysisVisit:'En análisis — Visita agendada',
   // Observed screen
@@ -572,7 +588,7 @@ en:{
   salesPayCard:'Card',salesPayCardDesc:'Pay with credit / debit card',
   salesPayCash:'Cash',salesPayCashDesc:'Cash payment at time of delivery',
   salesPaySubtotal:'Subtotal',salesPayShipping:'Shipping',salesPayTotal:'TOTAL',salesPayContinue:'Continue to payment',
-  dashTitle:'My Applications',dashEmpty:'No recent applications',
+  dashTitle:'My credit applications',dashEmpty:'No recent applications',
   dashRef:'Ref.',dashClient:'Client',dashProduct:'Product',dashAmount:'Amount',dashDate:'Date',
   dashStatusAnalysis:'Under review',dashStatusApproved:'Approved',dashStatusPendingBill:'Pending billing',dashStatusRejected:'Rejected',dashStatusVisit:'Visit pending',dashStatusObserved:'Observed',dashStatusAnalysisVisit:'Under review — Visit scheduled',
   obsTitle:'Observed Application',obsDesc:'The credit department has reviewed the application and requires corrections or additional information.',
@@ -883,12 +899,13 @@ function render(){
   const s=state.screen;
   if(state._lastScreen!==s){window.scrollTo(0,0);state._lastScreen=s;}
   // Toggle full-width mode for full-page screens
-  const fullWidth=['login','store','home','salesIdentify','salesScenario','salesCreate','salesCart'].includes(s)||(!!state.salesCustomer&&!!state.action&&['simulation','forkAml','aml','otp','application','forkApproval','done','doneExpress','rejected','approved'].includes(s));
+  const fullWidth=['login','store','home','allSolicitudes','salesIdentify','salesScenario','salesCreate','salesCart'].includes(s)||(!!state.salesCustomer&&!!state.action&&['simulation','forkAml','aml','otp','application','forkApproval','done','doneExpress','rejected','approved'].includes(s));
   app.classList.toggle('full-width',fullWidth);
   // Full-page screens (no topbar/steps)
   if(s==='login'){app.innerHTML=pgLogin();bind();return;}
   if(s==='store'){app.innerHTML=pgStore();bind();return;}
   if(s==='home'){app.innerHTML=pgHome();bind();return;}
+  if(s==='allSolicitudes'){app.innerHTML=pgAllSolicitudes();bind();return;}
   // Sales flow - full-page screens
   if(s==='salesIdentify'||s==='salesScenario'||s==='salesCreate'||s==='salesCart'){
     // When arriving at salesCart, ensure customer data and credit offer are set up
@@ -1094,16 +1111,170 @@ function pgStore(){
 }
 
 function pgHome(){
-  const items=[
-    {icon:icon('receipt',20),color:'#F3E8F9',label:t('homeSales'),desc:t('homeSalesDesc'),action:'sales'},
-    {icon:icon('banknote',20),color:'var(--success-light)',label:t('homePayments'),desc:t('homePaymentsDesc'),action:'none'},
-    {icon:icon('clipboardList',20),color:'var(--primary-light)',label:t('homeCredit'),desc:t('homeCreditDesc'),action:'credit'}
-  ];
-  return`<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);">
-    <div style="padding:14px 24px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span style="cursor:pointer;color:var(--text-dim);display:flex;">${icon('menu',20)}</span>
+  const es=state.lang==='es';
+  const apps=state.solicitudes;
+  const previewApps=apps.slice(0,5);
+  const statusMap={
+    analysis:{label:t('dashStatusAnalysis'),color:'var(--warning)',bg:'var(--warning-light)',border:'var(--warning-border)',icon:'clock'},
+    analysis_visit:{label:t('dashStatusAnalysisVisit'),color:'var(--primary)',bg:'var(--primary-light)',border:'#C5D0F0',icon:'mapPin'},
+    approved:{label:t('dashStatusPendingBill'),color:'var(--success)',bg:'var(--success-light)',border:'var(--success-border)',icon:'checkCircle'},
+    observed:{label:t('dashStatusObserved'),color:'var(--orange)',bg:'var(--orange-light)',border:'#F5C9A8',icon:'alertTriangle'},
+    rejected:{label:t('dashStatusRejected'),color:'var(--danger)',bg:'var(--danger-light)',border:'#F5B4BA',icon:'x'}
+  };
+  function solCard(a,idx,total){
+    const st=statusMap[a.status||'analysis'];
+    const visitInfo=a.hasVisit&&a.visitDate?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:10px;color:var(--text-dim);">${icon('calendar',10,'var(--text-dim)')} ${es?'Visita:':'Visit:'} ${new Date(a.visitDate+'T12:00:00').toLocaleDateString(es?'es-SV':'en-US',{month:'short',day:'numeric'})} · ${a.visitTime==='am'?(es?'Mañana':'Morning'):a.visitTime==='mid'?(es?'Medio día':'Midday'):(es?'Tarde':'Afternoon')}</div>`:'';
+    const obsInfo=a.status==='observed'?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:10px;color:var(--orange);font-weight:600;">${icon('alertTriangle',10,'#E07428')} ${es?'Requiere acción':'Action required'}</div>`:'';
+    return`<div style="padding:14px;border:1px solid ${a.status==='observed'?'#F5C9A8':'var(--border)'};border-radius:var(--radius-sm);margin-bottom:${idx<total-1?'8':'0'}px;cursor:pointer;transition:all .2s;background:${a.status==='observed'?'#FFFBF7':'var(--white)'};" class="dash-app" data-solref="${a.ref}" onmouseover="this.style.borderColor='var(--primary)';this.style.boxShadow='var(--shadow)'" onmouseout="this.style.borderColor='${a.status==='observed'?'#F5C9A8':'var(--border)'}';this.style.boxShadow='none'">
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
+            <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--primary);">${a.ref}</span>
+            <span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;background:${st.bg};border:1px solid ${st.border};font-size:10px;font-weight:700;color:${st.color};">${icon(st.icon,10,st.color)} ${st.label}</span>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.client}</div>
+          <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">${a.doc}</div>
+          <div style="display:flex;gap:12px;font-size:11px;color:var(--text-secondary);">
+            <span>${a.product}</span>
+            <span style="font-family:var(--mono);font-weight:700;">${a.amount}</span>
+            <span style="color:var(--text-dim);">${a.date}</span>
+          </div>
+          ${visitInfo}${obsInfo}
+        </div>
+        <span style="display:flex;color:var(--text-dim);flex-shrink:0;margin-top:8px;">${icon('chevronRight',16)}</span>
+      </div>
+    </div>`;
+  }
+
+  // Hamburger menu
+  const menuOverlay=`<div class="hmenu-overlay ${state._menuOpen?'open':''}" id="hmenuOverlay">
+    <div class="hmenu-panel">
+      <div style="padding:20px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
         <div style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--primary);letter-spacing:1px;">UNICAJA</div>
+        <span id="btnCloseMenu" style="cursor:pointer;display:flex;color:var(--text-dim);">${icon('x',20)}</span>
+      </div>
+      <div style="padding:16px 18px;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;">${(state.loginUser||'U').substring(0,2).toUpperCase()}</div>
+          <div><div style="font-size:13px;font-weight:700;">${state.loginUser||'Usuario'}</div><div style="font-size:11px;color:var(--text-dim);">${state.selectedStore||'—'}</div></div>
+        </div>
+      </div>
+      <div style="flex:1;padding:8px 10px;">
+        <div id="btnMenuSales" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:600;color:var(--text-secondary);transition:background .15s;" onmouseover="this.style.background='var(--surface-alt)'" onmouseout="this.style.background='transparent'">
+          <span style="display:flex;color:var(--text-dim);">${icon('receipt',18)}</span> ${t('homeSales')}
+        </div>
+        <div id="btnMenuCredit" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:600;color:var(--text-secondary);transition:background .15s;" onmouseover="this.style.background='var(--surface-alt)'" onmouseout="this.style.background='transparent'">
+          <span style="display:flex;color:var(--text-dim);">${icon('clipboardList',18)}</span> ${t('homeCredit')}
+        </div>
+      </div>
+      <div style="padding:12px 10px;border-top:1px solid var(--border);">
+        <div id="btnLogout" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:600;color:var(--danger);transition:background .15s;" onmouseover="this.style.background='var(--danger-light)'" onmouseout="this.style.background='transparent'">
+          <span style="display:flex;">${icon('lock',18,'#D63B4A')}</span> ${es?'Cerrar Sesión':'Log Out'}
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  return`<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);">
+    <!-- Homologated header -->
+    <div class="topbar" style="position:sticky;top:0;z-index:100;">
+      <div class="topbar-brand">
+        <div class="topbar-logo" id="btnHome" style="cursor:pointer;">UNICAJA</div>
+        <div class="topbar-sep"></div>
+        <div class="topbar-title">${t('topbar')}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div id="homeLangToggle" style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px 10px;border-radius:20px;background:var(--surface-alt);border:1px solid var(--border);font-size:11px;font-weight:700;">
+          <span style="padding:2px 8px;border-radius:12px;${state.lang==='es'?'background:var(--primary);color:white;':''}">ES</span>
+          <span style="padding:2px 8px;border-radius:12px;${state.lang==='en'?'background:var(--primary);color:white;':''}">EN</span>
+        </div>
+        <span id="btnOpenMenu" style="cursor:pointer;display:flex;color:var(--text-secondary);">${icon('menu',20)}</span>
+      </div>
+    </div>
+
+    <div style="flex:1;padding:20px 16px;">
+      <div style="max-width:960px;margin:0 auto;">
+        <div class="home-grid">
+
+          <!-- LEFT COLUMN: Actions -->
+          <div class="home-col-actions">
+            <!-- Articles -->
+            <div class="card" style="padding:14px 18px;margin-bottom:12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:14px;font-weight:700;">${t('homeArticles')}</span>
+                <div style="display:flex;gap:8px;">
+                  <span id="btnHomeSearch" style="width:36px;height:36px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--primary);">${icon('search',18)}</span>
+                  <span style="width:36px;height:36px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--primary);">${icon('barcode',18)}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions: Sales + Credit (no Abono de Cuotas) -->
+            <div class="card" style="padding:18px;margin-bottom:12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                <span style="font-size:14px;font-weight:700;">${t('homeClients')}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer;" id="btnGoSales">
+                <div style="width:42px;height:42px;border-radius:10px;background:#F3E8F9;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-secondary);">${icon('receipt',20)}</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:700;">${t('homeSales')}</div>
+                  <div style="font-size:12px;color:var(--text-dim);">${t('homeSalesDesc')}</div>
+                </div>
+                <span style="color:var(--primary);display:flex;">${icon('chevronRight',18)}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px;padding:14px 0;cursor:pointer;" id="btnGoCredit">
+                <div style="width:42px;height:42px;border-radius:10px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-secondary);">${icon('clipboardList',20)}</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:700;">${t('homeCredit')}</div>
+                  <div style="font-size:12px;color:var(--text-dim);">${t('homeCreditDesc')}</div>
+                </div>
+                <span style="color:var(--primary);display:flex;">${icon('chevronRight',18)}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: Solicitudes -->
+          <div class="home-col-dash">
+            <div class="card" style="padding:18px;margin-bottom:12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                <span style="font-size:14px;font-weight:700;">${t('dashTitle')}</span>
+                <span style="font-size:11px;font-weight:700;color:var(--text-dim);font-family:var(--mono);">${apps.length}</span>
+              </div>
+              ${previewApps.length===0?`<div style="text-align:center;padding:20px 0;font-size:12px;color:var(--text-dim);">${t('dashEmpty')}</div>`
+                :previewApps.map((a,idx)=>solCard(a,idx,previewApps.length)).join('')}
+              ${apps.length>5?`<div style="text-align:center;margin-top:12px;">
+                <span id="btnViewAllSolicitudes" style="font-size:13px;font-weight:700;color:var(--primary);cursor:pointer;display:inline-flex;align-items:center;gap:4px;">${es?'Ver todas':'View all'} (${apps.length}) ${icon('chevronRight',14,'#2B5CE6')}</span>
+              </div>`:''}
+            </div>
+          </div>
+
+        </div>
+        <div style="text-align:center;padding:8px;font-size:10px;color:var(--text-dim);">
+          <span style="display:inline-flex;vertical-align:middle;margin-right:2px;">${icon('store',12)}</span> ${state.selectedStore||'—'} · <span style="display:inline-flex;vertical-align:middle;margin-right:2px;">${icon('user',12)}</span> ${state.loginUser?state.loginUser.toUpperCase():'—'}
+        </div>
+      </div>
+    </div>
+    ${menuOverlay}
+  </div>`;
+}
+
+function pgAllSolicitudes(){
+  const es=state.lang==='es';
+  const apps=state.solicitudes;
+  const statusMap={
+    analysis:{label:t('dashStatusAnalysis'),color:'var(--warning)',bg:'var(--warning-light)',border:'var(--warning-border)',icon:'clock'},
+    analysis_visit:{label:t('dashStatusAnalysisVisit'),color:'var(--primary)',bg:'var(--primary-light)',border:'#C5D0F0',icon:'mapPin'},
+    approved:{label:t('dashStatusPendingBill'),color:'var(--success)',bg:'var(--success-light)',border:'var(--success-border)',icon:'checkCircle'},
+    observed:{label:t('dashStatusObserved'),color:'var(--orange)',bg:'var(--orange-light)',border:'#F5C9A8',icon:'alertTriangle'},
+    rejected:{label:t('dashStatusRejected'),color:'var(--danger)',bg:'var(--danger-light)',border:'#F5B4BA',icon:'x'}
+  };
+  return`<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);">
+    <div class="topbar" style="position:sticky;top:0;z-index:100;">
+      <div class="topbar-brand">
+        <span id="btnAllSolBack" style="cursor:pointer;display:flex;color:var(--text-dim);transform:rotate(180deg);margin-right:4px;">${icon('chevronRight',20)}</span>
+        <div class="topbar-logo" id="btnHome" style="cursor:pointer;">UNICAJA</div>
+        <div class="topbar-sep"></div>
+        <div class="topbar-title">${t('dashTitle')}</div>
       </div>
       <div id="homeLangToggle" style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px 10px;border-radius:20px;background:var(--surface-alt);border:1px solid var(--border);font-size:11px;font-weight:700;">
         <span style="padding:2px 8px;border-radius:12px;${state.lang==='es'?'background:var(--primary);color:white;':''}">ES</span>
@@ -1111,83 +1282,31 @@ function pgHome(){
       </div>
     </div>
     <div style="flex:1;padding:20px 16px;">
-      <div class="inner-container">
-
-        <div class="card" style="padding:14px 18px;margin-bottom:12px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;">
-            <span style="font-size:14px;font-weight:700;">${t('homeArticles')}</span>
-            <div style="display:flex;gap:8px;">
-              <span style="width:36px;height:36px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--primary);">${icon('search',18)}</span>
-              <span style="width:36px;height:36px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--primary);">${icon('barcode',18)}</span>
-            </div>
-          </div>
+      <div style="max-width:800px;margin:0 auto;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <span style="font-size:16px;font-weight:800;">${t('dashTitle')} <span style="font-family:var(--mono);color:var(--text-dim);font-size:13px;">(${apps.length})</span></span>
         </div>
-
-        <div class="card" style="padding:18px;margin-bottom:12px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-            <span style="font-size:14px;font-weight:700;">${t('homeClients')}</span>
-          </div>
-          ${items.map((it,idx)=>`
-            <div style="display:flex;align-items:center;gap:14px;padding:14px 0;${idx<items.length-1?'border-bottom:1px solid var(--border);':''}cursor:${it.action!=='none'?'pointer':'default'};${it.action==='none'?'opacity:0.45;':''}" ${it.action==='credit'?'id="btnGoCredit"':''} ${it.action==='sales'?'id="btnGoSales"':''}>
-              <div style="width:42px;height:42px;border-radius:10px;background:${it.color};display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-secondary);">${it.icon}</div>
-              <div style="flex:1;">
-                <div style="font-size:14px;font-weight:700;">${it.label}</div>
-                <div style="font-size:12px;color:var(--text-dim);">${it.desc}</div>
-              </div>
-              ${it.action!=='none'?`<span style="color:var(--primary);display:flex;">${icon('chevronRight',18)}</span>`:''}
-            </div>
-          `).join('')}
-        </div>
-
-        <div class="card" style="padding:18px;margin-bottom:12px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-            <div style="display:flex;align-items:center;gap:8px;">
-              <span style="display:flex;color:var(--primary);">${icon('clipboardList',16)}</span>
-              <span style="font-size:14px;font-weight:700;">${t('dashTitle')}</span>
-            </div>
-            <span style="font-size:11px;font-weight:700;color:var(--text-dim);font-family:var(--mono);">${state.solicitudes.length}</span>
-          </div>
-          ${(function(){
-            const apps=state.solicitudes;
-            if(apps.length===0)return`<div style="text-align:center;padding:20px 0;font-size:12px;color:var(--text-dim);">${t('dashEmpty')}</div>`;
-            const statusMap={
-              analysis:{label:t('dashStatusAnalysis'),color:'var(--warning)',bg:'var(--warning-light)',border:'var(--warning-border)',icon:'clock'},
-              analysis_visit:{label:t('dashStatusAnalysisVisit'),color:'var(--primary)',bg:'var(--primary-light)',border:'#C5D0F0',icon:'mapPin'},
-              approved:{label:t('dashStatusPendingBill'),color:'var(--success)',bg:'var(--success-light)',border:'var(--success-border)',icon:'checkCircle'},
-              observed:{label:t('dashStatusObserved'),color:'var(--orange)',bg:'var(--orange-light)',border:'#F5C9A8',icon:'alertTriangle'},
-              rejected:{label:t('dashStatusRejected'),color:'var(--danger)',bg:'var(--danger-light)',border:'#F5B4BA',icon:'x'}
-            };
-            return apps.map((a,idx)=>{
-              const st=statusMap[a.status||'analysis'];
-              const visitInfo=a.hasVisit&&a.visitDate?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:10px;color:var(--text-dim);">${icon('calendar',10,'var(--text-dim)')} ${state.lang==='es'?'Visita:':'Visit:'} ${new Date(a.visitDate+'T12:00:00').toLocaleDateString(state.lang==='es'?'es-SV':'en-US',{month:'short',day:'numeric'})} · ${a.visitTime==='am'?(state.lang==='es'?'Mañana':'Morning'):a.visitTime==='mid'?(state.lang==='es'?'Medio día':'Midday'):(state.lang==='es'?'Tarde':'Afternoon')}</div>`:'';
-              const obsInfo=a.status==='observed'?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:10px;color:var(--orange);font-weight:600;">${icon('alertTriangle',10,'#E07428')} ${state.lang==='es'?'Requiere acción':'Action required'}</div>`:'';
-              return`<div style="padding:14px;border:1px solid ${a.status==='observed'?'#F5C9A8':'var(--border)'};border-radius:var(--radius-sm);margin-bottom:${idx<apps.length-1?'8':'0'}px;cursor:pointer;transition:all .2s;background:${a.status==='observed'?'#FFFBF7':'var(--white)'};" class="dash-app" data-solref="${a.ref}" onmouseover="this.style.borderColor='var(--primary)';this.style.boxShadow='var(--shadow)'" onmouseout="this.style.borderColor='${a.status==='observed'?'#F5C9A8':'var(--border)'}';this.style.boxShadow='none'">
-                <div style="display:flex;align-items:flex-start;gap:12px;">
-                  <div style="flex:1;min-width:0;">
-                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
-                      <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--primary);">${a.ref}</span>
-                      <span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;background:${st.bg};border:1px solid ${st.border};font-size:10px;font-weight:700;color:${st.color};">${icon(st.icon,10,st.color)} ${st.label}</span>
-                    </div>
-                    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.client}</div>
-                    <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">${a.doc}</div>
-                    <div style="display:flex;gap:12px;font-size:11px;color:var(--text-secondary);">
-                      <span>${a.product}</span>
-                      <span style="font-family:var(--mono);font-weight:700;">${a.amount}</span>
-                      <span style="color:var(--text-dim);">${a.date}</span>
-                    </div>
-                    ${visitInfo}${obsInfo}
+        ${apps.length===0?`<div class="card" style="padding:40px 20px;text-align:center;"><div style="font-size:12px;color:var(--text-dim);">${t('dashEmpty')}</div></div>`
+          :apps.map((a,idx)=>{
+            const st=statusMap[a.status||'analysis'];
+            const visitInfo=a.hasVisit&&a.visitDate?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:10px;color:var(--text-dim);">${icon('calendar',10,'var(--text-dim)')} ${es?'Visita:':'Visit:'} ${new Date(a.visitDate+'T12:00:00').toLocaleDateString(es?'es-SV':'en-US',{month:'short',day:'numeric'})}</div>`:'';
+            const obsInfo=a.status==='observed'?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:10px;color:var(--orange);font-weight:600;">${icon('alertTriangle',10,'#E07428')} ${es?'Requiere acción':'Action required'}</div>`:'';
+            return`<div style="padding:14px;border:1px solid ${a.status==='observed'?'#F5C9A8':'var(--border)'};border-radius:var(--radius-sm);margin-bottom:8px;cursor:pointer;transition:all .2s;background:${a.status==='observed'?'#FFFBF7':'var(--white)'};" class="dash-app" data-solref="${a.ref}" onmouseover="this.style.borderColor='var(--primary)';this.style.boxShadow='var(--shadow)'" onmouseout="this.style.borderColor='${a.status==='observed'?'#F5C9A8':'var(--border)'}';this.style.boxShadow='none'">
+              <div style="display:flex;align-items:flex-start;gap:12px;">
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
+                    <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--primary);">${a.ref}</span>
+                    <span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;background:${st.bg};border:1px solid ${st.border};font-size:10px;font-weight:700;color:${st.color};">${icon(st.icon,10,st.color)} ${st.label}</span>
                   </div>
-                  <span style="display:flex;color:var(--text-dim);flex-shrink:0;margin-top:8px;">${icon('chevronRight',16)}</span>
+                  <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;">${a.client}</div>
+                  <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">${a.doc}</div>
+                  <div style="display:flex;gap:12px;font-size:11px;color:var(--text-secondary);"><span>${a.product}</span><span style="font-family:var(--mono);font-weight:700;">${a.amount}</span><span style="color:var(--text-dim);">${a.date}</span></div>
+                  ${visitInfo}${obsInfo}
                 </div>
-              </div>`;
-            }).join('');
-          })()}
-        </div>
-
-        <div style="text-align:center;padding:8px;font-size:10px;color:var(--text-dim);">
-          <span style="display:inline-flex;vertical-align:middle;margin-right:2px;">${icon('store',12)}</span> ${state.selectedStore||'—'} · <span style="display:inline-flex;vertical-align:middle;margin-right:2px;">${icon('user',12)}</span> ${state.loginUser?state.loginUser.toUpperCase():'—'}
-        </div>
-
+                <span style="display:flex;color:var(--text-dim);flex-shrink:0;margin-top:8px;">${icon('chevronRight',16)}</span>
+              </div>
+            </div>`;
+          }).join('')}
       </div>
     </div>
   </div>`;
@@ -2953,35 +3072,37 @@ function pgSalesCart(){
 
   // ─── SUB: Checkout (Client Data + Delivery) ───
   if(sub==='checkout'){
-    const c=customer;
     return`<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);">
       <div style="padding:12px 16px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;">
         <span id="btnCheckoutBack" style="cursor:pointer;display:flex;color:var(--text-dim);transform:rotate(180deg);">${icon('chevronRight',22)}</span>
-        <div style="font-size:16px;font-weight:800;">${t('salesCheckoutTitle')}</div>
+        <div style="font-size:16px;font-weight:800;">${state.lang==='es'?'Método de Entrega':'Delivery Method'}</div>
       </div>
       <div style="flex:1;padding:16px;overflow-y:auto;">
         <div class="inner-container">
-          <!-- No delivery checkbox -->
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;cursor:pointer;" id="btnToggleNoDelivery">
-            <div style="width:22px;height:22px;border-radius:4px;border:2px solid ${state.salesNoDelivery?'var(--primary)':'var(--border)'};background:${state.salesNoDelivery?'var(--primary)':'var(--white)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;color:white;">${state.salesNoDelivery?icon('check',14,'white'):''}</div>
-            <span style="font-size:14px;font-weight:600;color:var(--primary);">${t('salesNoDelivery')}</span>
+          <div style="font-size:13px;color:var(--text-secondary);line-height:1.5;margin-bottom:20px;">${state.lang==='es'?'Seleccione cómo desea recibir los productos.':'Select how you would like to receive the products.'}</div>
+
+          <!-- Home delivery -->
+          <div style="display:flex;align-items:flex-start;gap:12px;padding:20px;border-radius:var(--radius-sm);border:1.5px solid ${state.salesShipMethod==='home'?'var(--primary)':'var(--border)'};background:${state.salesShipMethod==='home'?'var(--primary-light)':'var(--white)'};cursor:pointer;margin-bottom:12px;transition:all .2s;" data-shipmethod="home">
+            <div style="width:22px;height:22px;border-radius:50%;border:2px solid ${state.salesShipMethod==='home'?'var(--primary)':'var(--border)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">${state.salesShipMethod==='home'?'<div style="width:12px;height:12px;border-radius:50%;background:var(--primary);"></div>':''}</div>
+            <div style="flex:1;">
+              <div style="font-size:15px;font-weight:700;">${t('salesShipHome')}</div>
+              <div style="font-size:12px;color:var(--text-dim);line-height:1.5;margin-top:2px;">${t('salesShipHomeDesc')}</div>
+              <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--primary);margin-top:6px;">${t('salesShipCost')}</div>
+            </div>
           </div>
-          <!-- Client fields (read-only from customer data) -->
-          <div class="form-group"><label class="form-label">${t('idType')}</label><input class="form-input" value="${c.doc.split(' ')[0]||'Cédula'}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
-          <div class="form-group"><label class="form-label">${state.lang==='es'?'Número de documento':'Document number'}</label><input class="form-input" value="${c.doc.split(' ').slice(1).join(' ')||''}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
-          <div class="form-group"><label class="form-label">${state.lang==='es'?'Nombres':'Names'} *</label><input class="form-input" value="${c.name.split(' ').slice(0,2).join(' ')}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
-          <div class="form-group"><label class="form-label">${state.lang==='es'?'Apellidos':'Last names'} *</label><input class="form-input" value="${c.name.split(' ').slice(2).join(' ')}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
-          <div class="form-group"><label class="form-label">Email *</label><input class="form-input" value="${state.pqData.email||'cliente@email.com'}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
-          <div class="form-group"><label class="form-label">${t('phone')} *</label><input class="form-input" value="${state.pqData.phone||'+503 7890-1234'}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
-          ${!state.salesNoDelivery?`
-          <!-- Address fields -->
-          <div class="form-group"><label class="form-label">${t('dept')} *</label><select class="form-select"><option>San Salvador</option><option>La Libertad</option><option>Santa Ana</option></select></div>
-          <div class="form-group"><label class="form-label">${t('muni')} *</label><select class="form-select"><option>San Salvador Centro</option><option>Mejicanos</option><option>Soyapango</option></select></div>
-          <div class="form-group"><label class="form-label">${state.lang==='es'?'Distrito':'District'} *</label><select class="form-select"><option>${state.lang==='es'?'Centro':'Downtown'}</option></select></div>
-          <div class="form-group"><label class="form-label">${state.lang==='es'?'Dirección':'Address'} *</label><textarea class="form-input" rows="3" style="resize:none;">${state.lang==='es'?'Colonia Escalón, Calle La Reforma, Casa #123':'Escalon neighborhood, La Reforma St, House #123'}</textarea></div>
-          `:''}
-          <div style="margin-top:20px;">
-            <button class="btn btn-primary" id="btnCheckoutContinue" style="width:100%;justify-content:center;padding:14px;font-size:14px;">${state.salesNoDelivery?t('salesCheckoutSkip'):t('salesCheckoutContinue')}</button>
+
+          <!-- Store pickup -->
+          <div style="display:flex;align-items:flex-start;gap:12px;padding:20px;border-radius:var(--radius-sm);border:1.5px solid ${state.salesShipMethod==='store'?'var(--primary)':'var(--border)'};background:${state.salesShipMethod==='store'?'var(--primary-light)':'var(--white)'};cursor:pointer;transition:all .2s;" data-shipmethod="store">
+            <div style="width:22px;height:22px;border-radius:50%;border:2px solid ${state.salesShipMethod==='store'?'var(--primary)':'var(--border)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">${state.salesShipMethod==='store'?'<div style="width:12px;height:12px;border-radius:50%;background:var(--primary);"></div>':''}</div>
+            <div style="flex:1;">
+              <div style="font-size:15px;font-weight:700;">${t('salesShipStore')}</div>
+              <div style="font-size:12px;color:var(--text-dim);line-height:1.5;margin-top:2px;">${t('salesShipStoreDesc')}</div>
+              <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--success);margin-top:6px;">${t('salesShipFree')}</div>
+            </div>
+          </div>
+
+          <div style="margin-top:24px;">
+            <button class="btn btn-primary" id="btnCheckoutContinue" style="width:100%;justify-content:center;padding:14px;font-size:14px;" ${!state.salesShipMethod?'disabled':''}>${t('btnNext')}</button>
           </div>
         </div>
       </div>
@@ -2990,50 +3111,58 @@ function pgSalesCart(){
 
   // ─── SUB: Shipping Method ───
   if(sub==='shipping'){
+    const c=customer;
     const shipDates=[];const now=new Date();
     for(let i=2;i<=8;i+=2){const d=new Date(now);d.setDate(d.getDate()+i);shipDates.push({iso:d.toISOString().split('T')[0],day:d.toLocaleDateString(state.lang==='es'?'es-SV':'en-US',{weekday:'short'}).replace('.',''),num:d.getDate(),mon:d.toLocaleDateString(state.lang==='es'?'es-SV':'en-US',{month:'short'}).replace('.','')});}
     return`<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);">
       <div style="padding:12px 16px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;">
         <span id="btnShippingBack" style="cursor:pointer;display:flex;color:var(--text-dim);transform:rotate(180deg);">${icon('chevronRight',22)}</span>
-        <div style="font-size:16px;font-weight:800;">${t('salesShipTitle')}</div>
+        <div style="font-size:16px;font-weight:800;">${t('salesCheckoutTitle')}</div>
       </div>
       <div style="flex:1;padding:16px;overflow-y:auto;">
         <div class="inner-container">
-          <!-- Home delivery -->
-          <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:1px solid var(--border);cursor:pointer;" data-shipmethod="home">
-            <div style="width:22px;height:22px;border-radius:50%;border:2px solid ${state.salesShipMethod==='home'?'var(--primary)':'var(--border)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">${state.salesShipMethod==='home'?'<div style="width:12px;height:12px;border-radius:50%;background:var(--primary);"></div>':''}</div>
-            <div style="flex:1;">
-              <div style="font-size:15px;font-weight:700;">${t('salesShipHome')}</div>
-              <div style="font-size:12px;color:var(--text-dim);line-height:1.5;margin-top:2px;">${t('salesShipHomeDesc')}</div>
-              <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--primary);margin-top:4px;">${t('salesShipCost')}</div>
-            </div>
+
+          <div style="padding:10px 14px;border-radius:var(--radius-sm);background:var(--primary-light);border:1px solid #C5D0F0;margin-bottom:20px;display:flex;align-items:center;gap:8px;">
+            <span style="display:flex;color:var(--primary);">${icon('home',16)}</span>
+            <div style="font-size:12px;font-weight:600;color:var(--primary);">${t('salesShipHome')} — ${t('salesShipCost')}</div>
           </div>
-          <!-- Store pickup -->
-          <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:1px solid var(--border);cursor:pointer;" data-shipmethod="store">
-            <div style="width:22px;height:22px;border-radius:50%;border:2px solid ${state.salesShipMethod==='store'?'var(--primary)':'var(--border)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">${state.salesShipMethod==='store'?'<div style="width:12px;height:12px;border-radius:50%;background:var(--primary);"></div>':''}</div>
-            <div style="flex:1;">
-              <div style="font-size:15px;font-weight:700;">${t('salesShipStore')}</div>
-              <div style="font-size:12px;color:var(--text-dim);line-height:1.5;margin-top:2px;">${t('salesShipStoreDesc')}</div>
-              <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--success);margin-top:4px;">${t('salesShipFree')}</div>
-            </div>
+
+          <!-- Client fields (read-only) -->
+          <div class="section-label">${state.lang==='es'?'Datos del Cliente':'Customer Data'}</div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">${state.lang==='es'?'Nombres':'Names'}</label><input class="form-input" value="${c.name.split(' ').slice(0,2).join(' ')}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
+            <div class="form-group"><label class="form-label">${state.lang==='es'?'Apellidos':'Last names'}</label><input class="form-input" value="${c.name.split(' ').slice(2).join(' ')}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
           </div>
-          ${state.salesShipMethod==='home'?`
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Email</label><input class="form-input" value="${state.pqData.email||'cliente@email.com'}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
+            <div class="form-group"><label class="form-label">${t('phone')}</label><input class="form-input" value="${state.pqData.phone||'+503 7890-1234'}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
+          </div>
+
+          <!-- Address -->
+          <div class="section-label" style="margin-top:20px;">${state.lang==='es'?'Dirección de Entrega':'Delivery Address'}</div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">${t('dept')} *</label><select class="form-select"><option>San Salvador</option><option>La Libertad</option><option>Santa Ana</option></select></div>
+            <div class="form-group"><label class="form-label">${t('muni')} *</label><select class="form-select"><option>San Salvador Centro</option><option>Mejicanos</option><option>Soyapango</option></select></div>
+          </div>
+          <div class="form-group"><label class="form-label">${state.lang==='es'?'Distrito':'District'} *</label><select class="form-select"><option>${state.lang==='es'?'Centro':'Downtown'}</option></select></div>
+          <div class="form-group"><label class="form-label">${state.lang==='es'?'Dirección':'Address'} *</label><textarea class="form-input" rows="3" style="resize:none;">${state.lang==='es'?'Colonia Escalón, Calle La Reforma, Casa #123':'Escalon neighborhood, La Reforma St, House #123'}</textarea></div>
+
           <!-- Date selection -->
-          <div style="margin-top:20px;">
-            <div style="font-size:13px;font-weight:600;margin-bottom:12px;">${t('salesShipDate')}</div>
-            <div style="display:flex;gap:10px;">
-              ${shipDates.map(d=>`<div data-shipdate="${d.iso}" style="padding:10px 16px;border-radius:var(--radius-sm);border:1.5px solid ${state.salesShipDate===d.iso?'var(--primary)':'var(--border)'};background:${state.salesShipDate===d.iso?'var(--primary-light)':'var(--white)'};cursor:pointer;text-align:center;min-width:70px;">
-                <div style="font-size:11px;font-weight:600;color:var(--text-dim);text-transform:capitalize;">${d.day}</div>
-                <div style="font-size:22px;font-weight:800;color:${state.salesShipDate===d.iso?'var(--primary)':'var(--text)'};">${d.num}</div>
-                <div style="font-size:11px;color:var(--text-dim);text-transform:capitalize;">${d.mon}</div>
-              </div>`).join('')}
-            </div>
-            <div style="font-size:13px;font-weight:600;margin-top:20px;margin-bottom:10px;">${t('salesShipTime')}</div>
+          <div class="section-label" style="margin-top:20px;">${t('salesShipDate')}</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            ${shipDates.map(d=>`<div data-shipdate="${d.iso}" style="padding:10px 16px;border-radius:var(--radius-sm);border:1.5px solid ${state.salesShipDate===d.iso?'var(--primary)':'var(--border)'};background:${state.salesShipDate===d.iso?'var(--primary-light)':'var(--white)'};cursor:pointer;text-align:center;min-width:70px;transition:all .2s;">
+              <div style="font-size:11px;font-weight:600;color:var(--text-dim);text-transform:capitalize;">${d.day}</div>
+              <div style="font-size:22px;font-weight:800;color:${state.salesShipDate===d.iso?'var(--primary)':'var(--text)'};">${d.num}</div>
+              <div style="font-size:11px;color:var(--text-dim);text-transform:capitalize;">${d.mon}</div>
+            </div>`).join('')}
+          </div>
+          <div style="margin-top:16px;">
+            <div style="font-size:13px;font-weight:600;margin-bottom:10px;">${t('salesShipTime')}</div>
             <div style="display:inline-flex;padding:8px 16px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--primary-light);font-size:13px;font-weight:600;color:var(--primary);">${t('salesShipTimeslot')}</div>
           </div>
-          `:''}
+
           <div style="margin-top:28px;">
-            <button class="btn btn-primary" id="btnShippingContinue" style="width:100%;justify-content:center;padding:14px;font-size:14px;" ${!state.salesShipMethod?'disabled':''}>${t('salesShipContinue')}</button>
+            <button class="btn btn-primary" id="btnShippingContinue" style="width:100%;justify-content:center;padding:14px;font-size:14px;">${t('salesShipContinue')}</button>
           </div>
         </div>
       </div>
@@ -3371,7 +3500,7 @@ function bind(){
   const topbar=document.querySelector('.topbar');
   if(topbar){
     const salesWrapped=!!state.salesCustomer&&!!state.action&&['simulation','forkAml','aml','otp','application','forkApproval','done','doneExpress','rejected','approved'].includes(state.screen);
-    topbar.style.display=['login','store','home','salesIdentify','salesScenario','salesCreate','salesCart','rejected'].includes(state.screen)||salesWrapped?'none':'flex';
+    topbar.style.display=['login','store','home','allSolicitudes','salesIdentify','salesScenario','salesCreate','salesCart','rejected'].includes(state.screen)||salesWrapped?'none':'flex';
   }
   // Login bindings
   const lui=$('loginUserInput');if(lui)lui.oninput=e=>{state.loginUser=e.target.value;};
@@ -3385,6 +3514,25 @@ function bind(){
   const gc=$('btnGoCredit');if(gc)gc.onclick=()=>{state.screen='identify';render();};
   // Sales flow bindings
   const gs=$('btnGoSales');if(gs)gs.onclick=()=>{state.salesFlow=true;state.screen='salesIdentify';render();};
+  // Home search button → open product search
+  const bhs=$('btnHomeSearch');if(bhs)bhs.onclick=()=>{
+    if(!state.salesCustomer){
+      state._returnToSearch=true;
+      state.salesFlow=true;state.screen='salesIdentify';render();
+    } else {
+      state.screen='salesCart';state.salesSubScreen='search';render();
+    }
+  };
+  // Hamburger menu
+  const bom=$('btnOpenMenu');if(bom)bom.onclick=()=>{state._menuOpen=true;render();};
+  const bcm=$('btnCloseMenu');if(bcm)bcm.onclick=()=>{state._menuOpen=false;render();};
+  const hmo=$('hmenuOverlay');if(hmo)hmo.onclick=(e)=>{if(e.target===hmo){state._menuOpen=false;render();}};
+  const bms=$('btnMenuSales');if(bms)bms.onclick=()=>{state._menuOpen=false;state.salesFlow=true;state.screen='salesIdentify';render();};
+  const bmc=$('btnMenuCredit');if(bmc)bmc.onclick=()=>{state._menuOpen=false;state.screen='identify';render();};
+  const blo=$('btnLogout');if(blo)blo.onclick=()=>{state._menuOpen=false;state.screen='login';state.loginUser='';state.loginPass='';state.selectedStore='';render();};
+  // View all solicitudes
+  const bvas=$('btnViewAllSolicitudes');if(bvas)bvas.onclick=()=>{state.screen='allSolicitudes';render();};
+  const basb=$('btnAllSolBack');if(basb)basb.onclick=()=>{state.screen='home';render();};
   const sit=$('salesIdType');if(sit)sit.onchange=e=>{state.salesIdType=e.target.value;};
   const sin=$('salesIdNumber');if(sin)sin.oninput=e=>{state.salesIdNumber=e.target.value;};
   const ssb=$('btnSalesSearch');if(ssb)ssb.onclick=()=>{if(!state.salesIdNumber){alert(state.lang==='es'?'Ingrese el número de documento':'Enter document number');return;}if(!state.salesIdType)state.salesIdType='DUI';state.screen='salesScenario';render();};
@@ -3501,21 +3649,20 @@ function bind(){
   const spr=$('btnSalesProceed');if(spr)spr.onclick=()=>{state.salesSubScreen='checkout';render();};
   // Checkout flow bindings
   const bcb=$('btnCheckoutBack');if(bcb)bcb.onclick=()=>{state.salesSubScreen=null;render();};
-  const bnd=$('btnToggleNoDelivery');if(bnd)bnd.onclick=()=>{state.salesNoDelivery=!state.salesNoDelivery;render();};
+  document.querySelectorAll('[data-shipmethod]').forEach(el=>{el.onclick=()=>{state.salesShipMethod=el.dataset.shipmethod;render();};});
   const bcc=$('btnCheckoutContinue');if(bcc)bcc.onclick=()=>{
-    if(state.salesNoDelivery){state.salesSubScreen='payment';}
-    else{state.salesSubScreen='shipping';}
+    if(state.salesShipMethod==='home'){state.salesSubScreen='shipping';}
+    else{state.salesSubScreen='payment';}
     render();
   };
-  // Shipping
+  // Shipping (delivery details — only for home delivery)
   const bshb=$('btnShippingBack');if(bshb)bshb.onclick=()=>{state.salesSubScreen='checkout';render();};
-  document.querySelectorAll('[data-shipmethod]').forEach(el=>{el.onclick=()=>{state.salesShipMethod=el.dataset.shipmethod;render();};});
   document.querySelectorAll('[data-shipdate]').forEach(el=>{el.onclick=()=>{state.salesShipDate=el.dataset.shipdate;render();};});
   const bshc=$('btnShippingContinue');if(bshc)bshc.onclick=()=>{state.salesSubScreen='payment';render();};
   // Payment
   const bpb=$('btnPaymentBack');if(bpb)bpb.onclick=()=>{
-    if(state.salesNoDelivery){state.salesSubScreen='checkout';}
-    else{state.salesSubScreen='shipping';}
+    if(state.salesShipMethod==='home'){state.salesSubScreen='shipping';}
+    else{state.salesSubScreen='checkout';}
     render();
   };
   document.querySelectorAll('[data-paymethod]').forEach(el=>{el.onclick=()=>{state.salesPayMethod=el.dataset.paymethod;render();};});
