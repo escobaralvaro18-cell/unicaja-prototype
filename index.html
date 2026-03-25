@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Unicaja — Originación de Crédito</title>
+<title>Unicaja — Sistema de Ventas</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -242,34 +242,35 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 @media(min-width:900px){
   .sales-layout{flex-direction:row;padding-bottom:0;overflow:hidden;height:100vh;}
   .sales-tab-mobile{display:none !important;}
-  .sales-sidebar{display:flex;flex-direction:column;width:260px;min-width:260px;background:var(--white);border-right:1px solid var(--border);height:100vh;position:sticky;top:0;overflow-y:auto;}
-  .sales-sidebar-profile{padding:20px 18px;border-bottom:1px solid var(--border);}
-  .sales-sidebar-profile .sidebar-name{font-size:14px;font-weight:700;word-break:break-word;line-height:1.3;}
-  .sales-sidebar-nav{flex:1;padding:12px 10px;}
-  .sales-sidebar-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:var(--radius-sm);cursor:pointer;transition:all .15s;margin-bottom:4px;font-size:13px;font-weight:600;color:var(--text-secondary);}
+  .sales-sidebar{display:flex;flex-direction:column;width:270px;min-width:270px;background:var(--white);border-right:1px solid var(--border);height:100vh;position:sticky;top:0;overflow-y:auto;}
+  .sales-sidebar-profile{padding:22px 20px;border-bottom:1px solid var(--border);}
+  .sales-sidebar-profile .sidebar-name{font-size:15px;font-weight:700;word-break:break-word;line-height:1.3;}
+  .sales-sidebar-nav{flex:1;padding:14px 12px;}
+  .sales-sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--radius-sm);cursor:pointer;transition:all .15s;margin-bottom:4px;font-size:14px;font-weight:600;color:var(--text-secondary);}
   .sales-sidebar-item:hover{background:var(--surface-alt);color:var(--text);}
   .sales-sidebar-item.active{background:var(--primary-light);color:var(--primary);font-weight:700;}
   .sales-sidebar-item.active .sidebar-icon{color:var(--primary);}
   .sales-sidebar-item .sidebar-icon{color:var(--text-dim);display:flex;transition:color .15s;}
-  .sales-sidebar-footer{padding:14px 18px;border-top:1px solid var(--border);font-size:10px;color:var(--text-dim);}
+  .sales-sidebar-footer{padding:16px 20px;border-top:1px solid var(--border);font-size:10px;color:var(--text-dim);}
   .sales-main-area{flex:1;height:100vh;overflow-y:auto;}
   .sales-main-area .sales-top-header{position:sticky;top:0;z-index:100;}
-  .sales-main-area .sales-content-wrap{max-width:none;padding:20px 32px;}
+  .sales-main-area .sales-content-wrap{max-width:none;padding:24px 36px;}
   .sales-main-area .inner-container{max-width:none;}
   .sales-layout .inner-container{max-width:none;}
-  .sales-layout .sales-main-area [style*="max-width:500px"]{max-width:none !important;}
-  .sales-layout .sales-main-area [style*="max-width:460px"]{max-width:none !important;}
-  .sales-layout .sales-main-area [style*="max-width:340px"]{max-width:none !important;}
-  .sales-layout .sales-main-area [style*="max-width:320px"]{max-width:none !important;}
-  .sales-layout .sales-main-area [style*="max-width:300px"]{max-width:none !important;}
   .sales-main-area .sales-client-bar-desktop{display:none;}
+  /* Force override inline max-widths inside sales layout */
+  .sales-layout .product-grid{grid-template-columns:1fr 1fr 1fr !important;}
+  .sales-layout .otb-grid{grid-template-columns:1fr 1fr !important;}
 }
 @media(min-width:1200px){
-  .sales-sidebar{width:280px;min-width:280px;}
-  .sales-main-area .sales-content-wrap{padding:24px 48px;}
+  .sales-sidebar{width:300px;min-width:300px;}
+  .sales-sidebar-profile{padding:24px 22px;}
+  .sales-sidebar-nav{padding:16px 14px;}
+  .sales-main-area .sales-content-wrap{padding:28px 48px;}
 }
 @media(min-width:1500px){
-  .sales-main-area .sales-content-wrap{padding:28px 64px;}
+  .sales-sidebar{width:320px;min-width:320px;}
+  .sales-main-area .sales-content-wrap{padding:32px 64px;}
 }
 </style>
 </head>
@@ -278,8 +279,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 <div class="topbar">
   <div class="topbar-brand">
     <div class="topbar-logo" id="btnHome" style="cursor:pointer;">UNICAJA</div>
-    <div class="topbar-sep"></div>
-    <div class="topbar-title" id="topbarTitle">Originación de Crédito</div>
   </div>
   <div id="langToggle" style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px 10px;border-radius:20px;background:var(--surface-alt);border:1px solid var(--border);font-size:11px;font-weight:700;user-select:none;">
     <span id="langES" style="padding:2px 8px;border-radius:12px;">ES</span>
@@ -1179,16 +1178,14 @@ function pgHome(){
     <!-- Homologated header -->
     <div class="topbar" style="position:sticky;top:0;z-index:100;">
       <div class="topbar-brand">
+        <span id="btnOpenMenu" style="cursor:pointer;display:flex;color:var(--text-secondary);">${icon('menu',20)}</span>
         <div class="topbar-logo" id="btnHome" style="cursor:pointer;">UNICAJA</div>
-        <div class="topbar-sep"></div>
-        <div class="topbar-title">${t('topbar')}</div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;">
         <div id="homeLangToggle" style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px 10px;border-radius:20px;background:var(--surface-alt);border:1px solid var(--border);font-size:11px;font-weight:700;">
           <span style="padding:2px 8px;border-radius:12px;${state.lang==='es'?'background:var(--primary);color:white;':''}">ES</span>
           <span style="padding:2px 8px;border-radius:12px;${state.lang==='en'?'background:var(--primary);color:white;':''}">EN</span>
         </div>
-        <span id="btnOpenMenu" style="cursor:pointer;display:flex;color:var(--text-secondary);">${icon('menu',20)}</span>
       </div>
     </div>
 
@@ -1238,13 +1235,10 @@ function pgHome(){
             <div class="card" style="padding:18px;margin-bottom:12px;">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
                 <span style="font-size:14px;font-weight:700;">${t('dashTitle')}</span>
-                <span style="font-size:11px;font-weight:700;color:var(--text-dim);font-family:var(--mono);">${apps.length}</span>
+                <span id="btnViewAllSolicitudes" style="font-size:12px;font-weight:700;color:var(--primary);cursor:pointer;display:inline-flex;align-items:center;gap:4px;">${es?'Ver todas':'View all'} ${icon('chevronRight',14,'#2B5CE6')}</span>
               </div>
               ${previewApps.length===0?`<div style="text-align:center;padding:20px 0;font-size:12px;color:var(--text-dim);">${t('dashEmpty')}</div>`
                 :previewApps.map((a,idx)=>solCard(a,idx,previewApps.length)).join('')}
-              ${apps.length>5?`<div style="text-align:center;margin-top:12px;">
-                <span id="btnViewAllSolicitudes" style="font-size:13px;font-weight:700;color:var(--primary);cursor:pointer;display:inline-flex;align-items:center;gap:4px;">${es?'Ver todas':'View all'} (${apps.length}) ${icon('chevronRight',14,'#2B5CE6')}</span>
-              </div>`:''}
             </div>
           </div>
 
@@ -1260,7 +1254,8 @@ function pgHome(){
 
 function pgAllSolicitudes(){
   const es=state.lang==='es';
-  const apps=state.solicitudes;
+  const filter=state._solFilter||'all';
+  const searchQ=(state._solSearch||'').toLowerCase();
   const statusMap={
     analysis:{label:t('dashStatusAnalysis'),color:'var(--warning)',bg:'var(--warning-light)',border:'var(--warning-border)',icon:'clock'},
     analysis_visit:{label:t('dashStatusAnalysisVisit'),color:'var(--primary)',bg:'var(--primary-light)',border:'#C5D0F0',icon:'mapPin'},
@@ -1268,13 +1263,26 @@ function pgAllSolicitudes(){
     observed:{label:t('dashStatusObserved'),color:'var(--orange)',bg:'var(--orange-light)',border:'#F5C9A8',icon:'alertTriangle'},
     rejected:{label:t('dashStatusRejected'),color:'var(--danger)',bg:'var(--danger-light)',border:'#F5B4BA',icon:'x'}
   };
+  let apps=state.solicitudes;
+  if(filter!=='all')apps=apps.filter(a=>{
+    if(filter==='analysis')return a.status==='analysis'||a.status==='analysis_visit';
+    return a.status===filter;
+  });
+  if(searchQ)apps=apps.filter(a=>(a.client+' '+a.ref+' '+a.doc+' '+a.product).toLowerCase().includes(searchQ));
+
+  const filters=[
+    {id:'all',label:es?'Todas':'All'},
+    {id:'analysis',label:es?'En análisis':'Under review'},
+    {id:'observed',label:es?'Observadas':'Observed'},
+    {id:'approved',label:es?'Aprobadas':'Approved'},
+    {id:'rejected',label:es?'Rechazadas':'Rejected'},
+  ];
+
   return`<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);">
     <div class="topbar" style="position:sticky;top:0;z-index:100;">
       <div class="topbar-brand">
         <span id="btnAllSolBack" style="cursor:pointer;display:flex;color:var(--text-dim);transform:rotate(180deg);margin-right:4px;">${icon('chevronRight',20)}</span>
         <div class="topbar-logo" id="btnHome" style="cursor:pointer;">UNICAJA</div>
-        <div class="topbar-sep"></div>
-        <div class="topbar-title">${t('dashTitle')}</div>
       </div>
       <div id="homeLangToggle" style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px 10px;border-radius:20px;background:var(--surface-alt);border:1px solid var(--border);font-size:11px;font-weight:700;">
         <span style="padding:2px 8px;border-radius:12px;${state.lang==='es'?'background:var(--primary);color:white;':''}">ES</span>
@@ -1283,10 +1291,19 @@ function pgAllSolicitudes(){
     </div>
     <div style="flex:1;padding:20px 16px;">
       <div style="max-width:800px;margin:0 auto;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <span style="font-size:16px;font-weight:800;">${t('dashTitle')} <span style="font-family:var(--mono);color:var(--text-dim);font-size:13px;">(${apps.length})</span></span>
+        <div style="margin-bottom:16px;">
+          <div style="font-size:16px;font-weight:800;margin-bottom:12px;">${t('dashTitle')}</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+            <div style="flex:1;position:relative;">
+              <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);display:flex;color:var(--text-dim);">${icon('search',16)}</span>
+              <input class="form-input" id="solSearchInput" placeholder="${es?'Buscar por nombre, referencia...':'Search by name, reference...'}" value="${state._solSearch||''}" style="padding-left:36px;"/>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            ${filters.map(f=>`<span data-solfilter="${f.id}" style="padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;border:1.5px solid ${filter===f.id?'var(--primary)':'var(--border)'};background:${filter===f.id?'var(--primary-light)':'var(--white)'};color:${filter===f.id?'var(--primary)':'var(--text-secondary)'};">${f.label}</span>`).join('')}
+          </div>
         </div>
-        ${apps.length===0?`<div class="card" style="padding:40px 20px;text-align:center;"><div style="font-size:12px;color:var(--text-dim);">${t('dashEmpty')}</div></div>`
+        ${apps.length===0?`<div class="card" style="padding:40px 20px;text-align:center;"><div style="color:var(--text-dim);margin-bottom:6px;display:flex;justify-content:center;">${icon('search',32,'#8D93A5')}</div><div style="font-size:13px;color:var(--text-dim);">${es?'No se encontraron solicitudes':'No applications found'}</div></div>`
           :apps.map((a,idx)=>{
             const st=statusMap[a.status||'analysis'];
             const visitInfo=a.hasVisit&&a.visitDate?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:10px;color:var(--text-dim);">${icon('calendar',10,'var(--text-dim)')} ${es?'Visita:':'Visit:'} ${new Date(a.visitDate+'T12:00:00').toLocaleDateString(es?'es-SV':'en-US',{month:'short',day:'numeric'})}</div>`:'';
@@ -3514,14 +3531,10 @@ function bind(){
   const gc=$('btnGoCredit');if(gc)gc.onclick=()=>{state.screen='identify';render();};
   // Sales flow bindings
   const gs=$('btnGoSales');if(gs)gs.onclick=()=>{state.salesFlow=true;state.screen='salesIdentify';render();};
-  // Home search button → open product search
+  // Home search button → open product search standalone (no customer needed to browse)
   const bhs=$('btnHomeSearch');if(bhs)bhs.onclick=()=>{
-    if(!state.salesCustomer){
-      state._returnToSearch=true;
-      state.salesFlow=true;state.screen='salesIdentify';render();
-    } else {
-      state.screen='salesCart';state.salesSubScreen='search';render();
-    }
+    state._browsingFromHome=true;
+    state.screen='salesCart';state.salesSubScreen='search';render();
   };
   // Hamburger menu
   const bom=$('btnOpenMenu');if(bom)bom.onclick=()=>{state._menuOpen=true;render();};
@@ -3532,7 +3545,10 @@ function bind(){
   const blo=$('btnLogout');if(blo)blo.onclick=()=>{state._menuOpen=false;state.screen='login';state.loginUser='';state.loginPass='';state.selectedStore='';render();};
   // View all solicitudes
   const bvas=$('btnViewAllSolicitudes');if(bvas)bvas.onclick=()=>{state.screen='allSolicitudes';render();};
-  const basb=$('btnAllSolBack');if(basb)basb.onclick=()=>{state.screen='home';render();};
+  const basb=$('btnAllSolBack');if(basb)basb.onclick=()=>{state.screen='home';state._solFilter='all';state._solSearch='';render();};
+  // Solicitudes search and filter
+  const ssi=$('solSearchInput');if(ssi)ssi.oninput=(e)=>{state._solSearch=e.target.value;render();};
+  document.querySelectorAll('[data-solfilter]').forEach(el=>{el.onclick=()=>{state._solFilter=el.dataset.solfilter;render();};});
   const sit=$('salesIdType');if(sit)sit.onchange=e=>{state.salesIdType=e.target.value;};
   const sin=$('salesIdNumber');if(sin)sin.oninput=e=>{state.salesIdNumber=e.target.value;};
   const ssb=$('btnSalesSearch');if(ssb)ssb.onclick=()=>{if(!state.salesIdNumber){alert(state.lang==='es'?'Ingrese el número de documento':'Enter document number');return;}if(!state.salesIdType)state.salesIdType='DUI';state.screen='salesScenario';render();};
@@ -3561,6 +3577,26 @@ function bind(){
       state.salesCustomer={name:'PEDRO ANTONIO HERNANDEZ CASTRO',doc:(state.salesIdType||'DUI')+': '+(state.salesIdNumber||'06284719-5'),creditRejected:true};
       state.screen='salesCart';state.salesTab='credit';
     }
+    // Auto-add pending product if coming from add-to-cart without customer
+    if(state._pendingCartItem&&state.salesCustomer){
+      const pendCatalog=[
+        {id:'item1',name:t('salesItem1'),sku:'SAM-TV55-CU',price:649.99},
+        {id:'item2',name:t('salesItem2'),sku:'LG-REF14-SS',price:549.99},
+        {id:'item3',name:t('salesItem3'),sku:'WHP-MW11-BK',price:129.99},
+        {id:'item4',name:t('salesItem4'),sku:'SAM-LV19-GR',price:479.99},
+        {id:'item5',name:t('salesItem5'),sku:'GEN-EST4Q-SS',price:89.99},
+        {id:'item6',name:state.lang==='es'?'Licuadora Oster 3 Vel':'Oster 3 Speed Blender',sku:'OST-LIC3V-CH',price:44.99},
+      ];
+      const pItem=pendCatalog.find(c=>c.id===state._pendingCartItem);
+      if(pItem&&!state.salesCartItems.find(i=>i.id===pItem.id)){
+        const ci={...pItem};
+        if(state._pendingCreditDiscount){ci.originalPrice=pItem.price;ci.price=parseFloat((pItem.price*0.90).toFixed(2));ci.creditPromo=true;}
+        if(state._pendingWarranty>0){ci.warranty={label:state._pendingWarrantyLabel,price:state._pendingWarranty};}
+        state.salesCartItems.push(ci);
+      }
+      state._pendingCartItem=null;state._pendingWarranty=0;state._pendingWarrantyLabel='';state._pendingCreditDiscount=false;
+      state.screen='salesCart';state.salesTab='cart';state.salesSubScreen=null;
+    }
     render();
   };
   // Sales create customer
@@ -3586,6 +3622,25 @@ function bind(){
       state.idNumber=state.salesIdNumber||'';
       nav(1);
     } else {
+      // Auto-add pending product if coming from add-to-cart
+      if(state._pendingCartItem){
+        const pendCatalog=[
+          {id:'item1',name:t('salesItem1'),sku:'SAM-TV55-CU',price:649.99},
+          {id:'item2',name:t('salesItem2'),sku:'LG-REF14-SS',price:549.99},
+          {id:'item3',name:t('salesItem3'),sku:'WHP-MW11-BK',price:129.99},
+          {id:'item4',name:t('salesItem4'),sku:'SAM-LV19-GR',price:479.99},
+          {id:'item5',name:t('salesItem5'),sku:'GEN-EST4Q-SS',price:89.99},
+          {id:'item6',name:state.lang==='es'?'Licuadora Oster 3 Vel':'Oster 3 Speed Blender',sku:'OST-LIC3V-CH',price:44.99},
+        ];
+        const pItem=pendCatalog.find(c=>c.id===state._pendingCartItem);
+        if(pItem&&!state.salesCartItems.find(i=>i.id===pItem.id)){
+          const ci={...pItem};
+          if(state._pendingCreditDiscount){ci.originalPrice=pItem.price;ci.price=parseFloat((pItem.price*0.90).toFixed(2));ci.creditPromo=true;}
+          if(state._pendingWarranty>0){ci.warranty={label:state._pendingWarrantyLabel,price:state._pendingWarranty};}
+          state.salesCartItems.push(ci);
+        }
+        state._pendingCartItem=null;state._pendingWarranty=0;state._pendingWarrantyLabel='';state._pendingCreditDiscount=false;
+      }
       state.screen='salesCart';state.salesTab='cart';render();
     }
   };
@@ -3610,15 +3665,26 @@ function bind(){
   // Search sub-screens
   const bos=$('btnOpenSearch');if(bos)bos.onclick=()=>{state.salesSubScreen='search';render();};
   const boscan=$('btnOpenScan');if(boscan)boscan.onclick=()=>{state.salesSubScreen='search';render();};
-  const bsb=$('btnSearchBack');if(bsb)bsb.onclick=()=>{state.salesSubScreen=null;render();};
-  const bcs=$('btnCloseSearch');if(bcs)bcs.onclick=()=>{state.salesSubScreen=null;render();};
+  const bsb=$('btnSearchBack');if(bsb)bsb.onclick=()=>{if(state._browsingFromHome&&!state.salesCustomer){state._browsingFromHome=false;state.screen='home';state.salesSubScreen=null;}else{state.salesSubScreen=null;}render();};
+  const bcs=$('btnCloseSearch');if(bcs)bcs.onclick=()=>{if(state._browsingFromHome&&!state.salesCustomer){state._browsingFromHome=false;state.screen='home';state.salesSubScreen=null;}else{state.salesSubScreen=null;}render();};
   const bds=$('btnDoSearch');if(bds)bds.onclick=()=>{state.salesSubScreen='results';render();};
-  const brb=$('btnResultsBack');if(brb)brb.onclick=()=>{state.salesSubScreen=null;render();};
+  const brb=$('btnResultsBack');if(brb)brb.onclick=()=>{if(state._browsingFromHome&&!state.salesCustomer){state.salesSubScreen='search';}else{state.salesSubScreen=null;}render();};
   const bof=$('btnOpenFilters');if(bof)bof.onclick=()=>{state.salesSubScreen='search';render();};
   const bdb=$('btnDetailBack');if(bdb)bdb.onclick=()=>{state.salesSubScreen='results';state.salesCreditDiscount=false;render();};
   const bcc2=$('btnCreditCheckbox');if(bcc2)bcc2.onclick=()=>{state.salesCreditDiscount=!state.salesCreditDiscount;render();};
   document.querySelectorAll('[data-viewdetail]').forEach(el=>{el.onclick=()=>{state.salesDetailItem=el.dataset.viewdetail;state.salesSubScreen='detail';render();};});
   const batd=$('btnAddToCartDetail');if(batd&&!batd.disabled)batd.onclick=()=>{
+    // If no customer identified, redirect to identification first
+    if(!state.salesCustomer){
+      // Remember the product to add after identification
+      state._pendingCartItem=state.salesDetailItem;
+      const sc=$('serviceContract');
+      state._pendingWarranty=sc&&sc.value?parseFloat(sc.value):0;
+      state._pendingWarrantyLabel=sc&&sc.value?sc.options[sc.selectedIndex].text:'';
+      state._pendingCreditDiscount=state.salesCreditDiscount;
+      state.salesFlow=true;state.screen='salesIdentify';render();
+      return;
+    }
     const catalog=[
       {id:'item1',name:t('salesItem1'),sku:'SAM-TV55-CU',price:649.99},
       {id:'item2',name:t('salesItem2'),sku:'LG-REF14-SS',price:549.99},
