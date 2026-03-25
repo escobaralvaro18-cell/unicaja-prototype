@@ -909,12 +909,23 @@ function render(){
   if(s==='salesIdentify'||s==='salesScenario'||s==='salesCreate'||s==='salesCart'){
     // When arriving at salesCart, ensure customer data and credit offer are set up
     if(s==='salesCart'){
+      const sub=state.salesSubScreen;
+      // Allow search/results/detail without customer (browsing products)
+      if(!state.salesCustomer&&(sub==='search'||sub==='results'||sub==='detail')){
+        app.innerHTML=pgSalesCart();bind();return;
+      }
+      // If no customer: either build from credit origination flow or redirect to identification
       if(!state.salesCustomer){
-        // Build customer from prequal data (coming from credit origination flow)
-        const pq=state.pqData;
-        const clientName=[pq.firstName,pq.secondName,pq.lastName1,pq.lastName2].filter(Boolean).join(' ')||'Cliente';
-        state.salesCustomer={name:clientName.toUpperCase(),doc:(state.idType||'DUI')+' '+(state.idNumber||''),since:new Date().getFullYear().toString()};
-        if(!state.salesScenario)state.salesScenario=state.outcome===0?'existingPrequal':state.outcome===1?'existingNoCredit':'new';
+        if(state.outcome!==null&&state.outcome!==undefined){
+          // Coming from credit origination — build customer from prequal data
+          const pq=state.pqData;
+          const clientName=[pq.firstName,pq.secondName,pq.lastName1,pq.lastName2].filter(Boolean).join(' ')||'Cliente';
+          state.salesCustomer={name:clientName.toUpperCase(),doc:(state.idType||'DUI')+' '+(state.idNumber||''),since:new Date().getFullYear().toString()};
+          if(!state.salesScenario)state.salesScenario=state.outcome===0?'existingPrequal':state.outcome===1?'existingNoCredit':'new';
+        } else {
+          // No customer, no credit flow — redirect to identification
+          state.screen='salesIdentify';render();return;
+        }
       }
       // If customer was rejected (outcome 4), mark as rejected
       if(state.outcome===4&&!state.salesCustomer.creditRejected){
@@ -2887,7 +2898,7 @@ function pgSalesIdentify(){
   return`<div class="card"><div class="card-header"><h2>${t('salesIdTitle')}</h2><p>${t('salesIdDesc')}</p></div>
   <div class="form-row"><div class="form-group"><label class="form-label">${t('idType')}</label><select class="form-select" id="salesIdType"><option value="DUI" ${idT==='DUI'?'selected':''}>DUI</option><option value="NIT" ${idT==='NIT'?'selected':''}>NIT</option><option value="Pasaporte" ${idT==='Pasaporte'?'selected':''}>Pasaporte</option><option value="Cédula" ${idT==='Cédula'?'selected':''}>Cédula</option><option value="TRN" ${idT==='TRN'?'selected':''}>TRN (Jamaica)</option></select></div>
   <div class="form-group"><label class="form-label">${t('idNum')}</label><input class="form-input" id="salesIdNumber" placeholder="${t('idPh')}" value="${state.salesIdNumber||''}"/></div></div>
-  <div class="btn-row"><button class="btn btn-secondary" onclick="state.salesFlow=false;state.screen='home';render();">${t('btnBack')}</button><button class="btn btn-primary" id="btnSalesSearch">${t('btnConsult')}</button></div></div>`;
+  <div class="btn-row"><button class="btn btn-secondary" onclick="state.salesFlow=false;state.screen='home';state._pendingCartItem=null;render();">${t('btnBack')}</button><button class="btn btn-primary" id="btnSalesSearch">${t('btnConsult')}</button></div></div>`;
 }
 
 function pgSalesScenario(){
@@ -3014,9 +3025,8 @@ function pgSalesCart(){
       <div style="flex:1;padding:12px;overflow-y:auto;">
         <div class="inner-container" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           ${available.map(c=>{
-            const inCart=items.find(it=>it.id===c.id);
-            return`<div style="background:var(--white);border-radius:var(--radius-sm);border:1px solid ${inCart?'var(--success)':'var(--border)'};overflow:hidden;box-shadow:var(--shadow-sm);${inCart?'opacity:0.6;':''}">
-            <div style="height:130px;background:var(--surface-alt);display:flex;align-items:center;justify-content:center;font-size:48px;border-bottom:1px solid var(--border);position:relative;">📦${inCart?'<div style="position:absolute;top:8px;right:8px;background:var(--success);color:white;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;">✓ '+(state.lang==='es'?'En carrito':'In cart')+'</div>':''}</div>
+            return`<div style="background:var(--white);border-radius:var(--radius-sm);border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow-sm);">
+            <div style="height:130px;background:var(--surface-alt);display:flex;align-items:center;justify-content:center;font-size:48px;border-bottom:1px solid var(--border);position:relative;">📦</div>
             <div style="padding:10px 12px;">
               <div style="font-size:12px;font-weight:800;color:var(--text);margin-bottom:2px;">${c.brand}</div>
               <div style="font-size:10px;color:var(--text-secondary);margin-bottom:8px;line-height:1.3;height:26px;overflow:hidden;">${c.desc.substring(0,45)}${c.desc.length>45?'...':''}</div>
@@ -3032,7 +3042,6 @@ function pgSalesCart(){
   // ─── SUB: Product Detail ───
   if(sub==='detail'&&state.salesDetailItem){
     const p=catalog.find(c=>c.id===state.salesDetailItem)||catalog[0];
-    const inCart=items.find(it=>it.id===p.id);
     const creditChecked=state.salesCreditDiscount;
     const discountPct=0.10;
     const discountedPrice=creditChecked?parseFloat((p.price*(1-discountPct)).toFixed(2)):p.price;
@@ -3075,7 +3084,7 @@ function pgSalesCart(){
                   <option value="${(discountedPrice*0.15).toFixed(2)}">12 ${state.lang==='es'?'meses':'months'} + $${(discountedPrice*0.15).toFixed(2)}</option>
                 </select>
               </div>
-              <button class="btn" id="btnAddToCartDetail" style="width:100%;justify-content:center;background:${inCart?'var(--success)':'var(--primary)'};color:white;padding:14px;font-size:15px;font-weight:700;${inCart?'opacity:0.5;cursor:not-allowed;':''}" ${inCart?'disabled':''}>${inCart?(state.lang==='es'?'YA EN EL CARRITO':'ALREADY IN CART'):(state.lang==='es'?'AGREGAR AL CARRITO':'ADD TO CART')}</button>
+              <button class="btn" id="btnAddToCartDetail" style="width:100%;justify-content:center;background:var(--primary);color:white;padding:14px;font-size:15px;font-weight:700;">${state.lang==='es'?'AGREGAR AL CARRITO':'ADD TO CART'}</button>
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding:0 4px;">
               <span style="font-size:13px;font-weight:600;color:var(--text-secondary);">${state.lang==='es'?'Descripción detallada':'Detailed description'}</span>
@@ -3533,7 +3542,6 @@ function bind(){
   const gs=$('btnGoSales');if(gs)gs.onclick=()=>{state.salesFlow=true;state.screen='salesIdentify';render();};
   // Home search button → open product search standalone (no customer needed to browse)
   const bhs=$('btnHomeSearch');if(bhs)bhs.onclick=()=>{
-    state._browsingFromHome=true;
     state.screen='salesCart';state.salesSubScreen='search';render();
   };
   // Hamburger menu
@@ -3561,11 +3569,11 @@ function bind(){
   document.querySelectorAll('[data-sales-scenario]').forEach(el=>{el.onclick=()=>{state.salesScenario=el.dataset.salesScenario;render();};});
   document.querySelectorAll('[data-salesscenario]').forEach(el=>{el.onclick=()=>{state.salesScenario=el.dataset.salesscenario;render();};});
   const snx=$('btnSalesScenarioNext');if(snx)snx.onclick=()=>{
+    state.salesSubScreen=null;
     if(state.salesScenario==='existing'){
       state.salesCustomer={name:'ROSA ANGELICA MARTINEZ RUIZ',doc:(state.salesIdType||'Cédula')+': '+(state.salesIdNumber||'901270362'),since:'2019',rating:'A',limitMerc:Math.floor((120-48.50)*29.41),limitCash:Math.floor((120-48.50)*17.65),maxCuota:120-48.50};
       state.screen='salesCart';state.salesTab='cart';
     } else if(state.salesScenario==='existingPrequal'){
-      // Existing pre-qualified but not pre-approved — show offer directly
       state.salesCustomer={name:'MARIA ELENA GONZALEZ REYES',doc:(state.salesIdType||'DUI')+': '+(state.salesIdNumber||'05193847-3'),since:'2021',isNewCredit:true,maxCuota:85,limitMerc:2500,limitCash:1500};
       state.screen='salesCart';state.salesTab='credit';
     } else if(state.salesScenario==='existingNoCredit'){
@@ -3588,7 +3596,7 @@ function bind(){
         {id:'item6',name:state.lang==='es'?'Licuadora Oster 3 Vel':'Oster 3 Speed Blender',sku:'OST-LIC3V-CH',price:44.99},
       ];
       const pItem=pendCatalog.find(c=>c.id===state._pendingCartItem);
-      if(pItem&&!state.salesCartItems.find(i=>i.id===pItem.id)){
+      if(pItem){
         const ci={...pItem};
         if(state._pendingCreditDiscount){ci.originalPrice=pItem.price;ci.price=parseFloat((pItem.price*0.90).toFixed(2));ci.creditPromo=true;}
         if(state._pendingWarranty>0){ci.warranty={label:state._pendingWarrantyLabel,price:state._pendingWarranty};}
@@ -3633,7 +3641,7 @@ function bind(){
           {id:'item6',name:state.lang==='es'?'Licuadora Oster 3 Vel':'Oster 3 Speed Blender',sku:'OST-LIC3V-CH',price:44.99},
         ];
         const pItem=pendCatalog.find(c=>c.id===state._pendingCartItem);
-        if(pItem&&!state.salesCartItems.find(i=>i.id===pItem.id)){
+        if(pItem){
           const ci={...pItem};
           if(state._pendingCreditDiscount){ci.originalPrice=pItem.price;ci.price=parseFloat((pItem.price*0.90).toFixed(2));ci.creditPromo=true;}
           if(state._pendingWarranty>0){ci.warranty={label:state._pendingWarrantyLabel,price:state._pendingWarranty};}
@@ -3641,7 +3649,7 @@ function bind(){
         }
         state._pendingCartItem=null;state._pendingWarranty=0;state._pendingWarrantyLabel='';state._pendingCreditDiscount=false;
       }
-      state.screen='salesCart';state.salesTab='cart';render();
+      state.screen='salesCart';state.salesTab='cart';state.salesSubScreen=null;render();
     }
   };
   // Sales cart bindings
@@ -3665,10 +3673,10 @@ function bind(){
   // Search sub-screens
   const bos=$('btnOpenSearch');if(bos)bos.onclick=()=>{state.salesSubScreen='search';render();};
   const boscan=$('btnOpenScan');if(boscan)boscan.onclick=()=>{state.salesSubScreen='search';render();};
-  const bsb=$('btnSearchBack');if(bsb)bsb.onclick=()=>{if(state._browsingFromHome&&!state.salesCustomer){state._browsingFromHome=false;state.screen='home';state.salesSubScreen=null;}else{state.salesSubScreen=null;}render();};
-  const bcs=$('btnCloseSearch');if(bcs)bcs.onclick=()=>{if(state._browsingFromHome&&!state.salesCustomer){state._browsingFromHome=false;state.screen='home';state.salesSubScreen=null;}else{state.salesSubScreen=null;}render();};
+  const bsb=$('btnSearchBack');if(bsb)bsb.onclick=()=>{if(!state.salesCustomer){state.screen='home';state.salesSubScreen=null;}else{state.salesSubScreen=null;}render();};
+  const bcs=$('btnCloseSearch');if(bcs)bcs.onclick=()=>{if(!state.salesCustomer){state.screen='home';state.salesSubScreen=null;}else{state.salesSubScreen=null;}render();};
   const bds=$('btnDoSearch');if(bds)bds.onclick=()=>{state.salesSubScreen='results';render();};
-  const brb=$('btnResultsBack');if(brb)brb.onclick=()=>{if(state._browsingFromHome&&!state.salesCustomer){state.salesSubScreen='search';}else{state.salesSubScreen=null;}render();};
+  const brb=$('btnResultsBack');if(brb)brb.onclick=()=>{if(!state.salesCustomer){state.salesSubScreen='search';}else{state.salesSubScreen=null;}render();};
   const bof=$('btnOpenFilters');if(bof)bof.onclick=()=>{state.salesSubScreen='search';render();};
   const bdb=$('btnDetailBack');if(bdb)bdb.onclick=()=>{state.salesSubScreen='results';state.salesCreditDiscount=false;render();};
   const bcc2=$('btnCreditCheckbox');if(bcc2)bcc2.onclick=()=>{state.salesCreditDiscount=!state.salesCreditDiscount;render();};
@@ -3694,7 +3702,7 @@ function bind(){
       {id:'item6',name:state.lang==='es'?'Licuadora Oster 3 Vel':'Oster 3 Speed Blender',sku:'OST-LIC3V-CH',price:44.99},
     ];
     const item=catalog.find(c=>c.id===state.salesDetailItem);
-    if(item&&!state.salesCartItems.find(i=>i.id===item.id)){
+    if(item){
       const sc=$('serviceContract');
       const warrantyPrice=sc&&sc.value?parseFloat(sc.value):0;
       const cartItem={...item};
