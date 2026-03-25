@@ -2268,7 +2268,49 @@ function pgCustomerProfile(){
 /* ═══════════════ EXPRESS DONE (1.2) ═══════════════ */
 function pgDoneExpress(){
   const client=state.salesCustomer?state.salesCustomer.name:'Carlos Eduardo Ramírez Flores';
-  const refNum='EXP-'+Math.floor(100000+Math.random()*900000);
+  const refNum=state._expressRef||(state._expressRef='EXP-'+Math.floor(100000+Math.random()*900000));
+  const isNew=state.outcome===3;
+  const phone=state.pqData.phone||state.salesCustomer?.phone||'+503 7890-1234';
+  const bioSent=state.bioSent;
+  const bioVerified=state.bioVerified;
+  const canProceed=!isNew||bioVerified;
+
+  let bioSection='';
+  if(isNew){
+    if(bioVerified){
+      bioSection=`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--success);background:var(--success-light);margin-bottom:14px;">
+        <div style="text-align:center;">
+          <div style="display:flex;justify-content:center;margin-bottom:8px;"><div style="width:40px;height:40px;border-radius:50%;background:var(--success-light);border:2px solid var(--success);display:flex;align-items:center;justify-content:center;color:var(--success);">${icon('check',20,'var(--success)')}</div></div>
+          <div style="font-size:14px;font-weight:700;color:var(--success);margin-bottom:4px;">${t('approvedBioSuccess')}</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${t('approvedBioReady')}</div>
+        </div>
+      </div>`;
+    } else if(bioSent){
+      bioSection=`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--white);margin-bottom:14px;">
+        <div style="text-align:center;">
+          <div style="display:flex;justify-content:center;margin-bottom:10px;"><div style="width:44px;height:44px;border-radius:50%;background:var(--primary-light);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;color:var(--primary);">${icon('smartphone',20)}</div></div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px;">${t('otpWaitBio')}</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;max-width:340px;margin:0 auto 12px;">${t('otpWaitBioDesc')}</div>
+          <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;background:var(--warning-light);border:1px solid var(--warning-border);font-size:11px;font-weight:700;color:var(--warning);margin-bottom:8px;">${icon('clock',12)} ${t('approvedBioWaiting')}</div>
+          <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);">${phone}</div>
+          <div style="margin-top:12px;"><button class="btn btn-secondary" id="btnSimBioExpress" style="font-size:11px;padding:6px 16px;border-style:dashed;">${state.lang==='es'?'Simular verificación exitosa':'Simulate successful verification'}</button></div>
+        </div>
+      </div>`;
+    } else {
+      bioSection=`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--warning);background:var(--warning-light);margin-bottom:14px;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <span style="flex-shrink:0;display:flex;color:var(--warning);margin-top:2px;">${icon('shield',18)}</span>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('approvedBioTitle')}</div>
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:10px;">${t('approvedBioDesc')}</div>
+            <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);margin-bottom:10px;">${phone}</div>
+            <button class="btn btn-primary" id="btnSendBioExpress" style="padding:8px 20px;font-size:12px;display:inline-flex;align-items:center;gap:6px;">${icon('smartphone',14)} ${t('approvedBioSend')}</button>
+          </div>
+        </div>
+      </div>`;
+    }
+  }
+
   return`<div class="card"><div class="success-screen">
     <div class="success-circle" style="background:var(--success-light);border-color:var(--success);">${icon('check',28,'var(--success)')}</div>
     <div class="success-title">${state.action==='cash'?t('doneExpTitleCash'):t('doneExpTitle')}</div>
@@ -2287,23 +2329,25 @@ function pgDoneExpress(){
         </div>
       </div>
 
+      ${bioSection}
+
       <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--white);border:1px solid var(--border);margin-bottom:14px;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">${state.lang==='es'?'Próximos pasos':'Next steps'}</div>
         <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
-          <div style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">1</div>
-          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${state.lang==='es'?'Imprimir contrato y documentos de formalización del crédito':'Print contract and credit formalization documents'}</div>
+          <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">1</div>
+          <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.lang==='es'?'Imprimir contrato y documentos de formalización del crédito':'Print contract and credit formalization documents'}</div>
         </div>
         <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
-          <div style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">2</div>
-          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${state.lang==='es'?'Obtener firma del cliente en los documentos impresos':'Obtain customer signature on printed documents'}</div>
+          <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">2</div>
+          <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.lang==='es'?'Obtener firma del cliente en los documentos impresos':'Obtain customer signature on printed documents'}</div>
         </div>
         <div style="display:flex;align-items:flex-start;gap:10px;">
-          <div style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">3</div>
-          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${state.action==='cash'?(state.lang==='es'?'Proceder con la facturación y desembolso del efectivo al cliente':'Proceed with billing and cash disbursement to the customer'):(state.lang==='es'?'Proceder con la facturación y entrega del producto al cliente':'Proceed with billing and product delivery to the customer')}</div>
+          <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">3</div>
+          <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.action==='cash'?(state.lang==='es'?'Proceder con la facturación y desembolso del efectivo al cliente':'Proceed with billing and cash disbursement to the customer'):(state.lang==='es'?'Proceder con la facturación y entrega del producto al cliente':'Proceed with billing and product delivery to the customer')}</div>
         </div>
       </div>
 
-      <button class="btn btn-primary" id="btnExpressPrint" style="width:100%;justify-content:center;padding:12px;font-size:14px;display:flex;align-items:center;gap:6px;">${icon('fileText',16)} ${t('doneExpPrint')}</button>
+      <button class="btn btn-primary" id="btnExpressPrint" style="width:100%;justify-content:center;padding:12px;font-size:14px;display:flex;align-items:center;gap:6px;" ${!canProceed?'disabled':''}>${icon('fileText',16)} ${t('doneExpPrint')}</button>
     </div>
     <div class="btn-row" style="justify-content:center;margin-top:16px;"><button class="btn btn-secondary" id="btnRestart">${t('btnNewQuery')}</button></div>
   </div></div>`;
@@ -3686,6 +3730,9 @@ function bind(){
   // Express OTP digits
   for(let i=1;i<=6;i++){const d=$('expOtp'+i);if(d)d.oninput=e=>{if(e.target.value.length===1&&i<6){const nx=$('expOtp'+(i+1));if(nx)nx.focus();}let allFilled=true;for(let j=1;j<=6;j++){const dj=$('expOtp'+j);if(!dj||!dj.value)allFilled=false;}const pb=$('btnExpressPrint');if(pb)pb.disabled=!allFilled;};}
   const epr=$('btnExpressPrint');if(epr)epr.onclick=()=>{alert(state.lang==='es'?'Imprimiendo documentos y facturando...':'Printing documents and billing...');goHome();};
+  // Biometric verification in express flow (new customers)
+  const sbE=$('btnSendBioExpress');if(sbE)sbE.onclick=()=>{state.bioSent=true;render();};
+  const simE=$('btnSimBioExpress');if(simE)simE.onclick=()=>{state.bioVerified=true;render();};
   // Sim
   const sl=$('simPlazo');if(sl)sl.onchange=e=>{state.simPlazo=e.target.value;render();};
   const sm=$('simPrima');if(sm){sm.oninput=e=>{const raw=e.target.value.replace(/[^0-9.]/g,'');state.simPrima=parseFloat(raw)||0;};sm.onblur=()=>render();};
