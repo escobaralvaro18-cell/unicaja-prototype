@@ -354,7 +354,7 @@ es:{
   salesCreateTitle:'Crear Cliente',salesCreateDesc:'Complete los datos básicos del cliente para registrarlo en el sistema.',
   salesCreateBtn:'Crear Cliente',
   salesCartTitle:'Carrito',salesCartEmpty:'Carrito de Compra',salesCartEmptyDesc:'No hay artículos en el carrito. Podés agregar productos buscando en el catálogo o escaneando el código de barras con los botones de arriba.',
-  salesEditClient:'Editar',
+  salesEditClient:'Actualizar datos',
   salesTabAccounts:'Cuentas',salesTabPresales:'Presales',salesTabCredit:'Crédito',salesTabCart:'Carrito',salesTabMenu:'Menú',
   salesAddItem:'Agregar Artículo',salesItemSearch:'Buscar artículo...',
   salesItem1:'TV Samsung 55" Crystal UHD',salesItem1SKU:'SKU: SAM-TV55-CU',salesItem1Price:'$649.99',
@@ -567,7 +567,7 @@ en:{
   salesCreateTitle:'Create Customer',salesCreateDesc:'Complete the customer\'s basic information to register them in the system.',
   salesCreateBtn:'Create Customer',
   salesCartTitle:'Cart',salesCartEmpty:'Shopping Cart',salesCartEmptyDesc:'There are no items in the cart. You can add products by searching the catalog or scanning barcodes with the buttons above.',
-  salesEditClient:'Edit',
+  salesEditClient:'Update info',
   salesTabAccounts:'Accounts',salesTabPresales:'Presales',salesTabCredit:'Credit',salesTabCart:'Cart',salesTabMenu:'Menu',
   salesAddItem:'Add Item',salesItemSearch:'Search item...',
   salesItem1:'Samsung 55" Crystal UHD TV',salesItem1SKU:'SKU: SAM-TV55-CU',salesItem1Price:'$649.99',
@@ -898,7 +898,7 @@ function render(){
   const s=state.screen;
   if(state._lastScreen!==s){window.scrollTo(0,0);state._lastScreen=s;}
   // Toggle full-width mode for full-page screens
-  const fullWidth=['login','store','home','allSolicitudes','salesIdentify','salesScenario','salesCreate','salesCart'].includes(s)||(!!state.salesCustomer&&!!state.action&&['simulation','forkAml','aml','otp','application','forkApproval','done','doneExpress','rejected','approved'].includes(s));
+  const fullWidth=['login','store','home','allSolicitudes','updateClient','salesIdentify','salesScenario','salesCreate','salesCart'].includes(s)||(!!state.salesCustomer&&!!state.action&&['simulation','forkAml','aml','otp','application','forkApproval','done','doneExpress','rejected','approved'].includes(s));
   app.classList.toggle('full-width',fullWidth);
   // Full-page screens (no topbar/steps)
   if(s==='login'){app.innerHTML=pgLogin();bind();return;}
@@ -906,7 +906,8 @@ function render(){
   if(s==='home'){app.innerHTML=pgHome();bind();return;}
   if(s==='allSolicitudes'){app.innerHTML=pgAllSolicitudes();bind();return;}
   // Sales flow - full-page screens
-  if(s==='salesIdentify'||s==='salesScenario'||s==='salesCreate'||s==='salesCart'){
+  if(s==='salesIdentify'||s==='salesScenario'||s==='salesCreate'||s==='salesCart'||s==='updateClient'){
+    if(s==='updateClient'){app.innerHTML=pgUpdateClient();bind();return;}
     // When arriving at salesCart, ensure customer data and credit offer are set up
     if(s==='salesCart'){
       const sub=state.salesSubScreen;
@@ -2923,6 +2924,216 @@ function pgSalesCreate(){
   <div class="btn-row"><button class="btn btn-secondary" id="btnBack">${t('btnBack')}</button><button class="btn btn-primary" id="btnSalesCreateGo">${t('salesCreateBtn')}</button></div></div>`;
 }
 
+function pgUpdateClient(){
+  const es=state.lang==='es';
+  const c=state.salesCustomer;
+  if(!c)return'';
+  const nameParts=(c.name||'').split(' ').filter(Boolean);
+  const firstName=nameParts.slice(0,Math.ceil(nameParts.length/2)).join(' ');
+  const lastName=nameParts.slice(Math.ceil(nameParts.length/2)).join(' ');
+  const docParts=(c.doc||'').split(/[:\s]+/).filter(Boolean);
+  const docType=docParts[0]||'DUI';
+  const docNum=docParts.slice(1).join(' ')||'';
+  const dob=c.dob||state.pqData.dob||'1990-05-15';
+
+  // Phone & email
+  const email=c.email||state.pqData.email||'cliente@email.com';
+  const phone=c.phone||state.pqData.phone||'+503 7890-1234';
+  const needsBioForPhone=c.rating||c.isNewCredit||c.maxCuota; // existing with line or pre-qualified
+  const editingPhone=state._editingPhone;
+  const bioSent=state._phoneBioSent;
+  const bioVerified=state._phoneBioVerified;
+
+  // Delivery addresses
+  if(!c.deliveryAddresses)c.deliveryAddresses=[
+    {id:1,label:es?'Casa':'Home',dept:'San Salvador',muni:'San Salvador Centro',street:es?'Colonia Escalón, Calle La Reforma #245':'Escalon, La Reforma St #245',isDefault:true},
+  ];
+  const addrs=c.deliveryAddresses;
+  const editingAddr=state._editingAddr;
+
+  // Phone section
+  let phoneSection='';
+  if(editingPhone){
+    if(needsBioForPhone){
+      if(bioVerified){
+        // Step 3: Verification successful — phone changed
+        phoneSection=`
+        <div class="form-group">
+          <label class="form-label">${t('phone')}</label>
+          <input class="form-input" value="${state._newPhone||phone}" readonly style="background:var(--surface-alt);color:var(--text);"/>
+        </div>
+        <div style="padding:14px;border-radius:var(--radius-sm);border:1.5px solid var(--success);background:var(--success-light);margin-bottom:16px;">
+          <div style="text-align:center;">
+            <div style="display:flex;justify-content:center;margin-bottom:8px;"><div style="width:40px;height:40px;border-radius:50%;background:var(--success-light);border:2px solid var(--success);display:flex;align-items:center;justify-content:center;">${icon('check',18,'#0D9B68')}</div></div>
+            <div style="font-size:13px;font-weight:700;color:var(--success);margin-bottom:4px;">${es?'Teléfono actualizado':'Phone updated'}</div>
+            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;">${es?'La verificación biométrica fue exitosa. El número de teléfono ha sido actualizado.':'Biometric verification was successful. The phone number has been updated.'}</div>
+          </div>
+        </div>`;
+      } else if(bioSent){
+        // Step 2: Bio sent to new number — waiting
+        phoneSection=`
+        <div class="form-group">
+          <label class="form-label">${t('phone')} <span style="font-size:9px;color:var(--text-dim);">(${es?'nuevo':'new'})</span></label>
+          <input class="form-input" value="${state._newPhone||''}" readonly style="background:var(--surface-alt);color:var(--text);"/>
+        </div>
+        <div style="padding:14px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--white);margin-bottom:16px;">
+          <div style="text-align:center;">
+            <div style="display:flex;justify-content:center;margin-bottom:8px;"><div style="width:40px;height:40px;border-radius:50%;background:var(--primary-light);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;">${icon('smartphone',18,'#2B5CE6')}</div></div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px;">${es?'Verificación biométrica enviada':'Biometric verification sent'}</div>
+            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;margin-bottom:4px;">${es?'Se ha enviado un enlace de verificación biométrica al número':'A biometric verification link has been sent to'} <strong style="font-family:var(--mono);">${state._newPhone||''}</strong></div>
+            <div style="font-size:11px;color:var(--text-dim);margin-bottom:12px;">${es?'La pantalla se actualizará cuando la verificación sea exitosa.':'The screen will update when verification is successful.'}</div>
+            <div style="display:flex;gap:8px;justify-content:center;">
+              <button class="btn btn-secondary" id="btnSimPhoneBio" style="font-size:11px;padding:6px 16px;border-style:dashed;">${es?'Simular verificación exitosa':'Simulate successful verification'}</button>
+              <button class="btn btn-secondary" id="btnCancelPhoneEdit" style="font-size:11px;padding:6px 16px;">${es?'Cancelar':'Cancel'}</button>
+            </div>
+          </div>
+        </div>`;
+      } else {
+        // Step 1: Enter new number + explain bio requirement
+        phoneSection=`
+        <div class="form-group">
+          <label class="form-label">${es?'Nuevo número de teléfono':'New phone number'}</label>
+          <input class="form-input" id="ucNewPhone" placeholder="+503 0000-0000" value="${state._newPhone||''}"/>
+        </div>
+        <div style="padding:14px;border-radius:var(--radius-sm);border:1.5px solid var(--warning);background:var(--warning-light);margin-bottom:16px;">
+          <div style="display:flex;align-items:flex-start;gap:10px;">
+            <span style="flex-shrink:0;display:flex;color:var(--warning);margin-top:2px;">${icon('shield',16)}</span>
+            <div style="flex:1;">
+              <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;">${es?'Verificación biométrica requerida':'Biometric verification required'}</div>
+              <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;margin-bottom:10px;">${es?'Este cliente tiene una línea de crédito activa. Se enviará un enlace de verificación biométrica al nuevo número ingresado. Si la verificación es exitosa, el cambio se aplicará automáticamente.':'This customer has an active credit line. A biometric verification link will be sent to the new number. If verification is successful, the change will be applied automatically.'}</div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-primary" id="btnSendPhoneBio" style="padding:7px 16px;font-size:11px;">${icon('smartphone',14)} ${es?'Enviar verificación':'Send verification'}</button>
+                <button class="btn btn-secondary" id="btnCancelPhoneEdit" style="padding:7px 16px;font-size:11px;">${es?'Cancelar':'Cancel'}</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }
+    } else {
+      // No bio needed — edit freely
+      phoneSection=`
+        <div class="form-group">
+          <label class="form-label">${t('phone')}</label>
+          <input class="form-input" id="ucNewPhone" value="${state._newPhone||phone}"/>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+          <button class="btn btn-primary" id="btnSavePhone" style="padding:7px 16px;font-size:12px;">${icon('check',14)} ${es?'Guardar teléfono':'Save phone'}</button>
+          <button class="btn btn-secondary" id="btnCancelPhoneEdit" style="padding:7px 16px;font-size:12px;">${es?'Cancelar':'Cancel'}</button>
+        </div>`;
+    }
+  } else {
+    phoneSection=`
+      <div class="form-group">
+        <label class="form-label">${t('phone')}</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input class="form-input" value="${phone}" readonly style="background:var(--surface-alt);color:var(--text);flex:1;"/>
+          <button class="btn btn-secondary" id="btnStartPhoneEdit" style="padding:7px 14px;font-size:11px;flex-shrink:0;">${icon('user',12)} ${es?'Cambiar':'Change'}</button>
+        </div>
+      </div>`;
+  }
+
+  // Address editing form
+  let addrEditForm='';
+  if(editingAddr!==undefined&&editingAddr!==null){
+    const isNew=editingAddr==='new';
+    const addr=isNew?{dept:'',muni:'',street:'',label:''}:addrs.find(a=>a.id===editingAddr)||{};
+    addrEditForm=`
+    <div style="padding:16px;border:1.5px solid var(--primary);border-radius:var(--radius-sm);background:var(--primary-light);margin-bottom:12px;animation:fadeUp .3s;">
+      <div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:12px;">${isNew?(es?'Nueva dirección de entrega':'New delivery address'):(es?'Editar dirección':'Edit address')}</div>
+      <div class="form-group"><label class="form-label">${es?'Etiqueta':'Label'}</label><input class="form-input" id="addrLabel" placeholder="${es?'Ej: Casa, Oficina, Mamá...':'E.g: Home, Office, Mom...'}" value="${addr.label||''}"/></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">${t('dept')}</label><select class="form-select" id="addrDept"><option value="">...</option><option ${addr.dept==='San Salvador'?'selected':''}>San Salvador</option><option ${addr.dept==='La Libertad'?'selected':''}>La Libertad</option><option ${addr.dept==='Santa Ana'?'selected':''}>Santa Ana</option></select></div>
+        <div class="form-group"><label class="form-label">${t('muni')}</label><select class="form-select" id="addrMuni"><option value="">...</option><option ${addr.muni==='San Salvador Centro'?'selected':''}>San Salvador Centro</option><option ${addr.muni==='Mejicanos'?'selected':''}>Mejicanos</option><option ${addr.muni==='Santa Tecla'?'selected':''}>Santa Tecla</option><option ${addr.muni==='Soyapango'?'selected':''}>Soyapango</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">${es?'Dirección':'Address'}</label><textarea class="form-input" id="addrStreet" rows="2" style="resize:none;">${addr.street||''}</textarea></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary" id="btnSaveAddr" style="padding:8px 18px;font-size:12px;">${icon('check',14)} ${es?'Guardar':'Save'}</button>
+        <button class="btn btn-secondary" id="btnCancelAddr" style="padding:8px 18px;font-size:12px;">${es?'Cancelar':'Cancel'}</button>
+      </div>
+    </div>`;
+  }
+
+  const initials=(c.name||'').split(' ').filter(Boolean).map(w=>w[0]).slice(0,2).join('');
+
+  return`<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);">
+    <div style="padding:12px 16px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;">
+      <span id="btnUpdateClientBack" style="cursor:pointer;display:flex;color:var(--text-dim);transform:rotate(180deg);">${icon('chevronRight',20)}</span>
+      <div style="font-size:16px;font-weight:800;">${es?'Actualizar Datos del Cliente':'Update Customer Info'}</div>
+    </div>
+    <div style="flex:1;padding:20px 16px;overflow-y:auto;">
+      <div style="max-width:640px;margin:0 auto;">
+
+        <!-- Client identity card -->
+        <div style="display:flex;align-items:center;gap:14px;padding:20px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:20px;">
+          <div style="width:50px;height:50px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;flex-shrink:0;">${initials}</div>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:800;color:var(--text);">${c.name}</div>
+            <div style="font-size:12px;color:var(--text-dim);margin-top:2px;">${c.doc}</div>
+            ${c.rating?`<div style="margin-top:4px;display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;background:var(--success-light);border:1px solid var(--success-border);font-size:10px;font-weight:700;color:var(--success);">${icon('shield',10,'#0D9B68')} ${es?'Cliente verificado':'Verified customer'}</div>`:''}
+          </div>
+        </div>
+
+        <!-- Non-editable data -->
+        <div class="card" style="padding:20px;margin-bottom:16px;">
+          <div class="section-label">${es?'Datos de Identidad':'Identity Data'}</div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">${t('idType')}</label><input class="form-input" value="${docType}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
+            <div class="form-group"><label class="form-label">${t('idNum')}</label><input class="form-input" value="${docNum}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">${es?'Nombres':'Names'}</label><input class="form-input" value="${firstName}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
+            <div class="form-group"><label class="form-label">${es?'Apellidos':'Last Names'}</label><input class="form-input" value="${lastName}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;"><label class="form-label">${t('dob')}</label><input class="form-input" value="${dob}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
+        </div>
+
+        <!-- Editable: Contact -->
+        <div class="card" style="padding:20px;margin-bottom:16px;">
+          <div class="section-label">${es?'Contacto':'Contact'}</div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-input" id="ucEmail" value="${email}"/>
+          </div>
+          ${phoneSection}
+        </div>
+
+        <!-- Delivery addresses -->
+        <div class="card" style="padding:20px;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <div class="section-label" style="margin-bottom:0;">${es?'Direcciones de Entrega':'Delivery Addresses'}</div>
+            ${editingAddr===undefined||editingAddr===null?`<button class="btn btn-secondary" id="btnAddAddr" style="padding:5px 14px;font-size:11px;">${icon('plus',12)} ${es?'Agregar':'Add'}</button>`:''}
+          </div>
+          <div style="font-size:11px;color:var(--text-dim);margin-bottom:14px;line-height:1.4;">${es?'Direcciones para envío de productos. Son independientes de la dirección de domicilio o trabajo del perfil crediticio.':'Product delivery addresses. Independent from home or work addresses in the credit profile.'}</div>
+
+          ${addrEditForm}
+
+          ${addrs.map(a=>`
+            <div style="padding:14px;border:1px solid ${a.isDefault?'var(--primary)':'var(--border)'};border-radius:var(--radius-sm);margin-bottom:8px;background:var(--white);${a.isDefault?'border-left:3px solid var(--primary);':''}">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+                <div style="flex:1;">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                    <span style="font-size:13px;font-weight:700;color:var(--text);">${a.label||'—'}</span>
+                    ${a.isDefault?`<span style="padding:1px 8px;border-radius:10px;background:var(--primary-light);font-size:9px;font-weight:700;color:var(--primary);">${es?'PREDETERMINADA':'DEFAULT'}</span>`:''}
+                  </div>
+                  <div style="font-size:12px;color:var(--text-secondary);line-height:1.4;">${a.street||''}</div>
+                  <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">${a.muni||''}, ${a.dept||''}</div>
+                  ${!a.isDefault?`<div style="margin-top:8px;"><span data-setdefault="${a.id}" style="font-size:11px;font-weight:600;color:var(--primary);cursor:pointer;display:inline-flex;align-items:center;gap:4px;">${icon('check',12,'#2B5CE6')} ${es?'Hacer predeterminada':'Set as default'}</span></div>`:''}
+                </div>
+                <div style="display:flex;gap:4px;flex-shrink:0;">
+                  <span data-editaddr="${a.id}" style="cursor:pointer;display:flex;color:var(--primary);padding:4px;">${icon('clipboardList',14)}</span>
+                  ${!a.isDefault?`<span data-deladdr="${a.id}" style="cursor:pointer;display:flex;color:var(--danger);padding:4px;">${icon('x',14)}</span>`:''}
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <button class="btn btn-primary" id="btnSaveClientData" style="width:100%;justify-content:center;padding:14px;font-size:14px;margin-bottom:20px;">${icon('check',16)} ${es?'Guardar Cambios':'Save Changes'}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
 function pgSalesCart(){
   const customer=state.salesCustomer||{name:'ROSA ANGELICA MARTINEZ RUIZ',doc:(state.salesIdType||'Cédula')+': '+(state.salesIdNumber||'901270362')};
   const initials=(customer.name||'').split(' ').filter(Boolean).map(w=>w[0]).slice(0,2).join('');
@@ -2940,10 +3151,8 @@ function pgSalesCart(){
   const sub=state.salesSubScreen;
 
   const tabs=[
-    {id:'presales',icon:'clipboardList',label:t('salesTabPresales')},
     {id:'credit',icon:'creditCard',label:t('salesTabCredit')},
     {id:'cart',icon:'shoppingCart',label:t('salesTabCart')},
-    {id:'menu',icon:'menu',label:t('salesTabMenu')},
   ];
 
   const tabBar=`<div class="sales-tab-mobile" style="position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,0.06);">
@@ -2962,7 +3171,7 @@ function pgSalesCart(){
           <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">${customer.doc}</div>
         </div>
       </div>
-      <div style="font-size:11px;color:var(--primary);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">${icon('user',12)} ${t('salesEditClient')}</div>
+      <div id="btnEditClientSidebar" style="font-size:11px;color:var(--primary);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">${icon('user',12)} ${t('salesEditClient')}</div>
     </div>
     <div class="sales-sidebar-nav">
       <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-dim);padding:8px 14px 6px;">${state.lang==='es'?'Navegación':'Navigation'}</div>
@@ -2990,8 +3199,6 @@ function pgSalesCart(){
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
             <span style="display:flex;color:var(--text-dim);">${icon('search',18)}</span>
             <span style="font-size:15px;font-weight:700;">${state.lang==='es'?'Filtros':'Filters'}</span>
-            <div style="flex:1;"></div>
-            <span id="btnCloseSearch" style="cursor:pointer;display:flex;color:var(--text-dim);">${icon('x',18)}</span>
           </div>
           <div class="form-group"><select class="form-select"><option>${state.lang==='es'?'División':'Division'}</option><option>${state.lang==='es'?'Electrónica':'Electronics'}</option><option>${state.lang==='es'?'Línea Blanca':'Appliances'}</option><option>${state.lang==='es'?'Muebles':'Furniture'}</option></select></div>
           <div class="form-group"><select class="form-select"><option>${state.lang==='es'?'Departamento':'Department'}</option><option>${state.lang==='es'?'Televisores':'TVs'}</option><option>${state.lang==='es'?'Refrigeración':'Refrigeration'}</option><option>${state.lang==='es'?'Cocina':'Cooking'}</option><option>${state.lang==='es'?'Lavado':'Laundry'}</option></select></div>
@@ -3475,7 +3682,7 @@ function pgSalesCart(){
         <div class="inner-container" style="display:flex;align-items:center;gap:12px;">
           <div style="width:38px;height:38px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">${initials}</div>
           <div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${customer.name}</div><div style="font-size:11px;color:var(--text-dim);">${customer.doc}</div></div>
-          <div style="font-size:11px;color:var(--primary);font-weight:600;cursor:pointer;flex-shrink:0;">${t('salesEditClient')}</div>
+          <div id="btnEditClientMobile" style="font-size:11px;color:var(--primary);font-weight:600;cursor:pointer;flex-shrink:0;">${t('salesEditClient')}</div>
         </div>
       </div>
     </div>
@@ -3526,7 +3733,7 @@ function bind(){
   const topbar=document.querySelector('.topbar');
   if(topbar){
     const salesWrapped=!!state.salesCustomer&&!!state.action&&['simulation','forkAml','aml','otp','application','forkApproval','done','doneExpress','rejected','approved'].includes(state.screen);
-    topbar.style.display=['login','store','home','allSolicitudes','salesIdentify','salesScenario','salesCreate','salesCart','rejected'].includes(state.screen)||salesWrapped?'none':'flex';
+    topbar.style.display=['login','store','home','allSolicitudes','updateClient','salesIdentify','salesScenario','salesCreate','salesCart','rejected'].includes(state.screen)||salesWrapped?'none':'flex';
   }
   // Login bindings
   const lui=$('loginUserInput');if(lui)lui.oninput=e=>{state.loginUser=e.target.value;};
@@ -3654,6 +3861,56 @@ function bind(){
   };
   // Sales cart bindings
   const shc=$('btnSalesHomeFromCart');if(shc)shc.onclick=()=>{goHome();};
+  // Edit client buttons → navigate to update client screen
+  const ecs=$('btnEditClientSidebar');if(ecs)ecs.onclick=()=>{state._editingPhone=false;state._phoneBioSent=false;state._phoneBioVerified=false;state._editingAddr=null;state.screen='updateClient';render();};
+  const ecm=$('btnEditClientMobile');if(ecm)ecm.onclick=()=>{state._editingPhone=false;state._phoneBioSent=false;state._phoneBioVerified=false;state._editingAddr=null;state.screen='updateClient';render();};
+  // Update client screen bindings
+  const ucb=$('btnUpdateClientBack');if(ucb)ucb.onclick=()=>{state._editingPhone=false;state._phoneBioSent=false;state._phoneBioVerified=false;state._editingAddr=null;state.screen='salesCart';render();};
+  // Phone editing
+  const bspe=$('btnStartPhoneEdit');if(bspe)bspe.onclick=()=>{state._editingPhone=true;state._newPhone='';state._phoneBioSent=false;state._phoneBioVerified=false;render();};
+  const bcpe=$('btnCancelPhoneEdit');if(bcpe)bcpe.onclick=()=>{state._editingPhone=false;state._phoneBioSent=false;state._phoneBioVerified=false;render();};
+  const bspb=$('btnSendPhoneBio');if(bspb)bspb.onclick=()=>{const v=$('ucNewPhone');if(v){if(!v.value.trim()){alert(state.lang==='es'?'Ingrese el nuevo número de teléfono':'Enter the new phone number');return;}state._newPhone=v.value;}state._phoneBioSent=true;render();};
+  const bspbsim=$('btnSimPhoneBio');if(bspbsim)bspbsim.onclick=()=>{state._phoneBioVerified=true;if(state._newPhone&&state.salesCustomer){state.salesCustomer.phone=state._newPhone;state.pqData.phone=state._newPhone;}render();};
+  const bsp=$('btnSavePhone');if(bsp)bsp.onclick=()=>{
+    const v=$('ucNewPhone');if(v){state.salesCustomer.phone=v.value;state.pqData.phone=v.value;}
+    state._editingPhone=false;state._phoneBioSent=false;state._phoneBioVerified=false;render();
+  };
+  // Address management
+  const baa=$('btnAddAddr');if(baa)baa.onclick=()=>{state._editingAddr='new';render();};
+  const bca=$('btnCancelAddr');if(bca)bca.onclick=()=>{state._editingAddr=null;render();};
+  const bsa=$('btnSaveAddr');if(bsa)bsa.onclick=()=>{
+    const c=state.salesCustomer;if(!c)return;
+    const label=$('addrLabel')?$('addrLabel').value:'';
+    const dept=$('addrDept')?$('addrDept').value:'';
+    const muni=$('addrMuni')?$('addrMuni').value:'';
+    const street=$('addrStreet')?$('addrStreet').value:'';
+    if(!street){alert(state.lang==='es'?'Ingrese la dirección':'Enter the address');return;}
+    if(state._editingAddr==='new'){
+      const maxId=c.deliveryAddresses.reduce((m,a)=>Math.max(m,a.id),0);
+      c.deliveryAddresses.push({id:maxId+1,label:label||'',dept,muni,street,isDefault:false});
+    } else {
+      const addr=c.deliveryAddresses.find(a=>a.id===state._editingAddr);
+      if(addr){addr.label=label;addr.dept=dept;addr.muni=muni;addr.street=street;}
+    }
+    state._editingAddr=null;render();
+  };
+  document.querySelectorAll('[data-editaddr]').forEach(el=>{el.onclick=()=>{state._editingAddr=parseInt(el.dataset.editaddr);render();};});
+  document.querySelectorAll('[data-deladdr]').forEach(el=>{el.onclick=()=>{
+    const c=state.salesCustomer;if(!c)return;
+    const id=parseInt(el.dataset.deladdr);
+    c.deliveryAddresses=c.deliveryAddresses.filter(a=>a.id!==id);render();
+  };});
+  document.querySelectorAll('[data-setdefault]').forEach(el=>{el.onclick=()=>{
+    const c=state.salesCustomer;if(!c||!c.deliveryAddresses)return;
+    const id=parseInt(el.dataset.setdefault);
+    c.deliveryAddresses.forEach(a=>{a.isDefault=a.id===id;});render();
+  };});
+  // Save all client data
+  const bscd=$('btnSaveClientData');if(bscd)bscd.onclick=()=>{
+    const em=$('ucEmail');if(em&&state.salesCustomer){state.salesCustomer.email=em.value;state.pqData.email=em.value;}
+    state._editingPhone=false;state._phoneBioSent=false;state._phoneBioVerified=false;state._editingAddr=null;
+    state.screen='salesCart';render();
+  };
   // Sales flow back from credit screens
   const sfb=$('btnSalesFlowBack');if(sfb)sfb.onclick=()=>{
     const s=state.screen;
