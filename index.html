@@ -850,12 +850,9 @@ function getFlowSteps(){
   if(o===0){
     return['identify','outcome','salesCart'];
   }
-  // Existente — Sin Pre-calificar → client info → prequal then tab
+  // Existente — Sin Pre-calificar → go to sales cart credit tab (start origination from there)
   if(o===1){
-    if(state.isHit==='rejected')return['identify','outcome','clientInfo','prequal','rejected'];
-    const socio=state.isHit===false?['sociodemo','forkSociodemo']:[];
-    if(state.isHit===false&&state.forkSociodemo==='rejected')return['identify','outcome','clientInfo','prequal','sociodemo','forkSociodemo','rejected'];
-    return['identify','outcome','clientInfo','prequal',...socio,'otp','salesCart'];
+    return['identify','outcome','salesCart'];
   }
   // Nuevo → create client first, then prequal
   if(o===3){
@@ -939,6 +936,10 @@ function render(){
       // If customer was rejected (outcome 4), mark as rejected
       if(state.outcome===4&&!state.salesCustomer.creditRejected){
         state.salesCustomer.creditRejected=true;
+        state.salesTab='credit';
+      }
+      // If outcome 1 (existingNoCredit) — land on credit tab
+      else if(state.outcome===1&&!state.salesCustomer.isNewCredit){
         state.salesTab='credit';
       }
       // If customer is past due (outcome 5), mark as pastDue
@@ -2975,8 +2976,13 @@ function pgUpdateClient(){
   const c=state.salesCustomer;
   if(!c)return'';
   const nameParts=(c.name||'').split(' ').filter(Boolean);
-  const firstName=nameParts.slice(0,Math.ceil(nameParts.length/2)).join(' ');
-  const lastName=nameParts.slice(Math.ceil(nameParts.length/2)).join(' ');
+  // Split into 4 name parts: first name, second name, first last name, second last name
+  let n1='',n2='',a1='',a2='';
+  if(nameParts.length===4){n1=nameParts[0];n2=nameParts[1];a1=nameParts[2];a2=nameParts[3];}
+  else if(nameParts.length===3){n1=nameParts[0];n2='';a1=nameParts[1];a2=nameParts[2];}
+  else if(nameParts.length===2){n1=nameParts[0];n2='';a1=nameParts[1];a2='';}
+  else if(nameParts.length===1){n1=nameParts[0];} 
+  else if(nameParts.length>4){n1=nameParts[0];n2=nameParts[1];a1=nameParts.slice(2,-1).join(' ');a2=nameParts[nameParts.length-1];}
   const docParts=(c.doc||'').split(/[:\s]+/).filter(Boolean);
   const docType=docParts[0]||'DUI';
   const docNum=docParts.slice(1).join(' ')||'';
@@ -3165,8 +3171,12 @@ function pgUpdateClient(){
             <div class="form-group"><label class="form-label">${t('idNum')}</label><input class="form-input" value="${docNum}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label class="form-label">${es?'Nombres':'Names'}</label><input class="form-input" value="${firstName}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
-            <div class="form-group"><label class="form-label">${es?'Apellidos':'Last Names'}</label><input class="form-input" value="${lastName}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
+            <div class="form-group"><label class="form-label">${es?'Primer Nombre':'First Name'}</label><input class="form-input" value="${n1}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
+            <div class="form-group"><label class="form-label">${es?'Segundo Nombre':'Second Name'}</label><input class="form-input" value="${n2}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">${es?'Primer Apellido':'First Last Name'}</label><input class="form-input" value="${a1}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
+            <div class="form-group"><label class="form-label">${es?'Segundo Apellido':'Second Last Name'}</label><input class="form-input" value="${a2}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
           </div>
           <div class="form-group" style="margin-bottom:0;"><label class="form-label">${t('dob')}</label><input class="form-input" value="${dob}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
         </div>
@@ -3450,7 +3460,7 @@ function pgSalesCart(){
     const c=customer;
     const es=state.lang==='es';
     const shipDates=[];const now=new Date();
-    for(let i=2;i<=8;i+=2){const d=new Date(now);d.setDate(d.getDate()+i);shipDates.push({iso:d.toISOString().split('T')[0],day:d.toLocaleDateString(es?'es-SV':'en-US',{weekday:'short'}).replace('.',''),num:d.getDate(),mon:d.toLocaleDateString(es?'es-SV':'en-US',{month:'short'}).replace('.','')});}
+    for(let i=1;i<=5;i++){const d=new Date(now);d.setDate(d.getDate()+i);const dl=d.toLocaleDateString(es?'es-SV':'en-US',{weekday:'short',month:'short',day:'numeric'});shipDates.push({iso:d.toISOString().split('T')[0],num:d.getDate(),label:dl.split(' ').slice(0,2).join(' ')});}
 
     // Ensure delivery addresses exist
     if(!c.deliveryAddresses)c.deliveryAddresses=[{id:1,label:es?'Casa':'Home',dept:'San Salvador',muni:'San Salvador Centro',street:es?'Colonia Escalón, Calle La Reforma #245':'Escalon, La Reforma St #245',isDefault:true}];
@@ -3458,9 +3468,7 @@ function pgSalesCart(){
     const selectedAddr=state._shipAddrId||((addrs.find(a=>a.isDefault)||addrs[0]||{}).id);
     const email=c.email||state.pqData.email||'cliente@email.com';
     const phone=c.phone||state.pqData.phone||'+503 7890-1234';
-    const nameParts=(c.name||'').split(' ').filter(Boolean);
-    const firstName=nameParts.slice(0,Math.ceil(nameParts.length/2)).join(' ');
-    const lastName=nameParts.slice(Math.ceil(nameParts.length/2)).join(' ');
+    const initials=(c.name||'').split(' ').filter(Boolean).map(w=>w[0]).slice(0,2).join('');
 
     return`<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);">
       <div style="padding:12px 16px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;">
@@ -3475,19 +3483,22 @@ function pgSalesCart(){
             <div style="font-size:12px;font-weight:600;color:var(--primary);">${t('salesShipHome')} — ${t('salesShipCost')}</div>
           </div>
 
-          <!-- Client data (read-only) -->
-          <div class="section-label">${es?'Datos del Cliente':'Customer Data'}</div>
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">${es?'Nombres':'Names'}</label><input class="form-input" value="${firstName}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
-            <div class="form-group"><label class="form-label">${es?'Apellidos':'Last names'}</label><input class="form-input" value="${lastName}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
+          <!-- Client identity card -->
+          <div style="display:flex;align-items:center;gap:14px;padding:18px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:20px;">
+            <div style="width:46px;height:46px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;">${initials}</div>
+            <div style="flex:1;">
+              <div style="font-size:15px;font-weight:800;color:var(--text);">${c.name}</div>
+              <div style="font-size:12px;color:var(--text-dim);margin-top:2px;">${c.doc}</div>
+              ${creditBadge(c)}
+            </div>
           </div>
 
           <!-- Contact for delivery -->
-          <div class="section-label" style="margin-top:16px;">${es?'Contacto para la Entrega':'Delivery Contact'}</div>
+          <div class="section-label">${es?'Contacto para la Entrega':'Delivery Contact'}</div>
           <div style="font-size:11px;color:var(--text-dim);margin-bottom:10px;">${es?'Datos de contacto para coordinar la entrega. Puede ser diferente al teléfono registrado del cliente.':'Contact info to coordinate delivery. Can differ from the customer\'s registered phone.'}</div>
           <div class="form-row">
-            <div class="form-group"><label class="form-label">${es?'Email de contacto':'Contact email'}</label><input class="form-input" id="shipEmail" value="${email}"/></div>
-            <div class="form-group"><label class="form-label">${es?'Teléfono de contacto para entrega':'Delivery contact phone'}</label><input class="form-input" id="shipPhone" value="${phone}"/></div>
+            <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="shipEmail" value="${email}"/></div>
+            <div class="form-group"><label class="form-label">${es?'Teléfono':'Phone'}</label><input class="form-input" id="shipPhone" value="${phone}"/></div>
           </div>
 
           <!-- Delivery address selection -->
@@ -3535,16 +3546,31 @@ function pgSalesCart(){
 
           <!-- Date selection -->
           <div class="section-label" style="margin-top:24px;">${t('salesShipDate')}</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            ${shipDates.map(d=>`<div data-shipdate="${d.iso}" style="padding:10px 16px;border-radius:var(--radius-sm);border:1.5px solid ${state.salesShipDate===d.iso?'var(--primary)':'var(--border)'};background:${state.salesShipDate===d.iso?'var(--primary-light)':'var(--white)'};cursor:pointer;text-align:center;min-width:70px;transition:all .2s;">
-              <div style="font-size:11px;font-weight:600;color:var(--text-dim);text-transform:capitalize;">${d.day}</div>
-              <div style="font-size:22px;font-weight:800;color:${state.salesShipDate===d.iso?'var(--primary)':'var(--text)'};">${d.num}</div>
-              <div style="font-size:11px;color:var(--text-dim);text-transform:capitalize;">${d.mon}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            ${shipDates.map(d=>`<div data-shipdate="${d.iso}" style="padding:8px 12px;border-radius:var(--radius-sm);border:1.5px solid ${state.salesShipDate===d.iso?'var(--primary)':'var(--border)'};background:${state.salesShipDate===d.iso?'var(--primary-light)':'var(--white)'};cursor:pointer;text-align:center;transition:all .2s;min-width:70px;">
+              <div style="font-size:12px;font-weight:700;">${d.num}</div>
+              <div style="font-size:9px;color:var(--text-dim);text-transform:capitalize;">${d.label}</div>
             </div>`).join('')}
           </div>
-          <div style="margin-top:16px;">
-            <div style="font-size:13px;font-weight:600;margin-bottom:10px;">${t('salesShipTime')}</div>
-            <div style="display:inline-flex;padding:8px 16px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--primary-light);font-size:13px;font-weight:600;color:var(--primary);">${t('salesShipTimeslot')}</div>
+
+          <!-- Time selection -->
+          <div class="section-label" style="margin-top:20px;">${t('salesShipTime')}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+            <div style="padding:10px;border-radius:var(--radius-sm);border:1.5px solid ${state._salesShipTime==='am'?'var(--primary)':'var(--border)'};background:${state._salesShipTime==='am'?'var(--primary-light)':'var(--white)'};cursor:pointer;text-align:center;transition:all .2s;" data-shiptime="am">
+              <div style="margin-bottom:2px;color:var(--warning);display:flex;justify-content:center;">${icon('sunrise',18)}</div>
+              <div style="font-size:11px;font-weight:700;">${es?'Mañana':'Morning'}</div>
+              <div style="font-size:9px;color:var(--text-dim);">8:00 - 11:59</div>
+            </div>
+            <div style="padding:10px;border-radius:var(--radius-sm);border:1.5px solid ${state._salesShipTime==='mid'?'var(--primary)':'var(--border)'};background:${state._salesShipTime==='mid'?'var(--primary-light)':'var(--white)'};cursor:pointer;text-align:center;transition:all .2s;" data-shiptime="mid">
+              <div style="margin-bottom:2px;color:var(--warning);display:flex;justify-content:center;">${icon('sun',18)}</div>
+              <div style="font-size:11px;font-weight:700;">${es?'Medio día':'Midday'}</div>
+              <div style="font-size:9px;color:var(--text-dim);">12:00 - 2:59</div>
+            </div>
+            <div style="padding:10px;border-radius:var(--radius-sm);border:1.5px solid ${state._salesShipTime==='pm'?'var(--primary)':'var(--border)'};background:${state._salesShipTime==='pm'?'var(--primary-light)':'var(--white)'};cursor:pointer;text-align:center;transition:all .2s;" data-shiptime="pm">
+              <div style="margin-bottom:2px;color:var(--warning);display:flex;justify-content:center;">${icon('sunset',18)}</div>
+              <div style="font-size:11px;font-weight:700;">${es?'Tarde':'Afternoon'}</div>
+              <div style="font-size:9px;color:var(--text-dim);">3:00 - 5:59</div>
+            </div>
           </div>
 
           <div style="margin-top:28px;">
@@ -4135,14 +4161,18 @@ function bind(){
     const isPreApproved=state.outcome===2;
     if(s==='simulation'){
       if(isPreApproved&&!state.salesSubScreen){state.screen='customerProfile';state.action=null;}
-      else{state.screen='salesCart';state.salesSubScreen='payment';state.salesTab='cart';}
+      else{state.action=null;state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';}
     }
     else if(s==='forkAml'){state.screen='simulation';}
-    else if(s==='aml'){state.screen='forkAml';}
+    else if(s==='aml'){
+      // If preapprove action came directly from credit tab, go back to credit tab
+      if(state.action==='preapprove'){state.action=null;state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';}
+      else{state.screen='forkAml';}
+    }
     else if(s==='otp'&&isPreApproved){state.screen=state.forkAml==='yes'?'aml':'forkAml';}
     else if(s==='application'){state.screen=state.forkAml==='yes'?'aml':'forkAml';}
     else if(s==='forkApproval'){state.screen=isPreApproved?'otp':'application';}
-    else{state.screen='salesCart';state.salesSubScreen=null;state.salesTab='cart';}
+    else{state.action=null;state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';}
     render();
   };
   // Search sub-screens
@@ -4207,6 +4237,7 @@ function bind(){
   // Shipping (delivery details — only for home delivery)
   const bshb=$('btnShippingBack');if(bshb)bshb.onclick=()=>{state._shipEditAddr=null;state.salesSubScreen='checkout';render();};
   document.querySelectorAll('[data-shipdate]').forEach(el=>{el.onclick=()=>{state.salesShipDate=el.dataset.shipdate;render();};});
+  document.querySelectorAll('[data-shiptime]').forEach(el=>{el.onclick=()=>{state._salesShipTime=el.dataset.shiptime;render();};});
   const bshc=$('btnShippingContinue');if(bshc)bshc.onclick=()=>{
     // Save contact edits
     const se=$('shipEmail'),sp=$('shipPhone');
@@ -4264,6 +4295,7 @@ function bind(){
     state.action=null;state.prequalStep=0;
     state.salesSubScreen=null;
     state.salesReturnToCheckout=true;
+    state._creditFromSales=true;
     state.screen='prequal';
     render();
   };
@@ -4336,6 +4368,7 @@ function bind(){
     state.outcome=state.salesScenario==='existingNoCredit'?1:3;
     state.action=null;
     state.prequalStep=0;
+    state._creditFromSales=true;
     state.screen='prequal';
     render();
   };
@@ -4426,7 +4459,12 @@ function bind(){
   const pn=$('btnPqNext');if(pn)pn.onclick=()=>{state.prequalStep=(state.prequalStep||0)+1;render();};
   const pp=$('btnPqPrev');if(pp)pp.onclick=()=>{
     const minStep=state.outcome===1?1:0;
-    if((state.prequalStep||0)<=minStep){nav(-1);}
+    if((state.prequalStep||0)<=minStep){
+      if(state._creditFromSales){
+        state._creditFromSales=false;state.outcome=null;state.action=null;
+        state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';render();
+      } else {nav(-1);}
+    }
     else{state.prequalStep=Math.max(minStep,(state.prequalStep||0)-1);render();}
   };
   // Sociodemo questionnaire
@@ -4540,7 +4578,37 @@ function bind(){
   const salesCreditFlow=!!state.salesCustomer&&!!state.action&&['simulation','forkAml','aml','otp','application','forkApproval','done','doneExpress','rejected','approved'].includes(state.screen);
   const isPreApprovedFlow=state.outcome===2;
   const bn=$('btnNext');if(bn&&!bn.disabled){
-    if(salesCreditFlow){
+    if(state._creditFromSales&&['prequal','sociodemo','forkSociodemo','otp'].includes(state.screen)){
+      bn.onclick=()=>{
+        const s=state.screen;
+        if(s==='prequal'){
+          // After prequal: if no-hit → sociodemo, if hit → otp, if rejected → rejected screen
+          if(state.isHit==='rejected'){state.screen='rejected';render();return;}
+          if(state.isHit===false){state.screen='sociodemo';render();return;}
+          state.screen='otp';render();
+        } else if(s==='sociodemo'){
+          state.screen='forkSociodemo';render();
+        } else if(s==='forkSociodemo'){
+          if(state.forkSociodemo==='rejected'){state.screen='rejected';render();return;}
+          state.screen='otp';render();
+        } else if(s==='otp'){
+          // After OTP: go back to salesCart with credit offer applied
+          state.salesCustomer.isNewCredit=true;
+          state.salesCustomer.maxCuota=state.limitUpgraded?100:85;
+          state.salesCustomer.limitMerc=state.limitUpgraded?3000:2500;
+          state.salesCustomer.limitCash=1500;
+          state.salesCustomer.forkSociodemo=state.forkSociodemo||null;
+          // Update name from prequal if available
+          const pq=state.pqData;
+          const updatedName=[pq.firstName,pq.secondName,pq.lastName1,pq.lastName2].filter(Boolean).join(' ');
+          if(updatedName)state.salesCustomer.name=updatedName.toUpperCase();
+          if(state.idType&&state.idNumber)state.salesCustomer.doc=state.idType+' '+state.idNumber;
+          state._creditFromSales=false;
+          state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';
+          render();
+        }
+      };
+    } else if(salesCreditFlow){
       bn.onclick=()=>{
         const s=state.screen;
         if(isPreApprovedFlow){
@@ -4568,19 +4636,43 @@ function bind(){
     // Special case: salesCreate back should go to salesScenario when from sales flow
     if(state.screen==='salesCreate'&&!state.outcome){
       bb.onclick=()=>{state.screen='salesScenario';render();};
+    } else if(state._creditFromSales&&['prequal','sociodemo','forkSociodemo','otp','rejected'].includes(state.screen)){
+      // Credit origination started from sales cart — back goes to salesCart credit tab
+      bb.onclick=()=>{
+        const s=state.screen;
+        if(s==='prequal'&&(state.prequalStep||0)>0){
+          // Navigate within prequal steps first
+          state.prequalStep=(state.prequalStep||0)-1;render();
+        } else if(s==='sociodemo'){state.screen='prequal';render();}
+        else if(s==='forkSociodemo'){state.screen='sociodemo';render();}
+        else if(s==='otp'){
+          const hasSocio=state.isHit===false;
+          if(hasSocio)state.screen='forkSociodemo';
+          else state.screen='prequal';
+          render();
+        }
+        else {
+          // First screen (prequal step 0) or rejected — go back to salesCart
+          state._creditFromSales=false;state.outcome=null;state.action=null;
+          state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';render();
+        }
+      };
     } else if(salesCreditFlow){
       bb.onclick=()=>{
         const s=state.screen;
         if(s==='simulation'){
           if(isPreApprovedFlow&&!state.salesSubScreen){state.screen='customerProfile';state.action=null;}
-          else{state.screen='salesCart';state.salesSubScreen='payment';state.salesTab='cart';}
+          else{state.action=null;state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';}
         }
         else if(s==='forkAml'){state.screen='simulation';}
-        else if(s==='aml'){state.screen='forkAml';}
+        else if(s==='aml'){
+          if(state.action==='preapprove'){state.action=null;state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';}
+          else{state.screen='forkAml';}
+        }
         else if(s==='otp'&&isPreApprovedFlow){state.screen=state.forkAml==='yes'?'aml':'forkAml';}
         else if(s==='application'){state.screen=state.forkAml==='yes'?'aml':'forkAml';}
         else if(s==='forkApproval'){state.screen=isPreApprovedFlow?'otp':'application';}
-        else{state.screen='salesCart';state.salesSubScreen=null;state.salesTab='cart';}
+        else{state.action=null;state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';}
         render();
       };
     } else {
