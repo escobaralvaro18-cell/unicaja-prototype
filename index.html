@@ -234,9 +234,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 
 /* ── Hamburger menu overlay ── */
 .hmenu-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:500;animation:fadeIn .2s;}
-.hmenu-overlay.open{display:flex;justify-content:flex-end;}
-.hmenu-panel{width:280px;max-width:85vw;background:var(--white);height:100%;display:flex;flex-direction:column;animation:slideLeft .25s ease;box-shadow:-4px 0 20px rgba(0,0,0,.15);}
-@keyframes slideLeft{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.hmenu-overlay.open{display:flex;justify-content:flex-start;}
+.hmenu-panel{width:280px;max-width:85vw;background:var(--white);height:100%;display:flex;flex-direction:column;animation:slideRight .25s ease;box-shadow:4px 0 20px rgba(0,0,0,.15);}
+@keyframes slideRight{from{transform:translateX(-100%)}to{transform:translateX(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
 @media(min-width:900px){
@@ -347,6 +347,7 @@ es:{
   salesScenarioTitle:'Resultado de Consulta',salesScenarioDesc:'Seleccione el escenario que aplica al cliente.',
   salesScenarioWarn:'Esta pantalla es solo para fines de demostración. En el producto real, el sistema determinará automáticamente si el cliente existe.',
   salesExisting:'Existente — Línea Aprobada',salesExistingDesc:'Tiene una línea de crédito activa y aprobada. Puede cotizar directamente.',salesExistingPath:'Cotización directa',
+  salesExistingPastDue:'Existente — Línea Activa (En Mora)',salesExistingPastDueDesc:'Tiene línea de crédito activa pero con cuotas atrasadas. No puede usar crédito hasta ponerse al día.',salesExistingPastDuePath:'Solo pago de contado o tarjeta',
   salesExistingPrequal:'Existente — Pre-calificado',salesExistingPrequalDesc:'Tiene oferta comercial (CMM + límites) pero no ha completado la aprobación de línea.',salesExistingPrequalPath:'Ver oferta → Solicitar línea o Cash',
   salesExistingNoCredit:'Existente — Sin Pre-calificar',salesExistingNoCreditDesc:'Existe en la base pero no tiene pre-calificación vigente. Puede ser que nunca fue evaluado o que su pre-calificación o línea anterior venció.',salesExistingNoCreditPath:'Puede pre-calificarse',
   salesNew:'Cliente Nuevo',salesNewDesc:'No se encontró en la base de datos. Se creará como cliente nuevo.',salesNewPath:'Crear cliente',
@@ -409,6 +410,7 @@ es:{
   oc2t:'Existente — Línea Aprobada',oc2d:'Tiene una línea de crédito activa y aprobada. Puede cotizar directamente.',oc2p:'Cotización directa',
   oc3t:'Cliente Nuevo',oc3d:'No se encontró en la base de datos. Se creará como cliente nuevo.',oc3p:'Crear cliente',
   oc4t:'Existente — Rechazado',oc4d:'Fue evaluado previamente y no calificó para crédito interno.',oc4p:'Solo pago de contado',
+  oc5t:'Existente — Línea Activa (En Mora)',oc5d:'Tiene una línea de crédito activa pero con cuotas atrasadas. No puede usar crédito hasta ponerse al día.',oc5p:'Solo pago de contado o tarjeta',
   // Prequal
   pqTitle:'Pre-calificación',pqDesc:'Complete la información del cliente paso a paso.',
   pqS1:'Datos Adicionales',pqS2:'Contacto',pqS3:'Dirección',pqS4:'Información de Ingresos',pqS5:'Consentimiento',
@@ -535,7 +537,7 @@ es:{
   doneApprovedCash:'Si el crédito es aprobado, se procederá con la facturación y desembolso del efectivo al cliente.',
   // Approved from dashboard
   approvedTitle:'Solicitud Aprobada',approvedPreTitle:'Línea de Crédito Aprobada',
-  approvedMercNext1:'Imprimir contrato y documentos de formalización del crédito',approvedMercNext2:'Obtener firma del cliente en los documentos impresos',approvedMercNext3:'Proceder con la facturación y entrega del producto al cliente',
+  approvedMercNext1:'Imprimir contrato y documentos de formalización del crédito',approvedMercNext2:'Obtener firma del cliente en los documentos impresos',approvedMercNext3:'Cobrar la prima al cliente',approvedMercNext4:'Facturar y entregar el producto al cliente',
   approvedCashNext1:'Imprimir contrato y pagaré del préstamo',approvedCashNext2:'Obtener firma del cliente en los documentos impresos',approvedCashNext3:'Proceder con la facturación y desembolso del efectivo',
   approvedPreNext1:'Imprimir contrato de línea de crédito',approvedPreNext2:'Obtener firma del cliente en los documentos',approvedPreNext3:'La línea queda activa para futuras compras en tienda',
   approvedPrint:'Imprimir Documentos',approvedBill:'Facturar y Entregar',approvedDisburse:'Facturar y Desembolsar',approvedActivate:'Activar Línea',
@@ -560,6 +562,7 @@ en:{
   salesScenarioTitle:'Query Result',salesScenarioDesc:'Select the scenario that applies to the customer.',
   salesScenarioWarn:'This screen is for demo purposes only. In the actual product, the system will automatically determine if the customer exists.',
   salesExisting:'Existing — Line Approved',salesExistingDesc:'Has an active and approved credit line. Can quote directly.',salesExistingPath:'Direct quote',
+  salesExistingPastDue:'Existing — Active Line (Past Due)',salesExistingPastDueDesc:'Has an active credit line but with overdue payments. Cannot use credit until current.',salesExistingPastDuePath:'Cash or card payment only',
   salesExistingPrequal:'Existing — Pre-qualified',salesExistingPrequalDesc:'Has commercial offer (MMI + limits) but has not completed line approval.',salesExistingPrequalPath:'View offer → Request line or Cash',
   salesExistingNoCredit:'Existing — Not Pre-qualified',salesExistingNoCreditDesc:'In the database but does not have a valid pre-qualification. May have never been evaluated or their previous pre-qualification or line expired.',salesExistingNoCreditPath:'Can be pre-qualified',
   salesNew:'New Customer',salesNewDesc:'Not found in the database. Will be created as a new customer.',salesNewPath:'Create customer',
@@ -615,6 +618,7 @@ en:{
   oc2t:'Existing — Line Approved',oc2d:'Has an active and approved credit line. Can quote directly.',oc2p:'Direct quote',
   oc3t:'New Customer',oc3d:'Not found in the database. Will be created as a new customer.',oc3p:'Create customer',
   oc4t:'Existing — Rejected',oc4d:'Previously evaluated and did not qualify for internal credit.',oc4p:'Cash payment only',
+  oc5t:'Existing — Active Line (Past Due)',oc5d:'Has an active credit line but with overdue payments. Cannot use credit until current.',oc5p:'Cash or card payment only',
   pqTitle:'Pre-qualification',pqDesc:'Complete customer information step by step.',
   pqS1:'Additional Data',pqS2:'Contact',pqS3:'Address',pqS4:'Income Information',pqS5:'Consent',
   dob:'Date of Birth',gender:'Gender',male:'Male',female:'Female',
@@ -733,7 +737,7 @@ en:{
   doneApprovedPreapprove:'If the application is approved, the customer\'s credit line contract signing will proceed.',
   doneApprovedCash:'If the credit is approved, billing and cash disbursement to the customer will proceed.',
   approvedTitle:'Application Approved',approvedPreTitle:'Credit Line Approved',
-  approvedMercNext1:'Print contract and credit formalization documents',approvedMercNext2:'Obtain customer signature on printed documents',approvedMercNext3:'Proceed with billing and product delivery to customer',
+  approvedMercNext1:'Print contract and credit formalization documents',approvedMercNext2:'Obtain customer signature on printed documents',approvedMercNext3:'Collect the down payment from the customer',approvedMercNext4:'Invoice and deliver the product to the customer',
   approvedCashNext1:'Print loan contract and promissory note',approvedCashNext2:'Obtain customer signature on printed documents',approvedCashNext3:'Proceed with billing and cash disbursement',
   approvedPreNext1:'Print credit line contract',approvedPreNext2:'Obtain customer signature on documents',approvedPreNext3:'Credit line becomes active for future in-store purchases',
   approvedPrint:'Print Documents',approvedBill:'Bill & Deliver',approvedDisburse:'Bill & Disburse',approvedActivate:'Activate Line',
@@ -838,6 +842,10 @@ function getFlowSteps(){
   if(o===4){
     return['identify','outcome','salesCart'];
   }
+  // Existente — Línea Activa (En Mora)
+  if(o===5){
+    return['identify','outcome','salesCart'];
+  }
   // Existente — Pre-calificado → straight to tab with offer
   if(o===0){
     return['identify','outcome','salesCart'];
@@ -922,7 +930,7 @@ function render(){
           const pq=state.pqData;
           const clientName=[pq.firstName,pq.secondName,pq.lastName1,pq.lastName2].filter(Boolean).join(' ')||'Cliente';
           state.salesCustomer={name:clientName.toUpperCase(),doc:(state.idType||'DUI')+' '+(state.idNumber||''),since:new Date().getFullYear().toString()};
-          if(!state.salesScenario)state.salesScenario=state.outcome===0?'existingPrequal':state.outcome===1?'existingNoCredit':'new';
+          if(!state.salesScenario)state.salesScenario=state.outcome===0?'existingPrequal':state.outcome===1?'existingNoCredit':state.outcome===5?'existingPastDue':'new';
         } else {
           // No customer, no credit flow — redirect to identification
           state.screen='salesIdentify';render();return;
@@ -931,6 +939,18 @@ function render(){
       // If customer was rejected (outcome 4), mark as rejected
       if(state.outcome===4&&!state.salesCustomer.creditRejected){
         state.salesCustomer.creditRejected=true;
+        state.salesTab='credit';
+      }
+      // If customer is past due (outcome 5), mark as pastDue
+      else if(state.outcome===5&&!state.salesCustomer.pastDue){
+        state.salesCustomer.rating='B';
+        state.salesCustomer.pastDue=true;
+        state.salesCustomer.pastDueDays=45;
+        state.salesCustomer.pastDueAccount='CRD-2025-01204';
+        state.salesCustomer.pastDueAmount=195.00;
+        state.salesCustomer.limitMerc=Math.floor((120-48.50)*29.41);
+        state.salesCustomer.limitCash=Math.floor((120-48.50)*17.65);
+        state.salesCustomer.maxCuota=120-48.50;
         state.salesTab='credit';
       }
       // If customer went through credit origination (has outcome), add offer data
@@ -1357,9 +1377,9 @@ function renderClientResults(scenarios, selectedValue, onSelectAttr, title, subt
   <div style="display:grid;gap:10px;">
     ${scenarios.map(s=>{
       const sel=selectedValue===s.val;
-      const iconBg={approved:'var(--primary-light)',prequal:'var(--success-light)',nohistory:'var(--surface-alt)',notfound:'var(--surface-alt)',noteligible:'#FEF0F0'};
-      const iconColor={approved:'var(--primary)',prequal:'var(--success)',nohistory:'var(--text-dim)',notfound:'var(--text-dim)',noteligible:'var(--danger)'};
-      const statusBadge={approved:{label:es?'Crédito Aprobado':'Credit Approved',bg:'var(--primary-light)',color:'var(--primary)'},prequal:{label:es?'Pre-calificado':'Pre-qualified',bg:'var(--success-light)',color:'var(--success)'},nohistory:{label:es?'Sin Historial':'No History',bg:'var(--surface-alt)',color:'var(--text-dim)'},notfound:{label:es?'No Encontrado':'Not Found',bg:'var(--surface-alt)',color:'var(--text-dim)'},noteligible:{label:es?'No Apto':'Not Eligible',bg:'#FEF0F0',color:'var(--danger)'}};
+      const iconBg={approved:'var(--primary-light)',prequal:'var(--success-light)',nohistory:'var(--surface-alt)',notfound:'var(--surface-alt)',noteligible:'#FEF0F0',pastdue:'var(--orange-light)'};
+      const iconColor={approved:'var(--primary)',prequal:'var(--success)',nohistory:'var(--text-dim)',notfound:'var(--text-dim)',noteligible:'var(--danger)',pastdue:'var(--orange)'};
+      const statusBadge={approved:{label:es?'Crédito Aprobado':'Credit Approved',bg:'var(--primary-light)',color:'var(--primary)'},prequal:{label:es?'Pre-calificado':'Pre-qualified',bg:'var(--success-light)',color:'var(--success)'},nohistory:{label:es?'Sin Historial':'No History',bg:'var(--surface-alt)',color:'var(--text-dim)'},notfound:{label:es?'No Encontrado':'Not Found',bg:'var(--surface-alt)',color:'var(--text-dim)'},noteligible:{label:es?'No Apto':'Not Eligible',bg:'#FEF0F0',color:'var(--danger)'},pastdue:{label:es?'En Mora':'Past Due',bg:'var(--orange-light)',color:'var(--orange)'}};
       const badge=statusBadge[s.type];
       return`<div ${onSelectAttr}="${s.val}" onclick="selectResult(this)" style="padding:14px 16px;border-radius:var(--radius-sm);border:1.5px solid ${sel?'var(--primary)':'var(--border)'};cursor:pointer;background:${sel?'var(--primary-light)':'var(--white)'};transition:all .2s;">
         <div style="display:flex;align-items:center;gap:12px;">
@@ -1385,6 +1405,7 @@ function pgOutcome(){
     {val:1,type:'nohistory',   icon:'clipboardList',isNew:false,title:t('oc1t'),desc:t('oc1d'),path:t('oc1p')},
     {val:0,type:'prequal',     icon:'checkCircle',  isNew:false,title:t('oc0t'),desc:t('oc0d'),path:t('oc0p')},
     {val:2,type:'approved',    icon:'shield',       isNew:false,title:t('oc2t'),desc:t('oc2d'),path:t('oc2p')},
+    {val:5,type:'pastdue',     icon:'alertTriangle', isNew:false,title:t('oc5t'),desc:t('oc5d'),path:t('oc5p')},
     {val:4,type:'noteligible', icon:'x',            isNew:false,title:t('oc4t'),desc:t('oc4d'),path:t('oc4p')},
   ];
   const html=renderClientResults(scenarios,state.outcome,'data-outcome',t('ocTitle'),t('ocDesc'),t('demoWarn'));
@@ -2480,6 +2501,16 @@ function pgDoneExpress(){
 
       ${bioSection}
 
+      ${state.action==='cart'?`
+      <div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--primary-light);margin-bottom:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div style="font-size:12px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;">${state.lang==='es'?'Prima a Cobrar':'Down Payment Due'}</div>
+          <div style="font-family:var(--mono);font-size:22px;font-weight:800;color:var(--primary);">$${(state.simPrima||Math.ceil((state.simCartTotal||1200)*0.10)).toLocaleString('en',{minimumFractionDigits:2})}</div>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;">${state.lang==='es'?'Este monto debe ser cobrado al cliente antes de entregar el producto.':'This amount must be collected from the customer before delivering the product.'}</div>
+      </div>
+      `:''}
+
       <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--white);border:1px solid var(--border);margin-bottom:14px;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">${state.lang==='es'?'Próximos pasos':'Next steps'}</div>
         <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
@@ -2490,10 +2521,14 @@ function pgDoneExpress(){
           <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">2</div>
           <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.lang==='es'?'Obtener firma del cliente en los documentos impresos':'Obtain customer signature on printed documents'}</div>
         </div>
-        <div style="display:flex;align-items:flex-start;gap:10px;">
+        <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
           <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">3</div>
-          <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.action==='cash'?(state.lang==='es'?'Proceder con la facturación y desembolso del efectivo al cliente':'Proceed with billing and cash disbursement to the customer'):(state.lang==='es'?'Proceder con la facturación y entrega del producto al cliente':'Proceed with billing and product delivery to the customer')}</div>
+          <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.action==='cash'?(state.lang==='es'?'Proceder con la facturación y desembolso del efectivo al cliente':'Proceed with billing and cash disbursement to the customer'):(state.lang==='es'?'Cobrar la prima al cliente':'Collect the down payment from the customer')}</div>
         </div>
+        ${state.action==='cart'?`<div style="display:flex;align-items:flex-start;gap:10px;">
+          <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">4</div>
+          <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.lang==='es'?'Facturar y entregar el producto al cliente':'Invoice and deliver the product to the customer'}</div>
+        </div>`:''}
       </div>
 
       <button class="btn btn-primary" id="btnExpressPrint" style="width:100%;justify-content:center;padding:12px;font-size:14px;display:flex;align-items:center;gap:6px;" ${!canProceed?'disabled':''}>${icon('fileText',16)} ${t('doneExpPrint')}</button>
@@ -2517,7 +2552,7 @@ function pgApproved(){
   const title=isPre?t('approvedPreTitle'):t('approvedTitle');
   const steps=isPre?[t('approvedPreNext1'),t('approvedPreNext2'),t('approvedPreNext3')]
     :isCash?[t('approvedCashNext1'),t('approvedCashNext2'),t('approvedCashNext3')]
-    :[t('approvedMercNext1'),t('approvedMercNext2'),t('approvedMercNext3')];
+    :[t('approvedMercNext1'),t('approvedMercNext2'),t('approvedMercNext3'),t('approvedMercNext4')];
   const btnLabel=isPre?t('approvedActivate'):isCash?t('approvedDisburse'):t('approvedBill');
 
   // Verification section — biometric or OTP
@@ -2608,6 +2643,16 @@ function pgApproved(){
       </div>
 
       ${verifySection}
+
+      ${!isPre&&!isCash?`
+      <div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--primary-light);margin-bottom:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div style="font-size:12px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;">${state.lang==='es'?'Prima a Cobrar':'Down Payment Due'}</div>
+          <div style="font-family:var(--mono);font-size:22px;font-weight:800;color:var(--primary);">$${(state.simPrima||Math.ceil(parseFloat((sol.amount||'$1200').replace(/[^0-9.]/g,''))*0.10)).toLocaleString('en',{minimumFractionDigits:2})}</div>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;">${state.lang==='es'?'Este monto debe ser cobrado al cliente antes de entregar el producto.':'This amount must be collected from the customer before delivering the product.'}</div>
+      </div>
+      `:''}
 
       <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--white);border:1px solid var(--border);margin-bottom:14px;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">${state.lang==='es'?'Próximos pasos':'Next steps'}</div>
@@ -2909,6 +2954,7 @@ function pgSalesScenario(){
     {val:'existingNoCredit',type:'nohistory',  icon:'clipboardList',isNew:false,title:t('salesExistingNoCredit'), desc:t('salesExistingNoCreditDesc'), path:t('salesExistingNoCreditPath')},
     {val:'existingPrequal',type:'prequal',     icon:'checkCircle',  isNew:false,title:t('salesExistingPrequal'),  desc:t('salesExistingPrequalDesc'),  path:t('salesExistingPrequalPath')},
     {val:'existing',       type:'approved',    icon:'shield',       isNew:false,title:t('salesExisting'),         desc:t('salesExistingDesc'),         path:t('salesExistingPath')},
+    {val:'existingPastDue',type:'pastdue',     icon:'alertTriangle',isNew:false,title:t('salesExistingPastDue'),  desc:t('salesExistingPastDueDesc'),  path:t('salesExistingPastDuePath')},
     {val:'rejected',       type:'noteligible', icon:'x',            isNew:false,title:t('salesRejected'),         desc:t('salesRejectedDesc'),         path:t('salesRejectedPath')},
   ];
   const html=renderClientResults(scenarios,state.salesScenario,'data-salesscenario',t('salesScenarioTitle'),t('salesScenarioDesc'),t('salesScenarioWarn'));
@@ -3175,6 +3221,9 @@ function pgUpdateClient(){
 function creditBadge(c){
   const es=state.lang==='es';
   if(!c)return'';
+  if(c.rating&&c.pastDue){
+    return`<div style="margin-top:4px;display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:10px;background:var(--orange-light);border:1px solid #F5C9A8;font-size:10px;font-weight:700;color:var(--orange);">${icon('alertTriangle',10,'#E07428')} ${es?'Línea activa — En mora':'Active line — Past due'}</div>`;
+  }
   if(c.rating){
     return`<div style="margin-top:4px;display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:10px;background:var(--success-light);border:1px solid var(--success-border);font-size:10px;font-weight:700;color:var(--success);">${icon('shield',10,'#0D9B68')} ${es?'Línea activa':'Active line'}</div>`;
   }
@@ -3399,8 +3448,20 @@ function pgSalesCart(){
   // ─── SUB: Shipping Method ───
   if(sub==='shipping'){
     const c=customer;
+    const es=state.lang==='es';
     const shipDates=[];const now=new Date();
-    for(let i=2;i<=8;i+=2){const d=new Date(now);d.setDate(d.getDate()+i);shipDates.push({iso:d.toISOString().split('T')[0],day:d.toLocaleDateString(state.lang==='es'?'es-SV':'en-US',{weekday:'short'}).replace('.',''),num:d.getDate(),mon:d.toLocaleDateString(state.lang==='es'?'es-SV':'en-US',{month:'short'}).replace('.','')});}
+    for(let i=2;i<=8;i+=2){const d=new Date(now);d.setDate(d.getDate()+i);shipDates.push({iso:d.toISOString().split('T')[0],day:d.toLocaleDateString(es?'es-SV':'en-US',{weekday:'short'}).replace('.',''),num:d.getDate(),mon:d.toLocaleDateString(es?'es-SV':'en-US',{month:'short'}).replace('.','')});}
+
+    // Ensure delivery addresses exist
+    if(!c.deliveryAddresses)c.deliveryAddresses=[{id:1,label:es?'Casa':'Home',dept:'San Salvador',muni:'San Salvador Centro',street:es?'Colonia Escalón, Calle La Reforma #245':'Escalon, La Reforma St #245',isDefault:true}];
+    const addrs=c.deliveryAddresses;
+    const selectedAddr=state._shipAddrId||((addrs.find(a=>a.isDefault)||addrs[0]||{}).id);
+    const email=c.email||state.pqData.email||'cliente@email.com';
+    const phone=c.phone||state.pqData.phone||'+503 7890-1234';
+    const nameParts=(c.name||'').split(' ').filter(Boolean);
+    const firstName=nameParts.slice(0,Math.ceil(nameParts.length/2)).join(' ');
+    const lastName=nameParts.slice(Math.ceil(nameParts.length/2)).join(' ');
+
     return`<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);">
       <div style="padding:12px 16px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;">
         <span id="btnShippingBack" style="cursor:pointer;display:flex;color:var(--text-dim);transform:rotate(180deg);">${icon('chevronRight',22)}</span>
@@ -3414,28 +3475,66 @@ function pgSalesCart(){
             <div style="font-size:12px;font-weight:600;color:var(--primary);">${t('salesShipHome')} — ${t('salesShipCost')}</div>
           </div>
 
-          <!-- Client fields (read-only) -->
-          <div class="section-label">${state.lang==='es'?'Datos del Cliente':'Customer Data'}</div>
+          <!-- Client data (read-only) -->
+          <div class="section-label">${es?'Datos del Cliente':'Customer Data'}</div>
           <div class="form-row">
-            <div class="form-group"><label class="form-label">${state.lang==='es'?'Nombres':'Names'}</label><input class="form-input" value="${c.name.split(' ').slice(0,2).join(' ')}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
-            <div class="form-group"><label class="form-label">${state.lang==='es'?'Apellidos':'Last names'}</label><input class="form-input" value="${c.name.split(' ').slice(2).join(' ')}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">Email</label><input class="form-input" value="${state.pqData.email||'cliente@email.com'}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
-            <div class="form-group"><label class="form-label">${t('phone')}</label><input class="form-input" value="${state.pqData.phone||'+503 7890-1234'}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
+            <div class="form-group"><label class="form-label">${es?'Nombres':'Names'}</label><input class="form-input" value="${firstName}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
+            <div class="form-group"><label class="form-label">${es?'Apellidos':'Last names'}</label><input class="form-input" value="${lastName}" readonly style="background:var(--surface-alt);color:var(--text-dim);"/></div>
           </div>
 
-          <!-- Address -->
-          <div class="section-label" style="margin-top:20px;">${state.lang==='es'?'Dirección de Entrega':'Delivery Address'}</div>
+          <!-- Contact for delivery -->
+          <div class="section-label" style="margin-top:16px;">${es?'Contacto para la Entrega':'Delivery Contact'}</div>
+          <div style="font-size:11px;color:var(--text-dim);margin-bottom:10px;">${es?'Datos de contacto para coordinar la entrega. Puede ser diferente al teléfono registrado del cliente.':'Contact info to coordinate delivery. Can differ from the customer\'s registered phone.'}</div>
           <div class="form-row">
-            <div class="form-group"><label class="form-label">${t('dept')} *</label><select class="form-select"><option>San Salvador</option><option>La Libertad</option><option>Santa Ana</option></select></div>
-            <div class="form-group"><label class="form-label">${t('muni')} *</label><select class="form-select"><option>San Salvador Centro</option><option>Mejicanos</option><option>Soyapango</option></select></div>
+            <div class="form-group"><label class="form-label">${es?'Email de contacto':'Contact email'}</label><input class="form-input" id="shipEmail" value="${email}"/></div>
+            <div class="form-group"><label class="form-label">${es?'Teléfono de contacto para entrega':'Delivery contact phone'}</label><input class="form-input" id="shipPhone" value="${phone}"/></div>
           </div>
-          <div class="form-group"><label class="form-label">${state.lang==='es'?'Distrito':'District'} *</label><select class="form-select"><option>${state.lang==='es'?'Centro':'Downtown'}</option></select></div>
-          <div class="form-group"><label class="form-label">${state.lang==='es'?'Dirección':'Address'} *</label><textarea class="form-input" rows="3" style="resize:none;">${state.lang==='es'?'Colonia Escalón, Calle La Reforma, Casa #123':'Escalon neighborhood, La Reforma St, House #123'}</textarea></div>
+
+          <!-- Delivery address selection -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;">
+            <div class="section-label" style="margin-bottom:0;">${es?'Dirección de Entrega':'Delivery Address'}</div>
+            <span id="btnShipAddAddr" style="font-size:11px;font-weight:700;color:var(--primary);cursor:pointer;display:inline-flex;align-items:center;gap:4px;">${icon('plus',12,'#2B5CE6')} ${es?'Nueva':'New'}</span>
+          </div>
+          <div style="font-size:11px;color:var(--text-dim);margin-bottom:12px;margin-top:4px;">${es?'Seleccione o agregue una dirección de entrega.':'Select or add a delivery address.'}</div>
+
+          ${state._shipEditAddr!==undefined&&state._shipEditAddr!==null?`
+          <div style="padding:16px;border:1.5px solid var(--primary);border-radius:var(--radius-sm);background:var(--primary-light);margin-bottom:12px;">
+            <div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:12px;">${state._shipEditAddr==='new'?(es?'Nueva dirección de entrega':'New delivery address'):(es?'Editar dirección':'Edit address')}</div>
+            <div class="form-group"><label class="form-label">${es?'Etiqueta':'Label'}</label><input class="form-input" id="shipAddrLabel" placeholder="${es?'Ej: Casa, Oficina...':'E.g: Home, Office...'}" value="${state._shipEditAddr==='new'?'':(addrs.find(a=>a.id===state._shipEditAddr)||{}).label||''}"/></div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">${t('dept')}</label><select class="form-select" id="shipAddrDept"><option value="">...</option><option ${(state._shipEditAddr!=='new'&&(addrs.find(a=>a.id===state._shipEditAddr)||{}).dept==='San Salvador')?'selected':''}>San Salvador</option><option ${(state._shipEditAddr!=='new'&&(addrs.find(a=>a.id===state._shipEditAddr)||{}).dept==='La Libertad')?'selected':''}>La Libertad</option><option ${(state._shipEditAddr!=='new'&&(addrs.find(a=>a.id===state._shipEditAddr)||{}).dept==='Santa Ana')?'selected':''}>Santa Ana</option></select></div>
+              <div class="form-group"><label class="form-label">${t('muni')}</label><select class="form-select" id="shipAddrMuni"><option value="">...</option><option ${(state._shipEditAddr!=='new'&&(addrs.find(a=>a.id===state._shipEditAddr)||{}).muni==='San Salvador Centro')?'selected':''}>San Salvador Centro</option><option ${(state._shipEditAddr!=='new'&&(addrs.find(a=>a.id===state._shipEditAddr)||{}).muni==='Mejicanos')?'selected':''}>Mejicanos</option><option ${(state._shipEditAddr!=='new'&&(addrs.find(a=>a.id===state._shipEditAddr)||{}).muni==='Santa Tecla')?'selected':''}>Santa Tecla</option></select></div>
+            </div>
+            <div class="form-group"><label class="form-label">${es?'Dirección':'Address'}</label><textarea class="form-input" id="shipAddrStreet" rows="2" style="resize:none;">${state._shipEditAddr==='new'?'':(addrs.find(a=>a.id===state._shipEditAddr)||{}).street||''}</textarea></div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-primary" id="btnShipSaveAddr" style="padding:8px 18px;font-size:12px;">${icon('check',14)} ${es?'Guardar':'Save'}</button>
+              <button class="btn btn-secondary" id="btnShipCancelAddr" style="padding:8px 18px;font-size:12px;">${es?'Cancelar':'Cancel'}</button>
+            </div>
+          </div>
+          `:''}
+
+          ${addrs.map(a=>`
+            <div data-shipaddr="${a.id}" style="padding:14px;border:1.5px solid ${selectedAddr===a.id?'var(--primary)':a.isDefault?'var(--primary)':'var(--border)'};border-radius:var(--radius-sm);margin-bottom:8px;background:${selectedAddr===a.id?'var(--primary-light)':'var(--white)'};cursor:pointer;transition:all .2s;">
+              <div style="display:flex;align-items:flex-start;gap:10px;">
+                <div style="width:20px;height:20px;border-radius:50%;border:2px solid ${selectedAddr===a.id?'var(--primary)':'var(--border)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">${selectedAddr===a.id?'<div style="width:10px;height:10px;border-radius:50%;background:var(--primary);"></div>':''}</div>
+                <div style="flex:1;">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                    <span style="font-size:13px;font-weight:700;color:var(--text);">${a.label||'—'}</span>
+                    ${a.isDefault?`<span style="padding:1px 8px;border-radius:10px;background:var(--primary-light);font-size:9px;font-weight:700;color:var(--primary);">${es?'PREDETERMINADA':'DEFAULT'}</span>`:''}
+                  </div>
+                  <div style="font-size:12px;color:var(--text-secondary);line-height:1.4;">${a.street||''}</div>
+                  <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">${a.muni||''}, ${a.dept||''}</div>
+                </div>
+                <div style="display:flex;gap:4px;flex-shrink:0;">
+                  <span data-shipeditaddr="${a.id}" style="cursor:pointer;display:flex;color:var(--primary);padding:4px;">${icon('clipboardList',14)}</span>
+                  ${!a.isDefault?`<span data-shipdeladdr="${a.id}" style="cursor:pointer;display:flex;color:var(--danger);padding:4px;">${icon('x',14)}</span>`:''}
+                </div>
+              </div>
+            </div>
+          `).join('')}
 
           <!-- Date selection -->
-          <div class="section-label" style="margin-top:20px;">${t('salesShipDate')}</div>
+          <div class="section-label" style="margin-top:24px;">${t('salesShipDate')}</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
             ${shipDates.map(d=>`<div data-shipdate="${d.iso}" style="padding:10px 16px;border-radius:var(--radius-sm);border:1.5px solid ${state.salesShipDate===d.iso?'var(--primary)':'var(--border)'};background:${state.salesShipDate===d.iso?'var(--primary-light)':'var(--white)'};cursor:pointer;text-align:center;min-width:70px;transition:all .2s;">
               <div style="font-size:11px;font-weight:600;color:var(--text-dim);text-transform:capitalize;">${d.day}</div>
@@ -3460,19 +3559,38 @@ function pgSalesCart(){
   if(sub==='payment'){
     const shipCost=state.salesShipMethod==='home'?5.00:0;
     const grandTotal=total+shipCost;
-    const hasCredit=(customer.isNewCredit||state.salesScenario==='existing')&&!customer.creditRejected;
+    const hasCredit=(customer.isNewCredit||state.salesScenario==='existing')&&!customer.creditRejected&&!customer.pastDue;
     const mercLimit=customer.limitMerc||2500;
     
     const hasPromo=items.some(it=>it.creditPromo);
     
     let methods=[];
     if(hasCredit){
-      methods.push({id:'credit',label:t('salesPayCredit'),desc:t('salesPayCreditDesc'),extra:`<div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--success);margin-top:4px;">${state.lang==='es'?'Límite Disponible Mercadería':'Available Merchandise Limit'}: $${mercLimit.toLocaleString('en')}</div>${grandTotal>mercLimit?`<div style="font-size:11px;color:var(--danger);font-weight:600;margin-top:4px;">${state.lang==='es'?'El total excede el límite disponible':'Total exceeds available limit'}</div>`:``}`,highlight:true});
+      methods.push({id:'credit',label:t('salesPayCredit'),desc:t('salesPayCreditDesc'),extra:`<div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--success);margin-top:4px;">${state.lang==='es'?'Límite Disponible Mercadería':'Available Merchandise Limit'}: $${mercLimit.toLocaleString('en')}</div>${grandTotal>mercLimit?`<div style="font-size:11px;color:var(--danger);font-weight:600;margin-top:4px;">${state.lang==='es'?'El total excede el límite disponible':'Total exceeds available limit'}</div>`:``}`,highlight:true,disabled:false});
     }
     if(!hasPromo){
-      methods.push({id:'card',label:t('salesPayCard'),desc:t('salesPayCardDesc'),extra:'',highlight:false});
-      methods.push({id:'cash',label:t('salesPayCash'),desc:t('salesPayCashDesc'),extra:'',highlight:false});
+      methods.push({id:'card',label:t('salesPayCard'),desc:t('salesPayCardDesc'),extra:'',highlight:false,disabled:false});
+      methods.push({id:'cash',label:t('salesPayCash'),desc:t('salesPayCashDesc'),extra:'',highlight:false,disabled:false});
     }
+
+    // Past due: show credit option but disabled with warning
+    const pastDueBanner=customer.pastDue?`
+      <div style="padding:14px;border-radius:var(--radius-sm);border:2px solid var(--danger);background:#FEF0F0;margin-bottom:16px;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <span style="flex-shrink:0;display:flex;color:var(--danger);margin-top:2px;">${icon('alertTriangle',16)}</span>
+          <div style="flex:1;">
+            <div style="font-size:12px;font-weight:700;color:var(--danger);margin-bottom:4px;">${state.lang==='es'?'Crédito propio no disponible':'Store credit not available'}</div>
+            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;">${state.lang==='es'?'Este cliente tiene':'This customer has'} <strong style="color:var(--danger);">${customer.pastDueDays} ${state.lang==='es'?'días de atraso':'days past due'}</strong> ${state.lang==='es'?'en la cuenta':'on account'} <strong style="font-family:var(--mono);">${customer.pastDueAccount}</strong>. ${state.lang==='es'?'Debe ponerse al día para reactivar su línea de crédito.':'Must get current to reactivate their credit line.'}</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:1px solid var(--border);opacity:0.4;cursor:not-allowed;">
+        <div style="width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;"></div>
+        <div style="flex:1;">
+          <div style="font-size:15px;font-weight:700;text-decoration:line-through;">${t('salesPayCredit')}</div>
+          <div style="font-size:12px;color:var(--text-dim);line-height:1.5;margin-top:2px;">${state.lang==='es'?'No disponible — cuenta en mora':'Not available — past due account'}</div>
+        </div>
+      </div>`:'';
     
     // Promo banner for credit-only restriction
     const promoBanner=hasPromo?`
@@ -3482,7 +3600,7 @@ function pgSalesCart(){
       </div>`:'';
     
     // Pre-qualification banner for customers without credit
-    const prequalBanner=!hasCredit&&!customer.creditRejected?`
+    const prequalBanner=!hasCredit&&!customer.creditRejected&&!customer.pastDue?`
       <div style="padding:16px;border-radius:var(--radius-sm);background:var(--primary-light);border:1.5px solid #C5D0F0;margin-bottom:20px;">
         <div style="display:flex;align-items:flex-start;gap:12px;">
           <div style="width:40px;height:40px;border-radius:50%;background:var(--white);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #C5D0F0;">${icon('creditCard',20,'#2B5CE6')}</div>
@@ -3502,6 +3620,7 @@ function pgSalesCart(){
       <div style="flex:1;padding:16px;overflow-y:auto;">
         <div class="inner-container">
           ${promoBanner}
+          ${pastDueBanner}
           ${prequalBanner}
           ${methods.map(m=>`<div data-paymethod="${m.id}" style="display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:1px solid var(--border);cursor:pointer;${m.highlight&&!state.salesPayMethod?'background:var(--primary-light);margin:0 -16px;padding-left:16px;padding-right:16px;border-radius:var(--radius-sm);border:1.5px solid var(--primary-light);margin-bottom:8px;':''}">
             <div style="width:22px;height:22px;border-radius:50%;border:2px solid ${state.salesPayMethod===m.id?'var(--primary)':'var(--border)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">${state.salesPayMethod===m.id?'<div style="width:12px;height:12px;border-radius:50%;background:var(--primary);"></div>':''}</div>
@@ -3593,6 +3712,48 @@ function pgSalesCart(){
               ?'El cliente puede realizar su compra utilizando <strong style="color:var(--text);">efectivo</strong> o <strong style="color:var(--text);">tarjeta de crédito/débito</strong> como forma de pago.'
               :'The customer can make their purchase using <strong style="color:var(--text);">cash</strong> or <strong style="color:var(--text);">credit/debit card</strong> as payment method.'}
           </div>
+        </div>
+      </div>`;
+    } else if(customer.pastDue){
+      // Customer with active line but past due — show warning + disabled credit
+      const es=state.lang==='es';
+      const totalCMM=120.00,cmmUsed=48.50,cmmAvail=totalCMM-cmmUsed;
+      content=`
+      <!-- Past Due Warning -->
+      <div style="padding:16px;border-radius:var(--radius-sm);border:2px solid var(--danger);background:#FEF0F0;margin-bottom:16px;">
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+          <div style="width:44px;height:44px;border-radius:50%;background:#FEF0F0;border:2px solid var(--danger);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon('alertTriangle',20,'#D63B4A')}</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:800;color:var(--danger);margin-bottom:4px;">${es?'Crédito Suspendido — Cuenta en Mora':'Credit Suspended — Past Due Account'}</div>
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:10px;">
+              ${es?'Este cliente tiene':'This customer has'} <strong style="color:var(--danger);">${customer.pastDueDays} ${es?'días de atraso':'days past due'}</strong> ${es?'en la cuenta':'on account'} <strong style="font-family:var(--mono);">${customer.pastDueAccount}</strong>.
+              ${es?'Debe ponerse al día antes de utilizar nuevamente su línea de crédito.':'Must get current before using their credit line again.'}
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <div style="padding:6px 14px;border-radius:var(--radius-sm);background:var(--white);border:1px solid var(--danger);font-size:12px;font-weight:700;color:var(--danger);display:flex;align-items:center;gap:6px;">${icon('banknote',14,'#D63B4A')} ${es?'Monto adeudado':'Amount owed'}: <span style="font-family:var(--mono);">$${customer.pastDueAmount.toFixed(2)}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CMM + Limits (dimmed) -->
+      <div style="opacity:0.45;pointer-events:none;">
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+          <div style="font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:4px;">${icon('calendar',12)} ${t('cpSince')}: <strong>${customer.since||'2020'}</strong></div>
+        </div>
+        <div style="padding:18px;border:1.5px solid #C5D0F0;border-radius:var(--radius-sm);background:var(--primary-light);margin-bottom:16px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--primary);margin-bottom:2px;">${es?'Cuota Máxima Mensual':'Monthly Maximum Installment'}</div>
+          <div style="font-family:var(--mono);font-size:32px;font-weight:700;color:var(--primary);">$${cmmAvail.toFixed(2)}</div>
+        </div>
+      </div>
+
+      <!-- Available payment methods -->
+      <div style="padding:16px;border-radius:var(--radius-sm);background:var(--primary-light);border:1px solid #C5D0F0;">
+        <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:6px;display:flex;align-items:center;gap:6px;">${icon('shoppingCart',15)} ${es?'Métodos de pago disponibles':'Available payment methods'}</div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">
+          ${es
+            ?'Mientras el cliente tenga cuotas atrasadas, puede realizar compras utilizando <strong style="color:var(--text);">efectivo</strong> o <strong style="color:var(--text);">tarjeta de crédito/débito</strong> como forma de pago.'
+            :'While the customer has overdue payments, they can make purchases using <strong style="color:var(--text);">cash</strong> or <strong style="color:var(--text);">credit/debit card</strong> as payment method.'}
         </div>
       </div>`;
     } else if(!isExist&&!hasOffer){
@@ -3845,6 +4006,9 @@ function bind(){
     } else if(state.salesScenario==='rejected'){
       state.salesCustomer={name:'PEDRO ANTONIO HERNANDEZ CASTRO',doc:(state.salesIdType||'DUI')+': '+(state.salesIdNumber||'06284719-5'),creditRejected:true};
       state.screen='salesCart';state.salesTab='credit';
+    } else if(state.salesScenario==='existingPastDue'){
+      state.salesCustomer={name:'JOSE ROBERTO MENDEZ LUNA',doc:(state.salesIdType||'DUI')+': '+(state.salesIdNumber||'04738291-8'),since:'2020',rating:'B',pastDue:true,pastDueDays:45,pastDueAccount:'CRD-2025-01204',pastDueAmount:195.00,limitMerc:Math.floor((120-48.50)*29.41),limitCash:Math.floor((120-48.50)*17.65),maxCuota:120-48.50};
+      state.screen='salesCart';state.salesTab='credit';
     }
     // Auto-add pending product if coming from add-to-cart without customer
     if(state._pendingCartItem&&state.salesCustomer){
@@ -4041,9 +4205,41 @@ function bind(){
     render();
   };
   // Shipping (delivery details — only for home delivery)
-  const bshb=$('btnShippingBack');if(bshb)bshb.onclick=()=>{state.salesSubScreen='checkout';render();};
+  const bshb=$('btnShippingBack');if(bshb)bshb.onclick=()=>{state._shipEditAddr=null;state.salesSubScreen='checkout';render();};
   document.querySelectorAll('[data-shipdate]').forEach(el=>{el.onclick=()=>{state.salesShipDate=el.dataset.shipdate;render();};});
-  const bshc=$('btnShippingContinue');if(bshc)bshc.onclick=()=>{state.salesSubScreen='payment';render();};
+  const bshc=$('btnShippingContinue');if(bshc)bshc.onclick=()=>{
+    // Save contact edits
+    const se=$('shipEmail'),sp=$('shipPhone');
+    if(se&&state.salesCustomer){state.salesCustomer.email=se.value;state.pqData.email=se.value;}
+    if(sp&&state.salesCustomer){state.salesCustomer.phone=sp.value;state.pqData.phone=sp.value;}
+    state._shipEditAddr=null;state.salesSubScreen='payment';render();
+  };
+  // Shipping address selection
+  document.querySelectorAll('[data-shipaddr]').forEach(el=>{el.onclick=(e)=>{if(e.target.closest('[data-shipeditaddr]')||e.target.closest('[data-shipdeladdr]'))return;state._shipAddrId=parseInt(el.dataset.shipaddr);render();};});
+  // Shipping address CRUD
+  const bsaa=$('btnShipAddAddr');if(bsaa)bsaa.onclick=()=>{state._shipEditAddr='new';render();};
+  const bsca=$('btnShipCancelAddr');if(bsca)bsca.onclick=()=>{state._shipEditAddr=null;render();};
+  const bssa=$('btnShipSaveAddr');if(bssa)bssa.onclick=()=>{
+    const c=state.salesCustomer;if(!c)return;
+    if(!c.deliveryAddresses)c.deliveryAddresses=[];
+    const label=$('shipAddrLabel')?$('shipAddrLabel').value:'';
+    const dept=$('shipAddrDept')?$('shipAddrDept').value:'';
+    const muni=$('shipAddrMuni')?$('shipAddrMuni').value:'';
+    const street=$('shipAddrStreet')?$('shipAddrStreet').value:'';
+    if(!street){alert(state.lang==='es'?'Ingrese la dirección':'Enter the address');return;}
+    if(state._shipEditAddr==='new'){
+      const maxId=c.deliveryAddresses.reduce((m,a)=>Math.max(m,a.id),0);
+      const newAddr={id:maxId+1,label:label||'',dept,muni,street,isDefault:c.deliveryAddresses.length===0};
+      c.deliveryAddresses.push(newAddr);
+      state._shipAddrId=newAddr.id;
+    } else {
+      const addr=c.deliveryAddresses.find(a=>a.id===state._shipEditAddr);
+      if(addr){addr.label=label;addr.dept=dept;addr.muni=muni;addr.street=street;}
+    }
+    state._shipEditAddr=null;render();
+  };
+  document.querySelectorAll('[data-shipeditaddr]').forEach(el=>{el.onclick=(e)=>{e.stopPropagation();state._shipEditAddr=parseInt(el.dataset.shipeditaddr);render();};});
+  document.querySelectorAll('[data-shipdeladdr]').forEach(el=>{el.onclick=(e)=>{e.stopPropagation();const c=state.salesCustomer;if(!c)return;const id=parseInt(el.dataset.shipdeladdr);c.deliveryAddresses=c.deliveryAddresses.filter(a=>a.id!==id);if(state._shipAddrId===id)state._shipAddrId=null;render();};});
   // Payment
   const bpb=$('btnPaymentBack');if(bpb)bpb.onclick=()=>{
     if(state.salesShipMethod==='home'){state.salesSubScreen='shipping';}
