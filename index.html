@@ -377,7 +377,7 @@ es:{
   salesPaySubtotal:'Subtotal',salesPayShipping:'Envío',salesPayTotal:'TOTAL',salesPayContinue:'Continuar con el pago',
   dashTitle:'Mis solicitudes de crédito',dashEmpty:'No hay solicitudes recientes',
   dashRef:'Ref.',dashClient:'Cliente',dashProduct:'Producto',dashAmount:'Monto',dashDate:'Fecha',
-  dashStatusAnalysis:'En análisis',dashStatusApproved:'Aprobado',dashStatusPendingBill:'Pendiente facturar',dashStatusRejected:'Rechazado',dashStatusVisit:'Visita pendiente',dashStatusObserved:'Observada',dashStatusAnalysisVisit:'En análisis — Visita agendada',
+  dashStatusAnalysis:'En análisis',dashStatusApproved:'Aprobada',dashStatusApprovedPendingId:'Aprobada — Pendiente ID',dashStatusPendingBill:'Pendiente facturar',dashStatusBilled:'Facturada',dashStatusRejected:'Rechazado',dashStatusVisit:'Visita pendiente',dashStatusObserved:'Observada',dashStatusAnalysisVisit:'En análisis — Visita agendada',
   // Observed screen
   obsTitle:'Solicitud Observada',obsDesc:'El área de crédito ha revisado la solicitud y requiere correcciones o información adicional.',
   obsComments:'Comentarios del Analista',obsResubmit:'Reenviar Solicitud',obsBackDash:'Volver al Dashboard',
@@ -592,7 +592,7 @@ en:{
   salesPaySubtotal:'Subtotal',salesPayShipping:'Shipping',salesPayTotal:'TOTAL',salesPayContinue:'Continue to payment',
   dashTitle:'My credit applications',dashEmpty:'No recent applications',
   dashRef:'Ref.',dashClient:'Client',dashProduct:'Product',dashAmount:'Amount',dashDate:'Date',
-  dashStatusAnalysis:'Under review',dashStatusApproved:'Approved',dashStatusPendingBill:'Pending billing',dashStatusRejected:'Rejected',dashStatusVisit:'Visit pending',dashStatusObserved:'Observed',dashStatusAnalysisVisit:'Under review — Visit scheduled',
+  dashStatusAnalysis:'Under review',dashStatusApproved:'Approved',dashStatusApprovedPendingId:'Approved — Pending ID',dashStatusPendingBill:'Pending billing',dashStatusBilled:'Billed',dashStatusRejected:'Rejected',dashStatusVisit:'Visit pending',dashStatusObserved:'Observed',dashStatusAnalysisVisit:'Under review — Visit scheduled',
   obsTitle:'Observed Application',obsDesc:'The credit department has reviewed the application and requires corrections or additional information.',
   obsComments:'Analyst Comments',obsResubmit:'Resubmit Application',obsBackDash:'Back to Dashboard',
   cpTitle:'Customer Profile',cpDesc:'Existing pre-approved customer. Can proceed directly with a purchase or loan.',
@@ -813,12 +813,15 @@ let state = {
   limitUpgraded:false,
   amlAnswers:{},
   uploads:{address:[],income:[],idFront:false,idBack:false},
-  solicitudes:[
-    {ref:'SOL-240301',client:'María Elena Guzmán López',doc:'DUI 04523891-7',product:'Mercadería',amount:'$1,249.99',date:'22/03/2026',action:'cart',outcome:1,isNew:false,phone:'+503 7654-3210',status:'approved',hasVisit:false,refs:[{name:'Ana Guzmán',phone:'7890-1234',rel:'Madre'},{name:'Pedro López',phone:'7890-5678',rel:'Hermano'}],uploads:{address:['factura_agua_mar2026.pdf'],income:['constancia_salario.pdf'],idFront:true,idBack:true}},
-    {ref:'SOL-240302',client:'Roberto Carlos Martínez',doc:'DUI 02938471-5',product:'Cash',amount:'$800.00',date:'21/03/2026',action:'cash',outcome:3,isNew:true,phone:'+503 6543-2109',status:'observed',hasVisit:false,obsComments:'Las referencias personales proporcionadas no contestan al teléfono indicado. Favor proporcionar referencias que puedan ser contactadas.\n\nAdicionalmente, se requiere constancia de salario actualizada del último mes.',refs:[{name:'Carlos Pérez',phone:'7111-2222',rel:''},{name:'',phone:'',rel:''}],uploads:{address:['recibo_luz.pdf'],income:[],idFront:true,idBack:true}},
-    {ref:'SOL-240303',client:'Ana Patricia Hernández',doc:'DUI 05129384-2',product:'Mercadería',amount:'$2,100.00',date:'20/03/2026',action:'cart',outcome:1,isNew:false,phone:'+503 7321-0987',status:'analysis',hasVisit:false,refs:[{name:'',phone:'',rel:''},{name:'',phone:'',rel:''}],uploads:{address:['factura_internet.pdf'],income:[],idFront:true,idBack:true}},
-    {ref:'SOL-240304',client:'José Miguel Flores Rivas',doc:'DUI 03847291-6',product:'Línea de Crédito',amount:'—',date:'19/03/2026',action:'preapprove',outcome:3,isNew:true,phone:'+503 7890-4567',status:'analysis_visit',hasVisit:true,visitAddr:'home',visitDate:'2026-03-27',visitTime:'am',visitAddrDetail:'Col. Escalón, Calle La Reforma #245, San Salvador',refs:[{name:'',phone:'',rel:''},{name:'',phone:'',rel:''}],uploads:{address:['factura_agua.pdf'],income:['constancia_sal.pdf'],idFront:true,idBack:true}},
-    {ref:'SOL-240305',client:'Carmen Rosa Portillo',doc:'DUI 06273849-1',product:'Cash',amount:'$500.00',date:'18/03/2026',action:'cash',outcome:1,isNew:false,phone:'+503 6789-0123',status:'rejected',hasVisit:false,refs:[{name:'',phone:'',rel:''},{name:'',phone:'',rel:''}],uploads:{address:[],income:[],idFront:true,idBack:true}}
+solicitudes:[
+    {ref:'SOL-240301',client:'María Elena Guzmán López',doc:'DUI 04523891-7',product:'Mercadería',amount:'$1,249.99',date:'22/03/2026',action:'cart',outcome:1,isNew:false,phone:'+503 7654-3210',status:'approved',billingStatus:'pending_billing',prima:125.00,hasVisit:false,refs:[{name:'Ana Guzmán',phone:'7890-1234',rel:'Madre'},{name:'Pedro López',phone:'7890-5678',rel:'Hermano'}],uploads:{address:['factura_agua_mar2026.pdf'],income:['constancia_salario.pdf'],idFront:true,idBack:true}},
+    {ref:'SOL-240302',client:'Roberto Carlos Martínez',doc:'DUI 02938471-5',product:'Cash',amount:'$800.00',date:'21/03/2026',action:'cash',outcome:3,isNew:true,phone:'+503 6543-2109',status:'observed',billingStatus:null,hasVisit:false,obsComments:'Las referencias personales proporcionadas no contestan al teléfono indicado. Favor proporcionar referencias que puedan ser contactadas.\n\nAdicionalmente, se requiere constancia de salario actualizada del último mes.',refs:[{name:'Carlos Pérez',phone:'7111-2222',rel:''},{name:'',phone:'',rel:''}],uploads:{address:['recibo_luz.pdf'],income:[],idFront:true,idBack:true}},
+    {ref:'SOL-240303',client:'Ana Patricia Hernández',doc:'DUI 05129384-2',product:'Mercadería',amount:'$2,100.00',date:'20/03/2026',action:'cart',outcome:1,isNew:false,phone:'+503 7321-0987',status:'analysis',billingStatus:null,prima:210.00,hasVisit:false,refs:[{name:'',phone:'',rel:''},{name:'',phone:'',rel:''}],uploads:{address:['factura_internet.pdf'],income:[],idFront:true,idBack:true}},
+    {ref:'SOL-240304',client:'José Miguel Flores Rivas',doc:'DUI 03847291-6',product:'Línea de Crédito',amount:'—',date:'19/03/2026',action:'preapprove',outcome:3,isNew:true,phone:'+503 7890-4567',status:'analysis_visit',billingStatus:null,hasVisit:true,visitAddr:'home',visitDate:'2026-03-27',visitTime:'am',visitAddrDetail:'Col. Escalón, Calle La Reforma #245, San Salvador',refs:[{name:'',phone:'',rel:''},{name:'',phone:'',rel:''}],uploads:{address:['factura_agua.pdf'],income:['constancia_sal.pdf'],idFront:true,idBack:true}},
+    {ref:'SOL-240305',client:'Carmen Rosa Portillo',doc:'DUI 06273849-1',product:'Cash',amount:'$500.00',date:'18/03/2026',action:'cash',outcome:1,isNew:false,phone:'+503 6789-0123',status:'rejected',billingStatus:null,hasVisit:false,refs:[{name:'',phone:'',rel:''},{name:'',phone:'',rel:''}],uploads:{address:[],income:[],idFront:true,idBack:true}},
+    {ref:'SOL-240306',client:'Luis Fernando Campos',doc:'DUI 03928174-3',product:'Mercadería',amount:'$649.99',date:'17/03/2026',action:'cart',outcome:2,isNew:false,phone:'+503 7456-7890',status:'approved',billingStatus:'billed',prima:0,hasVisit:false,refs:[{name:'Rosa Campos',phone:'7234-5678',rel:'Esposa'}],uploads:{address:['recibo_agua.pdf'],income:['constancia.pdf'],idFront:true,idBack:true}},
+    {ref:'SOL-240307',client:'Sandra Beatriz Morales',doc:'DUI 05738291-4',product:'Mercadería',amount:'$1,800.00',date:'16/03/2026',action:'cart',outcome:3,isNew:true,phone:'+503 6234-5678',status:'approved_pending_id',billingStatus:null,prima:180.00,hasVisit:false,refs:[{name:'Juan Morales',phone:'7345-6789',rel:'Padre'}],uploads:{address:['factura_luz.pdf'],income:['constancia_sal.pdf'],idFront:true,idBack:true}},
+    {ref:'SOL-240308',client:'Diego Alejandro Rivas',doc:'DUI 04182739-6',product:'Cash',amount:'$1,200.00',date:'15/03/2026',action:'cash',outcome:2,isNew:false,phone:'+503 7567-8901',status:'approved_pending_id',billingStatus:null,prima:0,hasVisit:false,refs:[{name:'Laura Rivas',phone:'7456-1234',rel:'Hermana'}],uploads:{address:['factura_agua.pdf'],income:['constancia.pdf'],idFront:true,idBack:true}}
   ],viewingSolicitud:null,
   // Sales flow state
   salesFlow:false,salesScenario:null,salesCustomer:null,salesTab:'cart',
@@ -834,9 +837,7 @@ function getFlowSteps(){
   const o=state.outcome,a=state.action;
   // Existente — Línea Aprobada
   if(o===2){
-    if(a==='cart')return['identify','outcome','customerProfile','simulation','aml','otp','doneExpress'];
-    if(a==='cash')return['identify','outcome','customerProfile','simulation','aml','otp','doneExpress'];
-    return['identify','outcome','customerProfile'];
+    return['identify','outcome','salesCart'];
   }
   // Existente — Rechazado
   if(o===4){
@@ -927,7 +928,7 @@ function render(){
           const pq=state.pqData;
           const clientName=[pq.firstName,pq.secondName,pq.lastName1,pq.lastName2].filter(Boolean).join(' ')||'Cliente';
           state.salesCustomer={name:clientName.toUpperCase(),doc:(state.idType||'DUI')+' '+(state.idNumber||''),since:new Date().getFullYear().toString()};
-          if(!state.salesScenario)state.salesScenario=state.outcome===0?'existingPrequal':state.outcome===1?'existingNoCredit':state.outcome===5?'existingPastDue':'new';
+          if(!state.salesScenario)state.salesScenario=state.outcome===0?'existingPrequal':state.outcome===1?'existingNoCredit':state.outcome===2?'existing':state.outcome===5?'existingPastDue':'new';
         } else {
           // No customer, no credit flow — redirect to identification
           state.screen='salesIdentify';render();return;
@@ -936,6 +937,15 @@ function render(){
       // If customer was rejected (outcome 4), mark as rejected
       if(state.outcome===4&&!state.salesCustomer.creditRejected){
         state.salesCustomer.creditRejected=true;
+        state.salesTab='credit';
+      }
+      // If outcome 2 (existing with line approved) — set rating and land on credit tab
+      else if(state.outcome===2&&!state.salesCustomer.rating){
+        state.salesCustomer.rating='A';
+        state.salesCustomer.since=state.salesCustomer.since||'2019';
+        state.salesCustomer.limitMerc=Math.floor((120-48.50)*29.41);
+        state.salesCustomer.limitCash=Math.floor((120-48.50)*17.65);
+        state.salesCustomer.maxCuota=120-48.50;
         state.salesTab='credit';
       }
       // If outcome 1 (existingNoCredit) — land on credit tab
@@ -1149,12 +1159,20 @@ function pgHome(){
   const statusMap={
     analysis:{label:t('dashStatusAnalysis'),color:'var(--warning)',bg:'var(--warning-light)',border:'var(--warning-border)',icon:'clock'},
     analysis_visit:{label:t('dashStatusAnalysisVisit'),color:'var(--primary)',bg:'var(--primary-light)',border:'#C5D0F0',icon:'mapPin'},
-    approved:{label:t('dashStatusPendingBill'),color:'var(--success)',bg:'var(--success-light)',border:'var(--success-border)',icon:'checkCircle'},
+    approved:{label:t('dashStatusApproved'),color:'var(--success)',bg:'var(--success-light)',border:'var(--success-border)',icon:'checkCircle'},
+    approved_pending_id:{label:t('dashStatusApprovedPendingId'),color:'var(--warning)',bg:'var(--warning-light)',border:'var(--warning-border)',icon:'shield'},
+    pending_billing:{label:t('dashStatusPendingBill'),color:'var(--success)',bg:'var(--success-light)',border:'var(--success-border)',icon:'checkCircle'},
+    billed:{label:t('dashStatusBilled'),color:'#0D9B68',bg:'#E6F7F1',border:'#A8DFC9',icon:'receipt'},
     observed:{label:t('dashStatusObserved'),color:'var(--orange)',bg:'var(--orange-light)',border:'#F5C9A8',icon:'alertTriangle'},
     rejected:{label:t('dashStatusRejected'),color:'var(--danger)',bg:'var(--danger-light)',border:'#F5B4BA',icon:'x'}
   };
+  const billingMap={
+    pending_billing:{label:t('dashStatusPendingBill'),color:'var(--warning)',bg:'var(--warning-light)',border:'var(--warning-border)',icon:'clock'},
+    billed:{label:t('dashStatusBilled'),color:'#0D9B68',bg:'#E6F7F1',border:'#A8DFC9',icon:'receipt'}
+  };
   function solCard(a,idx,total){
     const st=statusMap[a.status||'analysis'];
+    const bl=a.billingStatus?billingMap[a.billingStatus]:null;
     const visitInfo=a.hasVisit&&a.visitDate?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:10px;color:var(--text-dim);">${icon('calendar',10,'var(--text-dim)')} ${es?'Visita:':'Visit:'} ${new Date(a.visitDate+'T12:00:00').toLocaleDateString(es?'es-SV':'en-US',{month:'short',day:'numeric'})} · ${a.visitTime==='am'?(es?'Mañana':'Morning'):a.visitTime==='mid'?(es?'Medio día':'Midday'):(es?'Tarde':'Afternoon')}</div>`:'';
     const obsInfo=a.status==='observed'?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:10px;color:var(--orange);font-weight:600;">${icon('alertTriangle',10,'#E07428')} ${es?'Requiere acción':'Action required'}</div>`:'';
     return`<div style="padding:14px;border:1px solid ${a.status==='observed'?'#F5C9A8':'var(--border)'};border-radius:var(--radius-sm);margin-bottom:${idx<total-1?'8':'0'}px;cursor:pointer;transition:all .2s;background:${a.status==='observed'?'#FFFBF7':'var(--white)'};" class="dash-app" data-solref="${a.ref}" onmouseover="this.style.borderColor='var(--primary)';this.style.boxShadow='var(--shadow)'" onmouseout="this.style.borderColor='${a.status==='observed'?'#F5C9A8':'var(--border)'}';this.style.boxShadow='none'">
@@ -1163,6 +1181,7 @@ function pgHome(){
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
             <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--primary);">${a.ref}</span>
             <span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;background:${st.bg};border:1px solid ${st.border};font-size:10px;font-weight:700;color:${st.color};">${icon(st.icon,10,st.color)} ${st.label}</span>
+            ${a.status!=='approved_pending_id'&&bl?`<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;background:${bl.bg};border:1px solid ${bl.border};font-size:10px;font-weight:700;color:${bl.color};">${icon(bl.icon,10,bl.color)} ${bl.label}</span>`:''}
           </div>
           <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.client}</div>
           <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">${a.doc}</div>
@@ -1292,13 +1311,18 @@ function pgAllSolicitudes(){
   const statusMap={
     analysis:{label:t('dashStatusAnalysis'),color:'var(--warning)',bg:'var(--warning-light)',border:'var(--warning-border)',icon:'clock'},
     analysis_visit:{label:t('dashStatusAnalysisVisit'),color:'var(--primary)',bg:'var(--primary-light)',border:'#C5D0F0',icon:'mapPin'},
-    approved:{label:t('dashStatusPendingBill'),color:'var(--success)',bg:'var(--success-light)',border:'var(--success-border)',icon:'checkCircle'},
+    approved:{label:t('dashStatusApproved'),color:'var(--success)',bg:'var(--success-light)',border:'var(--success-border)',icon:'checkCircle'},
+    approved_pending_id:{label:t('dashStatusApprovedPendingId'),color:'var(--warning)',bg:'var(--warning-light)',border:'var(--warning-border)',icon:'shield'},
+    pending_billing:{label:t('dashStatusPendingBill'),color:'var(--success)',bg:'var(--success-light)',border:'var(--success-border)',icon:'checkCircle'},
+    billed:{label:t('dashStatusBilled'),color:'#0D9B68',bg:'#E6F7F1',border:'#A8DFC9',icon:'receipt'},
     observed:{label:t('dashStatusObserved'),color:'var(--orange)',bg:'var(--orange-light)',border:'#F5C9A8',icon:'alertTriangle'},
     rejected:{label:t('dashStatusRejected'),color:'var(--danger)',bg:'var(--danger-light)',border:'#F5B4BA',icon:'x'}
   };
   let apps=state.solicitudes;
   if(filter!=='all')apps=apps.filter(a=>{
     if(filter==='analysis')return a.status==='analysis'||a.status==='analysis_visit';
+    if(filter==='approved')return a.status==='approved'&&a.billingStatus!=='billed'||a.status==='approved_pending_id';
+    if(filter==='billed')return a.billingStatus==='billed';
     return a.status===filter;
   });
   if(searchQ)apps=apps.filter(a=>(a.client+' '+a.ref+' '+a.doc+' '+a.product).toLowerCase().includes(searchQ));
@@ -1308,6 +1332,7 @@ function pgAllSolicitudes(){
     {id:'analysis',label:es?'En análisis':'Under review'},
     {id:'observed',label:es?'Observadas':'Observed'},
     {id:'approved',label:es?'Aprobadas':'Approved'},
+    {id:'billed',label:es?'Facturadas':'Billed'},
     {id:'rejected',label:es?'Rechazadas':'Rejected'},
   ];
 
@@ -1339,6 +1364,8 @@ function pgAllSolicitudes(){
         ${apps.length===0?`<div class="card" style="padding:40px 20px;text-align:center;"><div style="color:var(--text-dim);margin-bottom:6px;display:flex;justify-content:center;">${icon('search',32,'#8D93A5')}</div><div style="font-size:13px;color:var(--text-dim);">${es?'No se encontraron solicitudes':'No applications found'}</div></div>`
           :apps.map((a,idx)=>{
             const st=statusMap[a.status||'analysis'];
+            const blMap={pending_billing:{label:t('dashStatusPendingBill'),color:'var(--warning)',bg:'var(--warning-light)',border:'var(--warning-border)',icon:'clock'},billed:{label:t('dashStatusBilled'),color:'#0D9B68',bg:'#E6F7F1',border:'#A8DFC9',icon:'receipt'}};
+            const bl=a.billingStatus?blMap[a.billingStatus]:null;
             const visitInfo=a.hasVisit&&a.visitDate?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:10px;color:var(--text-dim);">${icon('calendar',10,'var(--text-dim)')} ${es?'Visita:':'Visit:'} ${new Date(a.visitDate+'T12:00:00').toLocaleDateString(es?'es-SV':'en-US',{month:'short',day:'numeric'})}</div>`:'';
             const obsInfo=a.status==='observed'?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:10px;color:var(--orange);font-weight:600;">${icon('alertTriangle',10,'#E07428')} ${es?'Requiere acción':'Action required'}</div>`:'';
             return`<div style="padding:14px;border:1px solid ${a.status==='observed'?'#F5C9A8':'var(--border)'};border-radius:var(--radius-sm);margin-bottom:8px;cursor:pointer;transition:all .2s;background:${a.status==='observed'?'#FFFBF7':'var(--white)'};" class="dash-app" data-solref="${a.ref}" onmouseover="this.style.borderColor='var(--primary)';this.style.boxShadow='var(--shadow)'" onmouseout="this.style.borderColor='${a.status==='observed'?'#F5C9A8':'var(--border)'}';this.style.boxShadow='none'">
@@ -1347,6 +1374,7 @@ function pgAllSolicitudes(){
                   <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
                     <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--primary);">${a.ref}</span>
                     <span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;background:${st.bg};border:1px solid ${st.border};font-size:10px;font-weight:700;color:${st.color};">${icon(st.icon,10,st.color)} ${st.label}</span>
+                    ${a.status!=='approved_pending_id'&&bl?`<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;background:${bl.bg};border:1px solid ${bl.border};font-size:10px;font-weight:700;color:${bl.color};">${icon(bl.icon,10,bl.color)} ${bl.label}</span>`:''}
                   </div>
                   <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;">${a.client}</div>
                   <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">${a.doc}</div>
@@ -1380,7 +1408,7 @@ function renderClientResults(scenarios, selectedValue, onSelectAttr, title, subt
       const sel=selectedValue===s.val;
       const iconBg={approved:'var(--primary-light)',prequal:'var(--success-light)',nohistory:'var(--surface-alt)',notfound:'var(--surface-alt)',noteligible:'#FEF0F0',pastdue:'var(--orange-light)'};
       const iconColor={approved:'var(--primary)',prequal:'var(--success)',nohistory:'var(--text-dim)',notfound:'var(--text-dim)',noteligible:'var(--danger)',pastdue:'var(--orange)'};
-      const statusBadge={approved:{label:es?'Crédito Aprobado':'Credit Approved',bg:'var(--primary-light)',color:'var(--primary)'},prequal:{label:es?'Pre-calificado':'Pre-qualified',bg:'var(--success-light)',color:'var(--success)'},nohistory:{label:es?'Sin Historial':'No History',bg:'var(--surface-alt)',color:'var(--text-dim)'},notfound:{label:es?'No Encontrado':'Not Found',bg:'var(--surface-alt)',color:'var(--text-dim)'},noteligible:{label:es?'No Apto':'Not Eligible',bg:'#FEF0F0',color:'var(--danger)'},pastdue:{label:es?'En Mora':'Past Due',bg:'var(--orange-light)',color:'var(--orange)'}};
+      const statusBadge={approved:{label:es?'Línea de Crédito Aprobada':'Credit Line Approved',bg:'var(--primary-light)',color:'var(--primary)'},prequal:{label:es?'Pre-calificado':'Pre-qualified',bg:'var(--success-light)',color:'var(--success)'},nohistory:{label:es?'Sin Oferta Comercial':'No Commercial Offer',bg:'var(--surface-alt)',color:'var(--text-dim)'},notfound:{label:es?'No Encontrado':'Not Found',bg:'var(--surface-alt)',color:'var(--text-dim)'},noteligible:{label:es?'No Apto':'Not Eligible',bg:'#FEF0F0',color:'var(--danger)'},pastdue:{label:es?'En Mora':'Past Due',bg:'var(--orange-light)',color:'var(--orange)'}};
       const badge=statusBadge[s.type];
       return`<div ${onSelectAttr}="${s.val}" onclick="selectResult(this)" style="padding:14px 16px;border-radius:var(--radius-sm);border:1.5px solid ${sel?'var(--primary)':'var(--border)'};cursor:pointer;background:${sel?'var(--primary-light)':'var(--white)'};transition:all .2s;">
         <div style="display:flex;align-items:center;gap:12px;">
@@ -1698,6 +1726,7 @@ function pgSimulation(){
     {id:'samsung_tv',name:state.lang==='es'?'Samsung Preferencial':'Samsung Preferred',rate:18,minPrimaPct:10,maxPlazo:48,gracia:{18:1,24:1,36:1,48:1}},
     {id:'lg_tv',name:state.lang==='es'?'LG Preferencial':'LG Preferred',rate:20,minPrimaPct:10,maxPlazo:48,gracia:{18:1,24:1,36:1,48:1}},
     {id:'bf_tv',name:'TV Black Friday',rate:14,minPrimaPct:5,maxPlazo:36,gracia:{18:1,24:1,36:1}},
+    {id:'zero_prima_tv',name:state.lang==='es'?'TV Sin Prima':'TV Zero Down',rate:22,minPrimaPct:0,maxPlazo:24,gracia:{18:1,24:1}},
   ];
   const commercialPlansCash=[
     {id:'default_cash',name:state.lang==='es'?'Cash Estándar':'Standard Cash',rate:26,minPrimaPct:0,maxPlazo:36,gracia:{18:1,24:1,36:1}},
@@ -1717,7 +1746,9 @@ function pgSimulation(){
     const plans=buildPlans(commPlan);
     const defaultPlazo=String(commPlan.maxPlazo);
     const validPlazos=plans.map(p=>p.p);
-    const cart=state.simCartTotal||1200,minPrimaPct=commPlan.minPrimaPct,minP=Math.ceil(cart*(minPrimaPct/100)),prima=state.simPrima!==undefined?state.simPrima:minP,pv=prima>=minP,fin=cart-prima,plazo=(state.simPlazo&&validPlazos.includes(state.simPlazo))?state.simPlazo:defaultPlazo,cpi=state.simCPI||false,cpiM=3.50;
+    const cart=state.simCartTotal||1200,minPrimaPct=commPlan.minPrimaPct,minP=Math.ceil(cart*(minPrimaPct/100));
+    if(state.simPrima===undefined)state.simPrima=minP;
+    const prima=state.simPrima,pv=prima>=minP,fin=cart-prima,plazo=(state.simPlazo&&validPlazos.includes(state.simPlazo))?state.simPlazo:defaultPlazo,cpi=state.simCPI||false,cpiM=3.50;
     const cpCMMAvail=71.50;
     const maxL=state.outcome===2?Math.floor(cpCMMAvail*29.41):(state.limitUpgraded?3000:2500);
     const maxC=state.outcome===2?cpCMMAvail:(state.limitUpgraded?100:85);
@@ -2439,48 +2470,8 @@ function pgCustomerProfile(){
 function pgDoneExpress(){
   const client=state.salesCustomer?state.salesCustomer.name:'Carlos Eduardo Ramírez Flores';
   const refNum=state._expressRef||(state._expressRef='EXP-'+Math.floor(100000+Math.random()*900000));
-  const isNew=state.outcome===3;
-  const needsBio=state.outcome!==2;
-  const phone=state.pqData.phone||state.salesCustomer?.phone||'+503 7890-1234';
-  const bioSent=state.bioSent;
-  const bioVerified=state.bioVerified;
-  const canProceed=!needsBio||bioVerified;
+  const canProceed=true;
 
-  let bioSection='';
-  if(needsBio){
-    if(bioVerified){
-      bioSection=`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--success);background:var(--success-light);margin-bottom:14px;">
-        <div style="text-align:center;">
-          <div style="display:flex;justify-content:center;margin-bottom:8px;"><div style="width:40px;height:40px;border-radius:50%;background:var(--success-light);border:2px solid var(--success);display:flex;align-items:center;justify-content:center;color:var(--success);">${icon('check',20,'var(--success)')}</div></div>
-          <div style="font-size:14px;font-weight:700;color:var(--success);margin-bottom:4px;">${t('approvedBioSuccess')}</div>
-          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${t('approvedBioReady')}</div>
-        </div>
-      </div>`;
-    } else if(bioSent){
-      bioSection=`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--white);margin-bottom:14px;">
-        <div style="text-align:center;">
-          <div style="display:flex;justify-content:center;margin-bottom:10px;"><div style="width:44px;height:44px;border-radius:50%;background:var(--primary-light);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;color:var(--primary);">${icon('smartphone',20)}</div></div>
-          <div style="font-size:14px;font-weight:700;margin-bottom:4px;">${t('otpWaitBio')}</div>
-          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;max-width:340px;margin:0 auto 12px;">${t('otpWaitBioDesc')}</div>
-          <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;background:var(--warning-light);border:1px solid var(--warning-border);font-size:11px;font-weight:700;color:var(--warning);margin-bottom:8px;">${icon('clock',12)} ${t('approvedBioWaiting')}</div>
-          <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);">${phone}</div>
-          <div style="margin-top:12px;"><button class="btn btn-secondary" id="btnSimBioExpress" style="font-size:11px;padding:6px 16px;border-style:dashed;">${state.lang==='es'?'Simular verificación exitosa':'Simulate successful verification'}</button></div>
-        </div>
-      </div>`;
-    } else {
-      bioSection=`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--warning);background:var(--warning-light);margin-bottom:14px;">
-        <div style="display:flex;align-items:flex-start;gap:10px;">
-          <span style="flex-shrink:0;display:flex;color:var(--warning);margin-top:2px;">${icon('shield',18)}</span>
-          <div style="flex:1;">
-            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('approvedBioTitle')}</div>
-            <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:10px;">${t('approvedBioDesc')}</div>
-            <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);margin-bottom:10px;">${phone}</div>
-            <button class="btn btn-primary" id="btnSendBioExpress" style="padding:8px 20px;font-size:12px;display:inline-flex;align-items:center;gap:6px;">${icon('smartphone',14)} ${t('approvedBioSend')}</button>
-          </div>
-        </div>
-      </div>`;
-    }
-  }
 
   return`<div class="card"><div class="success-screen">
     <div class="success-circle" style="background:var(--success-light);border-color:var(--success);">${icon('check',28,'var(--success)')}</div>
@@ -2500,39 +2491,65 @@ function pgDoneExpress(){
         </div>
       </div>
 
-      ${bioSection}
-
-      ${state.action==='cart'?`
-      <div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--primary-light);margin-bottom:14px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <div style="font-size:12px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;">${state.lang==='es'?'Prima a Cobrar':'Down Payment Due'}</div>
-          <div style="font-family:var(--mono);font-size:22px;font-weight:800;color:var(--primary);">$${(state.simPrima||Math.ceil((state.simCartTotal||1200)*0.10)).toLocaleString('en',{minimumFractionDigits:2})}</div>
-        </div>
-        <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;">${state.lang==='es'?'Este monto debe ser cobrado al cliente antes de entregar el producto.':'This amount must be collected from the customer before delivering the product.'}</div>
+      <div style="padding:12px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--success);background:var(--success-light);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+        <span style="display:flex;color:var(--success);">${icon('shield',14,'#0D9B68')}</span>
+        <div style="font-size:12px;font-weight:700;color:var(--success);">${state.lang==='es'?'Identidad verificada — Transacción autorizada':'Identity verified — Transaction authorized'}</div>
       </div>
-      `:''}
 
+      ${state.action==='cart'?(function(){
+        const primaAmt=state.simPrima||0;
+        const hasPrima=primaAmt>0;
+        if(hasPrima){
+          return`
+          <div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--primary-light);margin-bottom:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <div style="font-size:12px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;">${state.lang==='es'?'Prima a Cobrar':'Down Payment Due'}</div>
+              <div style="font-family:var(--mono);font-size:22px;font-weight:800;color:var(--primary);">$${primaAmt.toLocaleString('en',{minimumFractionDigits:2})}</div>
+            </div>
+            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;">${state.lang==='es'?'Este monto debe ser cobrado al cliente antes de entregar el producto.':'This amount must be collected from the customer before delivering the product.'}</div>
+          </div>
+          <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--white);border:1px solid var(--border);margin-bottom:14px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">${state.lang==='es'?'Próximos pasos':'Next steps'}</div>
+            <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
+              <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">1</div>
+              <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.lang==='es'?'Pasar a caja a pagar la prima de':'Go to cashier to pay the down payment of'} <strong style="font-family:var(--mono);">$${primaAmt.toLocaleString('en',{minimumFractionDigits:2})}</strong></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">2</div>
+              <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.lang==='es'?'Imprimir y firmar documentación del crédito':'Print and sign credit documentation'}</div>
+            </div>
+          </div>`;
+        } else {
+          return`
+          <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);margin-bottom:14px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="display:flex;color:var(--success);">${icon('checkCircle',16)}</span>
+              <div style="font-size:13px;font-weight:700;color:var(--success);">${state.lang==='es'?'Sin prima — Crédito al 100%':'No down payment — 100% Credit'}</div>
+            </div>
+          </div>
+          <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--white);border:1px solid var(--border);margin-bottom:14px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">${state.lang==='es'?'Próximos pasos':'Next steps'}</div>
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">1</div>
+              <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.lang==='es'?'Imprimir y firmar documentación del crédito':'Print and sign credit documentation'}</div>
+            </div>
+          </div>`;
+        }
+      })()
+      :state.action==='cash'?`
       <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--white);border:1px solid var(--border);margin-bottom:14px;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">${state.lang==='es'?'Próximos pasos':'Next steps'}</div>
         <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
           <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">1</div>
-          <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.lang==='es'?'Imprimir contrato y documentos de formalización del crédito':'Print contract and credit formalization documents'}</div>
+          <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.lang==='es'?'Imprimir y firmar documentación del préstamo':'Print and sign loan documentation'}</div>
         </div>
-        <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
           <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">2</div>
-          <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.lang==='es'?'Obtener firma del cliente en los documentos impresos':'Obtain customer signature on printed documents'}</div>
+          <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.lang==='es'?'Desembolsar efectivo al cliente':'Disburse cash to customer'}</div>
         </div>
-        <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
-          <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">3</div>
-          <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.action==='cash'?(state.lang==='es'?'Proceder con la facturación y desembolso del efectivo al cliente':'Proceed with billing and cash disbursement to the customer'):(state.lang==='es'?'Cobrar la prima al cliente':'Collect the down payment from the customer')}</div>
-        </div>
-        ${state.action==='cart'?`<div style="display:flex;align-items:flex-start;gap:10px;">
-          <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">4</div>
-          <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.lang==='es'?'Facturar y entregar el producto al cliente':'Invoice and deliver the product to the customer'}</div>
-        </div>`:''}
-      </div>
+      </div>`:''}
 
-      <button class="btn btn-primary" id="btnExpressPrint" style="width:100%;justify-content:center;padding:12px;font-size:14px;display:flex;align-items:center;gap:6px;" ${!canProceed?'disabled':''}>${icon('fileText',16)} ${t('doneExpPrint')}</button>
+      <button class="btn btn-primary" id="btnExpressPrint" style="display:none;"></button>
     </div>
     <div class="btn-row" style="justify-content:center;margin-top:16px;"><button class="btn btn-secondary" id="btnRestart">${t('btnNewQuery')}</button></div>
   </div></div>`;
@@ -2547,9 +2564,10 @@ function pgApproved(){
   const isCash=act==='cash';
   const useOTP=sol.outcome===2;
   const useBio=!useOTP;
+  const needsVerification=sol.status==='approved_pending_id';
   const bioSent=state.bioSent;
   const bioVerified=state.bioVerified;
-  const canProceed=bioVerified;
+  const canProceed=needsVerification?bioVerified:true;
   const title=isPre?t('approvedPreTitle'):t('approvedTitle');
   const steps=isPre?[t('approvedPreNext1'),t('approvedPreNext2'),t('approvedPreNext3')]
     :isCash?[t('approvedCashNext1'),t('approvedCashNext2'),t('approvedCashNext3')]
@@ -2639,38 +2657,57 @@ function pgApproved(){
         ${!isPre?`<div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--text-dim);">${t('dashAmount')}</span><span style="font-family:var(--mono);font-weight:700;">${sol.amount}</span></div>`:''}
       </div>
 
-      <div style="padding:16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);margin-bottom:14px;text-align:center;">
-        <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;background:var(--white);border:1px solid var(--success-border);font-size:12px;font-weight:700;color:var(--success);">${icon('checkCircle',14,'var(--success)')} ${t('dashStatusApproved')}</div>
-      </div>
-
-      ${verifySection}
-
-      ${!isPre&&!isCash?`
-      <div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--primary-light);margin-bottom:14px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <div style="font-size:12px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;">${state.lang==='es'?'Prima a Cobrar':'Down Payment Due'}</div>
-          <div style="font-family:var(--mono);font-size:22px;font-weight:800;color:var(--primary);">$${(state.simPrima||Math.ceil(parseFloat((sol.amount||'$1200').replace(/[^0-9.]/g,''))*0.10)).toLocaleString('en',{minimumFractionDigits:2})}</div>
+      <div style="padding:16px;border-radius:var(--radius-sm);background:${sol.status==='approved_pending_id'?'var(--warning-light)':'var(--success-light)'};border:1px solid ${sol.status==='approved_pending_id'?'var(--warning-border)':'var(--success-border)'};margin-bottom:14px;text-align:center;">
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;">
+          ${sol.status==='approved_pending_id'
+            ?`<div style="display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;background:var(--white);border:1px solid var(--warning-border);font-size:12px;font-weight:700;color:var(--warning);">${icon('shield',14,'var(--warning)')} ${state.lang==='es'?'Crédito: Aprobada — Pendiente ID':'Credit: Approved — Pending ID'}</div>`
+            :`<div style="display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;background:var(--white);border:1px solid var(--success-border);font-size:12px;font-weight:700;color:var(--success);">${icon('checkCircle',14,'var(--success)')} ${state.lang==='es'?'Crédito: Aprobada':'Credit: Approved'}</div>`}
+          ${sol.status!=='approved_pending_id'&&sol.billingStatus?`<div style="display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;background:var(--white);border:1px solid ${sol.billingStatus==='billed'?'#A8DFC9':'var(--warning-border)'};font-size:12px;font-weight:700;color:${sol.billingStatus==='billed'?'#0D9B68':'var(--warning)'};">${icon(sol.billingStatus==='billed'?'receipt':'clock',14,sol.billingStatus==='billed'?'#0D9B68':'var(--warning)')} ${state.lang==='es'?'Facturación:':'Billing:'} ${sol.billingStatus==='billed'?t('dashStatusBilled'):t('dashStatusPendingBill')}</div>`:''}
         </div>
-        <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;">${state.lang==='es'?'Este monto debe ser cobrado al cliente antes de entregar el producto.':'This amount must be collected from the customer before delivering the product.'}</div>
       </div>
-      `:''}
+
+      ${needsVerification?verifySection:''}
+
+      ${!isPre&&!isCash?(function(){
+        const primaAmt=sol.prima||0;
+        const hasPrima=primaAmt>0;
+        if(hasPrima){
+          return`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--primary-light);margin-bottom:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <div style="font-size:12px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;">${state.lang==='es'?'Prima a Cobrar':'Down Payment Due'}</div>
+              <div style="font-family:var(--mono);font-size:22px;font-weight:800;color:var(--primary);">$${primaAmt.toLocaleString('en',{minimumFractionDigits:2})}</div>
+            </div>
+            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;">${state.lang==='es'?'Este monto debe ser cobrado al cliente.':'This amount must be collected from the customer.'}</div>
+          </div>`;
+        } else {
+          return`<div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);margin-bottom:14px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="display:flex;color:var(--success);">${icon('checkCircle',16)}</span>
+              <div style="font-size:13px;font-weight:700;color:var(--success);">${state.lang==='es'?'Sin prima — Crédito al 100%':'No down payment — 100% Credit'}</div>
+            </div>
+          </div>`;
+        }
+      })():''}
 
       <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--white);border:1px solid var(--border);margin-bottom:14px;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">${state.lang==='es'?'Próximos pasos':'Next steps'}</div>
-        ${steps.map((s,i)=>`<div style="display:flex;align-items:flex-start;gap:10px;${i<steps.length-1?'margin-bottom:10px;':''}">
-          <div style="width:22px;height:22px;border-radius:50%;background:${!canProceed&&i===0?'var(--text-dim)':'var(--primary)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">${i+1}</div>
-          <div style="font-size:12px;color:${!canProceed?'var(--text-dim)':'var(--text-secondary)'};line-height:1.5;">${s}</div>
-        </div>`).join('')}
+        ${(function(){
+          let st=[];
+          if(isPre){st=[t('approvedPreNext1'),t('approvedPreNext2'),t('approvedPreNext3')];}
+          else if(isCash){st=[state.lang==='es'?'Imprimir y firmar documentación del préstamo':'Print and sign loan documentation',state.lang==='es'?'Desembolsar efectivo al cliente':'Disburse cash to customer'];}
+          else {
+            const hasPrima=(sol.prima||0)>0;
+            if(hasPrima) st=[state.lang==='es'?'Pasar a caja a pagar la prima de $'+(sol.prima||0).toLocaleString('en',{minimumFractionDigits:2}):'Go to cashier to pay the down payment of $'+(sol.prima||0).toLocaleString('en',{minimumFractionDigits:2}), state.lang==='es'?'Imprimir y firmar documentación del crédito':'Print and sign credit documentation'];
+            else st=[state.lang==='es'?'Imprimir y firmar documentación del crédito':'Print and sign credit documentation'];
+          }
+          return st.map((s,i)=>`<div style="display:flex;align-items:flex-start;gap:10px;${i<st.length-1?'margin-bottom:10px;':''}">
+            <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">${i+1}</div>
+            <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${s}</div>
+          </div>`).join('');
+        })()}
       </div>
 
-      ${isPre?`
-        <button class="btn btn-primary" id="btnApprovedPrint" style="width:100%;justify-content:center;display:flex;align-items:center;gap:6px;" ${!canProceed?'disabled':''}>${icon('fileText',16)} ${t('approvedPrint')}</button>
-      `:`
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-secondary" id="btnApprovedPrint" style="flex:1;justify-content:center;display:flex;align-items:center;gap:6px;" ${!canProceed?'disabled':''}>${icon('fileText',16)} ${t('approvedPrint')}</button>
-        <button class="btn btn-primary" id="btnApprovedAction" style="flex:1;justify-content:center;display:flex;align-items:center;gap:6px;" ${!canProceed?'disabled':''}>${icon('checkCircle',16)} ${btnLabel}</button>
-      </div>
-      `}
+      ${isPre?``:``}
     </div>
     <div class="btn-row" style="justify-content:center;margin-top:16px;"><button class="btn btn-secondary" id="btnRestart">${t('btnNewQuery')}</button></div>
   </div></div>`;
@@ -2684,7 +2721,7 @@ function pgDone(){
     const amt=state.action==='cart'?'$'+(state.simCartTotal||1200).toLocaleString('en',{minimumFractionDigits:2}):state.action==='cash'?'$'+(state.simCashAmt||1200).toLocaleString('en',{minimumFractionDigits:2}):'—';
     const today=new Date();const dd=String(today.getDate()).padStart(2,'0'),mm=String(today.getMonth()+1).padStart(2,'0'),yy=today.getFullYear();
     const clientName=[state.pqData.firstName,state.pqData.secondName,state.pqData.lastName1,state.pqData.lastName2].filter(Boolean).join(' ')||'Juan Carlos Martínez López';
-    state.solicitudes.unshift({ref:refNum,client:clientName,doc:(state.idType||'DUI')+' '+(state.idNumber||'04827391-2'),product:actionLabel,amount:amt,date:dd+'/'+mm+'/'+yy,action:state.action,outcome:state.outcome,isNew:state.outcome===3,phone:state.pqData.phone||'+503 7890-1234',
+    state.solicitudes.unshift({ref:refNum,client:clientName,doc:(state.idType||'DUI')+' '+(state.idNumber||'04827391-2'),product:actionLabel,amount:amt,date:dd+'/'+mm+'/'+yy,action:state.action,outcome:state.outcome,isNew:state.outcome===3,phone:state.pqData.phone||'+503 7890-1234',prima:state.simPrima||0,
       status:state.forkSociodemo==='preapproved_visit'?'analysis_visit':'analysis',
       hasVisit:state.forkSociodemo==='preapproved_visit',
       visitAddr:state.visitAddr,visitDate:state.visitDate,visitTime:state.visitTime,
@@ -2762,11 +2799,25 @@ function pgForkDashStatus(){
       <div style="font-size:13px;font-weight:700;">${sol.client}</div>
     </div>
     <div style="display:grid;gap:12px;">
-      <div class="outcome-card ${state._newSolStatus==='approved'?'selected':''}" onclick="state._newSolStatus='approved';render();" style="padding:18px;border-radius:var(--radius-sm);border:1.5px solid ${state._newSolStatus==='approved'?'var(--success)':'var(--border)'};cursor:pointer;background:${state._newSolStatus==='approved'?'var(--success-light)':'var(--white)'};">
+      <div class="outcome-card ${state._newSolStatus==='approved_pending_id'?'selected':''}" onclick="state._newSolStatus='approved_pending_id';render();" style="padding:18px;border-radius:var(--radius-sm);border:1.5px solid ${state._newSolStatus==='approved_pending_id'?'var(--warning)':'var(--border)'};cursor:pointer;background:${state._newSolStatus==='approved_pending_id'?'var(--warning-light)':'var(--white)'};">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--warning-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon('shield',18,'var(--warning)')}</div>
+          <div><div style="font-size:15px;font-weight:700;">${es?'Aprobada — Pendiente Verificación ID':'Approved — Pending ID Verification'}</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:2px;">${es?'Crédito aprobado. Requiere verificación de identidad antes de proceder.':'Credit approved. Requires identity verification before proceeding.'}</div></div>
+        </div>
+      </div>
+      <div class="outcome-card ${state._newSolStatus==='pending_billing'?'selected':''}" onclick="state._newSolStatus='pending_billing';render();" style="padding:18px;border-radius:var(--radius-sm);border:1.5px solid ${state._newSolStatus==='pending_billing'?'var(--success)':'var(--border)'};cursor:pointer;background:${state._newSolStatus==='pending_billing'?'var(--success-light)':'var(--white)'};">
         <div style="display:flex;align-items:center;gap:10px;">
           <div style="width:36px;height:36px;border-radius:50%;background:var(--success-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon('checkCircle',18,'#0D9B68')}</div>
           <div><div style="font-size:15px;font-weight:700;">${es?'Aprobada — Pendiente Facturar':'Approved — Pending Billing'}</div>
-          <div style="font-size:12px;color:var(--text-dim);margin-top:2px;">${es?'El crédito fue aprobado. Proceder con documentos y facturación.':'Credit was approved. Proceed with documents and billing.'}</div></div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:2px;">${es?'Crédito aprobado e identidad verificada. Pendiente de pasar a caja.':'Credit approved and identity verified. Pending checkout.'}</div></div>
+        </div>
+      </div>
+      <div class="outcome-card ${state._newSolStatus==='billed'?'selected':''}" onclick="state._newSolStatus='billed';render();" style="padding:18px;border-radius:var(--radius-sm);border:1.5px solid ${state._newSolStatus==='billed'?'#0D9B68':'var(--border)'};cursor:pointer;background:${state._newSolStatus==='billed'?'#E6F7F1':'var(--white)'};">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:#E6F7F1;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon('receipt',18,'#0D9B68')}</div>
+          <div><div style="font-size:15px;font-weight:700;">${es?'Facturada':'Billed'}</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:2px;">${es?'El cliente ya pasó por caja y se facturó el crédito.':'The customer already went through cashier and the credit was billed.'}</div></div>
         </div>
       </div>
       <div class="outcome-card ${state._newSolStatus==='observed'?'selected':''}" onclick="state._newSolStatus='observed';render();" style="padding:18px;border-radius:var(--radius-sm);border:1.5px solid ${state._newSolStatus==='observed'?'var(--orange)':'var(--border)'};cursor:pointer;background:${state._newSolStatus==='observed'?'var(--orange-light)':'var(--white)'};">
@@ -3741,9 +3792,19 @@ function pgSalesCart(){
         </div>
       </div>`;
     } else if(customer.pastDue){
-      // Customer with active line but past due — show warning + disabled credit
+      // Customer with active line but past due — same layout as active, with warning + disabled actions
       const es=state.lang==='es';
-      const totalCMM=120.00,cmmUsed=48.50,cmmAvail=totalCMM-cmmUsed;
+      const totalCMM=120.00,cmmUsed=48.50,cmmAvail=totalCMM-cmmUsed,cmmPct=(cmmUsed/totalCMM*100).toFixed(0);
+      const activeCreds=[
+        {id:'CRD-2026-00147',typeIcon:'shoppingCart',typeColor:'var(--success)',product:es?'Crédito Mercadería':'Merchandise Credit',date:'15/01/2026',amount:850.00,cuota:28.50,paid:2,total:24,status:'current'},
+        {id:customer.pastDueAccount||'CRD-2025-01204',typeIcon:'bike',typeColor:'var(--primary)',product:es?'Crédito Moto':'Motorcycle Credit',date:'20/08/2025',amount:3200.00,cuota:65.00,paid:7,total:60,status:'pastdue'},
+        {id:'CRD-2025-00893',typeIcon:'banknote',typeColor:'#0D9B68',product:es?'Préstamo Cash':'Cash Loan',date:'02/11/2025',amount:1000.00,cuota:20.00,paid:5,total:36,status:'current'},
+      ];
+      const cpP=[
+        {icon:icon('shoppingCart',16),label:t('prodMerc'),limit:(cmmAvail*29.41).toFixed(0),maxTerm:48,color:'var(--success)'},
+        {icon:icon('bike',16),label:t('prodMoto'),limit:(cmmAvail*66.67).toFixed(0),maxTerm:60,color:'var(--primary)'},
+        {icon:icon('banknote',16),label:t('prodCash'),limit:(cmmAvail*17.65).toFixed(0),maxTerm:36,color:'#0D9B68'}
+      ];
       content=`
       <!-- Past Due Warning -->
       <div style="padding:16px;border-radius:var(--radius-sm);border:2px solid var(--danger);background:#FEF0F0;margin-bottom:16px;">
@@ -3762,24 +3823,71 @@ function pgSalesCart(){
         </div>
       </div>
 
-      <!-- CMM + Limits (dimmed) -->
-      <div style="opacity:0.45;pointer-events:none;">
-        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
-          <div style="font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:4px;">${icon('calendar',12)} ${t('cpSince')}: <strong>${customer.since||'2020'}</strong></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+        <div style="font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:4px;">${icon('calendar',12)} ${t('cpSince')}: <strong>${customer.since||'2020'}</strong></div>
+        <div style="font-size:11px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:var(--orange);">${icon('alertTriangle',12)}</span> <strong style="color:var(--orange);">${es?'Rating: '+customer.rating:'Rating: '+customer.rating}</strong></div>
+      </div>
+      <!-- CMM -->
+      <div style="padding:18px;border:1.5px solid #C5D0F0;border-radius:var(--radius-sm);background:var(--primary-light);margin-bottom:16px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--primary);margin-bottom:2px;">${es?'Cuota Máxima Mensual':'Monthly Maximum Installment'}</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:12px;">${es?'Capacidad de pago total del cliente':'Total payment capacity of the customer'}</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px;">
+          <div style="font-family:var(--mono);font-size:32px;font-weight:700;color:var(--text-dim);">$${cmmAvail.toFixed(2)}</div>
+          <div style="font-size:12px;color:var(--text-dim);">${es?'disponible (suspendida)':'available (suspended)'}</div>
         </div>
-        <div style="padding:18px;border:1.5px solid #C5D0F0;border-radius:var(--radius-sm);background:var(--primary-light);margin-bottom:16px;">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--primary);margin-bottom:2px;">${es?'Cuota Máxima Mensual':'Monthly Maximum Installment'}</div>
-          <div style="font-family:var(--mono);font-size:32px;font-weight:700;color:var(--primary);">$${cmmAvail.toFixed(2)}</div>
+        <div style="height:8px;background:rgba(255,255,255,.6);border-radius:4px;overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:${cmmPct}%;background:var(--orange);border-radius:4px;"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;">
+          <span style="color:var(--text-secondary);">${es?'Comprometida':'Committed'}: <strong style="font-family:var(--mono);">$${cmmUsed.toFixed(2)}</strong></span>
+          <span style="color:var(--text-secondary);">${es?'Total aprobada':'Total approved'}: <strong style="font-family:var(--mono);color:var(--primary);">$${totalCMM.toFixed(2)}</strong></span>
         </div>
       </div>
-
-      <!-- Available payment methods -->
+      <!-- Limits (dimmed) -->
+      <div style="margin-bottom:16px;opacity:0.5;">
+        <div class="section-label" style="margin-bottom:6px;">${es?'Límites disponibles por producto':'Available limits by product'} <span style="font-size:9px;color:var(--danger);font-weight:700;">(${es?'SUSPENDIDOS':'SUSPENDED'})</span></div>
+        <div class="product-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+          ${cpP.map(p=>`<div style="padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);border-left:3px solid ${p.color};">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:${p.color};">${p.icon}</span> ${p.label}</div>
+            <div style="font-family:var(--mono);font-size:20px;font-weight:700;">$${parseInt(p.limit).toLocaleString('en')}</div>
+            <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text-dim);">${t('maxTerm')} ${p.maxTerm} ${t('months')}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+      <!-- Active Credits -->
+      <div style="margin-bottom:16px;"><div class="section-label" style="display:flex;align-items:center;gap:6px;">${icon('clipboardList',12)} ${t('cpActiveCreds')}</div>
+        ${activeCreds.map(c=>{
+          const isCurrent=c.status==='current';
+          const statusLabel=isCurrent?(es?'Al día':'Current'):(es?'En mora':'Past due');
+          const statusBg=isCurrent?'var(--success-light)':'#FEF0F0';
+          const statusBorder=isCurrent?'var(--success-border)':'#F5B4BA';
+          const statusColor=isCurrent?'var(--success)':'var(--danger)';
+          return`<div style="padding:14px;border:1px solid ${isCurrent?'var(--border)':statusBorder};border-radius:var(--radius-sm);margin-bottom:8px;background:var(--white);">
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:${isCurrent?'var(--success-light)':'#FEF0F0'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon(c.typeIcon,16,isCurrent?c.typeColor:'var(--danger)')}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                <span style="font-size:13px;font-weight:700;color:var(--text);">${c.product}</span>
+                <span style="padding:2px 8px;border-radius:10px;background:${statusBg};border:1px solid ${statusBorder};font-size:9px;font-weight:700;color:${statusColor};">${statusLabel}</span>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--text-dim);margin-bottom:6px;">
+                <span style="font-family:var(--mono);">${c.id}</span>
+                <span>${c.date}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;font-size:12px;">
+                <div><span style="color:var(--text-dim);">${es?'Monto':'Amount'}:</span> <strong style="font-family:var(--mono);">$${c.amount.toLocaleString('en',{minimumFractionDigits:2})}</strong></div>
+                <div><span style="color:var(--text-dim);">${es?'Cuota':'Payment'}:</span> <strong style="font-family:var(--mono);">$${c.cuota.toFixed(2)}</strong></div>
+                <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);">${c.paid}/${c.total}</div>
+              </div>
+            </div>
+          </div>
+        </div>`}).join('')}
+      </div>
+      <!-- Payment methods available -->
       <div style="padding:16px;border-radius:var(--radius-sm);background:var(--primary-light);border:1px solid #C5D0F0;">
         <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:6px;display:flex;align-items:center;gap:6px;">${icon('shoppingCart',15)} ${es?'Métodos de pago disponibles':'Available payment methods'}</div>
         <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">
           ${es
-            ?'Mientras el cliente tenga cuotas atrasadas, puede realizar compras utilizando <strong style="color:var(--text);">efectivo</strong> o <strong style="color:var(--text);">tarjeta de crédito/débito</strong> como forma de pago.'
-            :'While the customer has overdue payments, they can make purchases using <strong style="color:var(--text);">cash</strong> or <strong style="color:var(--text);">credit/debit card</strong> as payment method.'}
+            ?'Mientras el cliente tenga cuotas atrasadas, puede realizar compras utilizando <strong style="color:var(--text);">efectivo</strong> o <strong style="color:var(--text);">tarjeta de crédito/débito</strong>.'
+            :'While the customer has overdue payments, they can make purchases using <strong style="color:var(--text);">cash</strong> or <strong style="color:var(--text);">credit/debit card</strong>.'}
         </div>
       </div>`;
     } else if(!isExist&&!hasOffer){
@@ -4160,18 +4268,16 @@ function bind(){
     const s=state.screen;
     const isPreApproved=state.outcome===2;
     if(s==='simulation'){
-      if(isPreApproved&&!state.salesSubScreen){state.screen='customerProfile';state.action=null;}
-      else{state.action=null;state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';}
+      state.action=null;state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';
     }
     else if(s==='forkAml'){state.screen='simulation';}
     else if(s==='aml'){
-      // If preapprove action came directly from credit tab, go back to credit tab
       if(state.action==='preapprove'){state.action=null;state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';}
       else{state.screen='forkAml';}
     }
     else if(s==='otp'&&isPreApproved){state.screen=state.forkAml==='yes'?'aml':'forkAml';}
     else if(s==='application'){state.screen=state.forkAml==='yes'?'aml':'forkAml';}
-    else if(s==='forkApproval'){state.screen=isPreApproved?'otp':'application';}
+    else if(s==='forkApproval'){state.screen='application';}
     else{state.action=null;state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';}
     render();
   };
@@ -4373,27 +4479,41 @@ function bind(){
     render();
   };
   // Dashboard solicitud clicks
-  document.querySelectorAll('[data-solref]').forEach(el=>{el.onclick=()=>{const ref=el.dataset.solref;const sol=state.solicitudes.find(s=>s.ref===ref);if(sol){state.viewingSolicitud=sol;state.bioSent=false;state.bioVerified=false;if(sol.status==='approved'){state.screen='approved';}else if(sol.status==='observed'){state.screen='observed';}else if(sol.status==='rejected'){state.screen='solRejected';}else{state.screen='solDetail';}render();}};});
+  document.querySelectorAll('[data-solref]').forEach(el=>{el.onclick=()=>{const ref=el.dataset.solref;const sol=state.solicitudes.find(s=>s.ref===ref);if(sol){state.viewingSolicitud=sol;state.bioSent=false;state.bioVerified=false;if(sol.status==='approved'||sol.status==='approved_pending_id'){state.screen='approved';}else if(sol.status==='observed'){state.screen='observed';}else if(sol.status==='rejected'){state.screen='solRejected';}else{state.screen='solDetail';}render();}};});
   // Approved screen buttons
   const ap=$('btnApprovedPrint');if(ap)ap.onclick=()=>{alert(state.lang==='es'?'Imprimiendo documentos...':'Printing documents...');};
   const aa=$('btnApprovedAction');if(aa)aa.onclick=()=>{alert(state.lang==='es'?'Procesando...':'Processing...');goHome();};
   // Biometric verification in approved screen
   const sbA=$('btnSendBioApproved');if(sbA)sbA.onclick=()=>{state.bioSent=true;render();};
-  const sbS=$('btnSimBioApproved');if(sbS)sbS.onclick=()=>{state.bioVerified=true;render();};
+  const sbS=$('btnSimBioApproved');if(sbS)sbS.onclick=()=>{
+    state.bioVerified=true;
+    const sol=state.viewingSolicitud;
+    if(sol&&sol.status==='approved_pending_id'){
+      sol.status='approved';
+      sol.billingStatus='pending_billing';
+    }
+    render();
+  };
   // Sol detail — change status button
   const bcs2=$('btnChangeSolStatus');if(bcs2)bcs2.onclick=()=>{state._newSolStatus=null;state.screen='forkDashStatus';render();};
   // Fork dash status — apply new status
   const bads=$('btnApplyDashStatus');if(bads)bads.onclick=()=>{
     const sol=state.viewingSolicitud;
     if(sol&&state._newSolStatus){
-      sol.status=state._newSolStatus;
+      if(state._newSolStatus==='pending_billing'){
+        sol.status='approved';sol.billingStatus='pending_billing';
+      } else if(state._newSolStatus==='billed'){
+        sol.status='approved';sol.billingStatus='billed';
+      } else {
+        sol.status=state._newSolStatus;
+      }
       if(state._newSolStatus==='observed'){
         sol.obsComments=state.lang==='es'
           ?'Las referencias personales proporcionadas no contestan al teléfono indicado. Favor proporcionar referencias que puedan ser contactadas. Adicionalmente, se requiere constancia de salario actualizada del último mes.'
           :'The personal references provided do not answer at the indicated phone number. Please provide references that can be contacted. Additionally, an updated salary statement from the last month is required.';
       }
       state._newSolStatus=null;
-      if(sol.status==='approved'){state.screen='approved';}
+      if(sol.status==='approved'||sol.status==='approved_pending_id'){state.screen='approved';}
       else if(sol.status==='observed'){state.screen='observed';}
       else if(sol.status==='rejected'){state.screen='solRejected';}
       else{state.screen='solDetail';}
@@ -4612,12 +4732,11 @@ function bind(){
       bn.onclick=()=>{
         const s=state.screen;
         if(isPreApprovedFlow){
-          // Pre-approved: simulation → forkAml → [aml] → otp → forkApproval → [doneExpress|done]
+          // Pre-approved: simulation → forkAml → [aml] → otp (identity verification) → doneExpress
           if(s==='simulation'){state.screen='forkAml';}
           else if(s==='forkAml'){state.screen=state.forkAml==='yes'?'aml':'otp';}
           else if(s==='aml'){state.screen='otp';}
-          else if(s==='otp'){state.screen='forkApproval';}
-          else if(s==='forkApproval'){state.screen=state.forkApproval==='express'?'doneExpress':state.forkApproval==='rejected'?'rejected':'done';}
+          else if(s==='otp'){state.screen='doneExpress';}
         } else {
           // Not pre-approved: simulation → forkAml → [aml] → application → forkApproval → [done|doneExpress]
           if(s==='simulation'){state.screen='forkAml';}
@@ -4661,8 +4780,7 @@ function bind(){
       bb.onclick=()=>{
         const s=state.screen;
         if(s==='simulation'){
-          if(isPreApprovedFlow&&!state.salesSubScreen){state.screen='customerProfile';state.action=null;}
-          else{state.action=null;state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';}
+          state.action=null;state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';
         }
         else if(s==='forkAml'){state.screen='simulation';}
         else if(s==='aml'){
@@ -4671,7 +4789,7 @@ function bind(){
         }
         else if(s==='otp'&&isPreApprovedFlow){state.screen=state.forkAml==='yes'?'aml':'forkAml';}
         else if(s==='application'){state.screen=state.forkAml==='yes'?'aml':'forkAml';}
-        else if(s==='forkApproval'){state.screen=isPreApprovedFlow?'otp':'application';}
+        else if(s==='forkApproval'){state.screen='application';}
         else{state.action=null;state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';}
         render();
       };
