@@ -372,10 +372,12 @@ es:{
   salesShipDate:'Seleccione fecha de entrega:',salesShipTime:'Escoja el periodo para recibir su pedido:',salesShipTimeslot:'08:00 AM - 05:59 PM',
   salesShipContinue:'Continuar con el pago',
   salesPayTitle:'Método de pago',salesPayCredit:'Crédito Propio',salesPayCreditDesc:'Financiamiento directo con su línea de crédito.',salesPayCreditAvail:'Disponible',
-  salesPayCard:'Tarjeta',salesPayCardDesc:'Pago con tarjeta crédito / débito',
-  salesPayCash:'Efectivo',salesPayCashDesc:'Pago en efectivo al momento de la entrega',
+  salesPayCard:'Pago de Contado',salesPayCardDesc:'Pago con tarjeta de crédito, débito o efectivo',
+  salesDashTitle:'Mis ventas al contado',salesDashEmpty:'No hay ventas recientes',
+  salesPayContado:'Pago de Contado',salesPayContadoDesc:'Pago con tarjeta de crédito, débito o efectivo.',
   salesPaySubtotal:'Subtotal',salesPayShipping:'Envío',salesPayTotal:'TOTAL',salesPayContinue:'Continuar con el pago',
   dashTitle:'Mis solicitudes de crédito',dashEmpty:'No hay solicitudes recientes',
+  salesDashTitle:'Mis ventas al contado',salesDashEmpty:'No hay ventas recientes',salesDashPendingBill:'Pendiente facturar',salesDashBilled:'Facturada',
   dashRef:'Ref.',dashClient:'Cliente',dashProduct:'Producto',dashAmount:'Monto',dashDate:'Fecha',
   dashStatusAnalysis:'En análisis',dashStatusApproved:'Aprobada',dashStatusApprovedPendingId:'Aprobada — Pendiente ID',dashStatusPendingBill:'Pendiente facturar',dashStatusBilled:'Facturada',dashStatusRejected:'Rechazado',dashStatusVisit:'Visita pendiente',dashStatusObserved:'Observada',dashStatusAnalysisVisit:'En análisis — Visita agendada',
   // Observed screen
@@ -587,10 +589,12 @@ en:{
   salesShipDate:'Select delivery date:',salesShipTime:'Choose your delivery window:',salesShipTimeslot:'08:00 AM - 05:59 PM',
   salesShipContinue:'Continue to payment',
   salesPayTitle:'Payment method',salesPayCredit:'Store Credit',salesPayCreditDesc:'Direct financing with your credit line.',salesPayCreditAvail:'Available',
-  salesPayCard:'Card',salesPayCardDesc:'Pay with credit / debit card',
-  salesPayCash:'Cash',salesPayCashDesc:'Cash payment at time of delivery',
+  salesPayCard:'Cash Payment',salesPayCardDesc:'Pay with credit card, debit card, or cash',
+  salesDashTitle:'My cash sales',salesDashEmpty:'No recent sales',
+  salesPayContado:'Cash Payment',salesPayContadoDesc:'Pay with credit card, debit card, or cash.',
   salesPaySubtotal:'Subtotal',salesPayShipping:'Shipping',salesPayTotal:'TOTAL',salesPayContinue:'Continue to payment',
   dashTitle:'My credit applications',dashEmpty:'No recent applications',
+  salesDashTitle:'My cash sales',salesDashEmpty:'No recent sales',salesDashPendingBill:'Pending billing',salesDashBilled:'Billed',
   dashRef:'Ref.',dashClient:'Client',dashProduct:'Product',dashAmount:'Amount',dashDate:'Date',
   dashStatusAnalysis:'Under review',dashStatusApproved:'Approved',dashStatusApprovedPendingId:'Approved — Pending ID',dashStatusPendingBill:'Pending billing',dashStatusBilled:'Billed',dashStatusRejected:'Rejected',dashStatusVisit:'Visit pending',dashStatusObserved:'Observed',dashStatusAnalysisVisit:'Under review — Visit scheduled',
   obsTitle:'Observed Application',obsDesc:'The credit department has reviewed the application and requires corrections or additional information.',
@@ -768,6 +772,7 @@ function icon(name,size=16,color='currentColor'){
     lightbulb:`<svg ${s}><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.2 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>`,
     trendingDown:`<svg ${s}><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>`,
     trendingUp:`<svg ${s}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`,
+    activity:`<svg ${s}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
     checkCircle:`<svg ${s}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>`,
     clock:`<svg ${s}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
     smartphone:`<svg ${s}><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>`,
@@ -823,6 +828,12 @@ solicitudes:[
     {ref:'SOL-240307',client:'Sandra Beatriz Morales',doc:'DUI 05738291-4',product:'Mercadería',amount:'$1,800.00',date:'16/03/2026',action:'cart',outcome:3,isNew:true,phone:'+503 6234-5678',status:'approved_pending_id',billingStatus:null,prima:180.00,hasVisit:false,refs:[{name:'Juan Morales',phone:'7345-6789',rel:'Padre'}],uploads:{address:['factura_luz.pdf'],income:['constancia_sal.pdf'],idFront:true,idBack:true}},
     {ref:'SOL-240308',client:'Diego Alejandro Rivas',doc:'DUI 04182739-6',product:'Cash',amount:'$1,200.00',date:'15/03/2026',action:'cash',outcome:2,isNew:false,phone:'+503 7567-8901',status:'approved_pending_id',billingStatus:null,prima:0,hasVisit:false,refs:[{name:'Laura Rivas',phone:'7456-1234',rel:'Hermana'}],uploads:{address:['factura_agua.pdf'],income:['constancia.pdf'],idFront:true,idBack:true}}
   ],viewingSolicitud:null,
+  // Sales (contado) tracking
+  sales:[
+    {ref:'VTA-240401',client:'Pedro Antonio López',doc:'DUI 05673829-1',items:'Samsung 55" QLED',amount:'$899.99',date:'25/03/2026',billingStatus:'pending_billing'},
+    {ref:'VTA-240402',client:'María José Hernández',doc:'DUI 04829173-5',items:'LG Refrigerador 18ft',amount:'$1,249.00',date:'24/03/2026',billingStatus:'billed'},
+    {ref:'VTA-240403',client:'Carlos Enrique Mejía',doc:'DUI 06192837-4',items:'Sony Soundbar + TV 50"',amount:'$1,650.00',date:'23/03/2026',billingStatus:'pending_billing'},
+  ],
   // Sales flow state
   salesFlow:false,salesScenario:null,salesCustomer:null,salesTab:'cart',
   salesNewData:{firstName:'',secondName:'',lastName1:'',lastName2:'',dob:''},
@@ -1082,6 +1093,8 @@ function render(){
   }
   else if(s==='done')h+=pgDone();
   else if(s==='doneExpress')h+=pgDoneExpress();
+  else if(s==='contadoDone')h+=pgContadoDone();
+  else if(s==='saleDetail')h+=pgSaleDetail();
   else if(s==='approved')h+=pgApproved();
   else if(s==='observed')h+=pgObserved();
   else if(s==='solDetail')h+=pgSolDetail();
@@ -1282,16 +1295,63 @@ function pgHome(){
             </div>
           </div>
 
-          <!-- RIGHT COLUMN: Solicitudes -->
+          <!-- RIGHT COLUMN: Solicitudes + Sales -->
           <div class="home-col-dash">
-            <div class="card" style="padding:18px;margin-bottom:12px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-                <span style="font-size:14px;font-weight:700;">${t('dashTitle')}</span>
-                <span id="btnViewAllSolicitudes" style="font-size:12px;font-weight:700;color:var(--primary);cursor:pointer;display:inline-flex;align-items:center;gap:4px;">${es?'Ver todas':'View all'} ${icon('chevronRight',14,'#2B5CE6')}</span>
+            <!-- Credit Applications -->
+            <div class="card" style="padding:0;margin-bottom:12px;overflow:hidden;">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;user-select:none;border-bottom:${state._dashSolOpen?'1px solid var(--border)':'none'};" onclick="state._dashSolOpen=!state._dashSolOpen;render();">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <span style="font-size:14px;font-weight:700;">${t('dashTitle')}</span>
+                </div>
+                <div style="width:28px;height:28px;border-radius:50%;background:${state._dashSolOpen?'var(--primary-light)':'var(--surface-alt)'};display:flex;align-items:center;justify-content:center;transition:all .2s;">
+                  <span style="display:flex;transition:transform .25s ease;transform:rotate(${state._dashSolOpen?'270':'90'}deg);color:${state._dashSolOpen?'var(--primary)':'var(--text-dim)'};">${icon('chevronRight',14)}</span>
+                </div>
               </div>
-              ${previewApps.length===0?`<div style="text-align:center;padding:20px 0;font-size:12px;color:var(--text-dim);">${t('dashEmpty')}</div>`
-                :previewApps.map((a,idx)=>solCard(a,idx,previewApps.length)).join('')}
+              ${state._dashSolOpen?`<div style="padding:14px 18px;">
+                ${previewApps.length===0?`<div style="text-align:center;padding:20px 0;font-size:12px;color:var(--text-dim);">${t('dashEmpty')}</div>`
+                  :previewApps.map((a,idx)=>solCard(a,idx,previewApps.length)).join('')}
+                <div id="btnViewAllSolicitudes" style="display:flex;align-items:center;justify-content:center;gap:4px;margin-top:12px;padding:10px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:700;color:var(--primary);background:var(--primary-light);transition:all .15s;" onmouseover="this.style.background='#D6DFFA'" onmouseout="this.style.background='var(--primary-light)'">${es?'Ver todas las solicitudes':'View all applications'} ${icon('chevronRight',14,'#2B5CE6')}</div>
+              </div>`:''}
             </div>
+
+            <!-- Sales -->
+            ${(function(){
+              const ventas=state.sales||[];
+              const previewVentas=ventas.slice(0,5);
+              const ventaBillingMap={pending_billing:{label:es?'Pendiente facturar':'Pending billing',color:'var(--warning)',bg:'var(--warning-light)',border:'var(--warning-border)',icon:'clock'},billed:{label:es?'Facturada':'Billed',color:'#0D9B68',bg:'#E6F7F1',border:'#A8DFC9',icon:'receipt'}};
+              return`<div class="card" style="padding:0;margin-bottom:12px;overflow:hidden;">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;user-select:none;border-bottom:${state._dashSalesOpen?'1px solid var(--border)':'none'};" onclick="state._dashSalesOpen=!state._dashSalesOpen;render();">
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:14px;font-weight:700;">${t('salesDashTitle')}</span>
+                  </div>
+                  <div style="width:28px;height:28px;border-radius:50%;background:${state._dashSalesOpen?'var(--primary-light)':'var(--surface-alt)'};display:flex;align-items:center;justify-content:center;transition:all .2s;">
+                    <span style="display:flex;transition:transform .25s ease;transform:rotate(${state._dashSalesOpen?'270':'90'}deg);color:${state._dashSalesOpen?'var(--primary)':'var(--text-dim)'};">${icon('chevronRight',14)}</span>
+                  </div>
+                </div>
+                ${state._dashSalesOpen?`<div style="padding:14px 18px;">
+                  ${previewVentas.length===0?`<div style="text-align:center;padding:20px 0;font-size:12px;color:var(--text-dim);">${t('salesDashEmpty')}</div>`
+                    :previewVentas.map((v,idx)=>{
+                      const bl=ventaBillingMap[v.billingStatus]||ventaBillingMap.pending_billing;
+                      return`<div data-saleref="${v.ref}" style="padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:${idx<previewVentas.length-1?'8':'0'}px;background:var(--white);cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--primary)';this.style.boxShadow='var(--shadow)'" onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+                        <div style="display:flex;align-items:flex-start;gap:12px;">
+                          <div style="flex:1;min-width:0;">
+                            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
+                              <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--primary);">${v.ref}</span>
+                              <span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;background:${bl.bg};border:1px solid ${bl.border};font-size:10px;font-weight:700;color:${bl.color};">${icon(bl.icon,10,bl.color)} ${bl.label}</span>
+                            </div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${v.client}</div>
+                            <div style="display:flex;gap:12px;font-size:11px;color:var(--text-secondary);">
+                              <span style="font-family:var(--mono);font-weight:700;">${v.amount}</span>
+                              <span style="color:var(--text-dim);">${v.date}</span>
+                            </div>
+                          </div>
+                          <span style="display:flex;color:var(--text-dim);flex-shrink:0;margin-top:8px;">${icon('chevronRight',16)}</span>
+                        </div>
+                      </div>`;
+                    }).join('')}
+                </div>`:''}
+              </div>`;
+            })()}
           </div>
 
         </div>
@@ -2413,10 +2473,6 @@ function pgCustomerProfile(){
         <div style="font-size:12px;color:var(--text-dim);">${client.doc}</div>
       </div>
     </div>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;">
-      <div style="font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:4px;"><span style="display:flex;">${icon('calendar',12)}</span> ${t('cpSince')}: <strong>${client.since}</strong></div>
-      <div style="font-size:11px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:var(--success);">${icon('shield',12)}</span> <strong style="color:var(--success);">${t('cpRatingA')}</strong></div>
-    </div>
   </div>
 
   <!-- CMM — Available amount prominent -->
@@ -2466,11 +2522,118 @@ function pgCustomerProfile(){
   <div class="btn-row"><button class="btn btn-secondary" id="btnBack">${t('btnBack')}</button><button class="btn btn-primary" id="btnNext" ${!state.action?'disabled':''}>${t('btnNext')}</button></div></div>`;
 }
 
+/* ═══════════════ CONTADO DONE ═══════════════ */
+function pgContadoDone(){
+  const es=state.lang==='es';
+  const client=state.salesCustomer?state.salesCustomer.name:'Cliente';
+  const ref=state._contadoSaleRef||'VTA-000000';
+  const total=state._contadoTotal||0;
+  const items=state.salesCartItems||[];
+  const deliveryCost=state.salesShipMethod==='home'?5.00:0;
+  const subtotal=items.reduce((s,it)=>s+it.price+(it.warranty?it.warranty.price:0),0);
+  return`<div class="card"><div class="success-screen">
+    <div class="success-circle" style="background:var(--success-light);border-color:var(--success);">${icon('check',28,'var(--success)')}</div>
+    <div class="success-title">${es?'Venta Registrada':'Sale Registered'}</div>
+    <div style="margin:20px auto 0;max-width:460px;text-align:left;">
+      <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--surface-alt);border:1px solid var(--border);margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin-bottom:8px;"><span>${es?'No. Referencia':'Reference No.'}</span><span style="font-family:var(--mono);font-weight:700;color:var(--primary);">${ref}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:10px;"><span style="color:var(--text-dim);">${es?'Cliente':'Customer'}</span><span style="font-weight:700;">${client}</span></div>
+        <!-- Cart items -->
+        <div style="border-top:1px solid var(--border);padding-top:10px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;">${es?'Artículos':'Items'} (${items.length})</div>
+          ${items.map(it=>{
+            const warrantyAmt=it.warranty?it.warranty.price:0;
+            const itemTotal=it.price+warrantyAmt;
+            return`<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--border);">
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${it.name}</div>
+                ${warrantyAmt>0?`<div style="font-size:10px;color:var(--text-dim);margin-top:2px;">+ ${es?'Garantía ext.':'Ext. warranty'} $${warrantyAmt.toFixed(2)}</div>`:''}
+              </div>
+              <div style="font-family:var(--mono);font-size:12px;font-weight:700;flex-shrink:0;">$${itemTotal.toLocaleString('en',{minimumFractionDigits:2})}</div>
+            </div>`;
+          }).join('')}
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-secondary);margin-bottom:4px;"><span>${es?'Subtotal':'Subtotal'}</span><span style="font-family:var(--mono);">$${subtotal.toLocaleString('en',{minimumFractionDigits:2})}</span></div>
+          ${deliveryCost>0?`<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-secondary);margin-bottom:4px;"><span>${es?'Envío':'Shipping'}</span><span style="font-family:var(--mono);">$${deliveryCost.toFixed(2)}</span></div>`:''}
+          <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:800;color:var(--text);padding-top:6px;border-top:1px solid var(--border);"><span>TOTAL</span><span style="font-family:var(--mono);">$${total.toLocaleString('en',{minimumFractionDigits:2})}</span></div>
+        </div>
+      </div>
+      <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--primary-light);border:1px solid #C5D0F0;margin-bottom:14px;text-align:center;">
+        <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;background:var(--white);border:1px solid #C5D0F0;font-size:12px;font-weight:700;color:var(--primary);">${icon('shoppingCart',14,'var(--primary)')} ${es?'Pago de Contado':'Cash Payment'}</div>
+      </div>
+      <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--warning-light);border:1px solid var(--warning-border);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+        <span style="display:flex;color:var(--warning);">${icon('clock',14)}</span>
+        <div style="font-size:12px;font-weight:700;color:var(--warning);">${es?'Pendiente facturar':'Pending billing'}</div>
+      </div>
+      <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--white);border:1px solid var(--border);margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">${es?'Próximos pasos':'Next steps'}</div>
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">1</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${es?'Pasar a caja a pagar':'Go to cashier to pay'} <strong style="font-family:var(--mono);">$${total.toLocaleString('en',{minimumFractionDigits:2})}</strong></div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row" style="justify-content:center;margin-top:16px;"><button class="btn btn-secondary" id="btnRestart">${t('btnNewQuery')}</button></div>
+  </div></div>`;
+}
+
+function pgSaleDetail(){
+  const es=state.lang==='es';
+  const sale=state._viewingSale;
+  if(!sale)return`<div class="card"><p>Error</p></div>`;
+  const isBilled=sale.billingStatus==='billed';
+  const billingLabel=isBilled?(es?'Facturada':'Billed'):(es?'Pendiente facturar':'Pending billing');
+  const billingColor=isBilled?'#0D9B68':'var(--warning)';
+  const billingBg=isBilled?'#E6F7F1':'var(--warning-light)';
+  const billingBorder=isBilled?'#A8DFC9':'var(--warning-border)';
+  const billingIcon=isBilled?'receipt':'clock';
+  return`<div class="card"><div class="success-screen">
+    <div class="success-circle" style="background:var(--primary-light);border-color:var(--primary);">${icon('shoppingCart',28,'var(--primary)')}</div>
+    <div class="success-title">${es?'Detalle de Venta':'Sale Detail'}</div>
+    <div style="margin:20px auto 0;max-width:460px;text-align:left;">
+      <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--surface-alt);border:1px solid var(--border);margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin-bottom:8px;"><span>${es?'No. Referencia':'Reference No.'}</span><span style="font-family:var(--mono);font-weight:700;color:var(--primary);">${sale.ref}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="color:var(--text-dim);">${es?'Cliente':'Customer'}</span><span style="font-weight:700;">${sale.client}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="color:var(--text-dim);">${es?'Fecha':'Date'}</span><span style="font-weight:600;">${sale.date}</span></div>
+        <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:8px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;">${es?'Artículos':'Items'}</div>
+          <div style="font-size:12px;color:var(--text);line-height:1.6;">${sale.items}</div>
+          <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:800;color:var(--text);padding-top:8px;margin-top:8px;border-top:1px solid var(--border);"><span>TOTAL</span><span style="font-family:var(--mono);">${sale.amount}</span></div>
+        </div>
+      </div>
+      <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--primary-light);border:1px solid #C5D0F0;margin-bottom:14px;text-align:center;">
+        <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;background:var(--white);border:1px solid #C5D0F0;font-size:12px;font-weight:700;color:var(--primary);">${icon('shoppingCart',14,'var(--primary)')} ${es?'Pago de Contado':'Cash Payment'}</div>
+      </div>
+      <div style="padding:14px 16px;border-radius:var(--radius-sm);background:${billingBg};border:1px solid ${billingBorder};margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+        <span style="display:flex;color:${billingColor};">${icon(billingIcon,14,billingColor)}</span>
+        <div style="font-size:12px;font-weight:700;color:${billingColor};">${billingLabel}</div>
+      </div>
+      ${!isBilled?`<div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--white);border:1px solid var(--border);margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">${es?'Próximos pasos':'Next steps'}</div>
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">1</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${es?'Pasar a caja a pagar':'Go to cashier to pay'} <strong style="font-family:var(--mono);">${sale.amount}</strong></div>
+        </div>
+      </div>`:''}
+    </div>
+    <div class="btn-row" style="justify-content:center;margin-top:16px;"><button class="btn btn-secondary" id="btnSaleDetailBack">${es?'Regresar':'Go back'}</button></div>
+  </div></div>`;
+}
+
 /* ═══════════════ EXPRESS DONE (1.2) ═══════════════ */
 function pgDoneExpress(){
   const client=state.salesCustomer?state.salesCustomer.name:'Carlos Eduardo Ramírez Flores';
   const refNum=state._expressRef||(state._expressRef='EXP-'+Math.floor(100000+Math.random()*900000));
   const canProceed=true;
+  // Save solicitud for express flow (outcome 2) if not saved yet
+  if(!state._expSolSaved){
+    const es=state.lang==='es';
+    const actionLabel=state.action==='cart'?(es?'Mercadería':'Merchandise'):state.action==='cash'?'Cash':(es?'Línea de Crédito':'Credit Line');
+    const amt=state.action==='cart'?'$'+(state.simCartTotal||0).toLocaleString('en',{minimumFractionDigits:2}):state.action==='cash'?'$'+(state.simCashAmt||0).toLocaleString('en',{minimumFractionDigits:2}):'—';
+    const today=new Date();const dd=String(today.getDate()).padStart(2,'0'),mm=String(today.getMonth()+1).padStart(2,'0'),yy=today.getFullYear();
+    const clientDoc=state.salesCustomer?state.salesCustomer.doc:((state.idType||'DUI')+' '+(state.idNumber||''));
+    state.solicitudes.unshift({ref:refNum,client,doc:clientDoc,product:actionLabel,amount:amt,date:dd+'/'+mm+'/'+yy,action:state.action,outcome:state.outcome,isNew:false,phone:state.pqData.phone||'+503 7890-1234',prima:state.simPrima||0,status:'approved',billingStatus:'pending_billing',hasVisit:false,refs:[],uploads:{address:[],income:[],idFront:true,idBack:true}});
+    state._expSolSaved=true;
+  }
 
 
   return`<div class="card"><div class="success-screen">
@@ -2835,7 +2998,7 @@ function pgForkDashStatus(){
         </div>
       </div>
     </div>
-    <div class="btn-row"><button class="btn btn-secondary" onclick="state.screen='home';state.viewingSolicitud=null;state._newSolStatus=null;render();">${t('btnBack')}</button><button class="btn btn-primary" id="btnApplyDashStatus" ${!state._newSolStatus?'disabled':''}>${t('btnNext')}</button></div></div>`;
+    <div class="btn-row"><button class="btn btn-secondary" onclick="backFromDetail();">${t('btnBack')}</button><button class="btn btn-primary" id="btnApplyDashStatus" ${!state._newSolStatus?'disabled':''}>${t('btnNext')}</button></div></div>`;
 }
 
 function pgSolDetail(){
@@ -2902,7 +3065,7 @@ function pgSolDetail(){
       <button class="btn btn-primary" id="btnChangeSolStatus" style="width:100%;justify-content:center;font-size:13px;">${es?'Simular cambio de estado':'Simulate status change'}</button>
 
     </div>
-    <div class="btn-row" style="justify-content:center;margin-top:16px;"><button class="btn btn-secondary" onclick="state.screen='home';state.viewingSolicitud=null;render();">${t('btnBack')}</button></div>
+    <div class="btn-row" style="justify-content:center;margin-top:16px;"><button class="btn btn-secondary" onclick="backFromDetail();">${t('btnBack')}</button></div>
   </div></div>`;
 }
 
@@ -2955,7 +3118,7 @@ function pgObserved(){
     ${uploads.income.length<5?`<div class="upload-area" id="obsUploadIncome" style="padding:14px;border-color:var(--orange);"><div class="upload-text">${uploads.income.length===0?t('docIncome'):t('docAddMore')} <span style="color:var(--text-dim);font-size:10px;">(${uploads.income.length}/5)</span></div></div>`:''}
   </div>
 
-  <div class="btn-row"><button class="btn btn-secondary" onclick="state.screen='home';state.viewingSolicitud=null;render();">${t('obsBackDash')}</button><button class="btn btn-primary" id="btnObsResubmit" style="display:flex;align-items:center;gap:6px;">${icon('check',14)} ${t('obsResubmit')}</button></div></div>`;
+  <div class="btn-row"><button class="btn btn-secondary" onclick="backFromDetail();">${t('obsBackDash')}</button><button class="btn btn-primary" id="btnObsResubmit" style="display:flex;align-items:center;gap:6px;">${icon('check',14)} ${t('obsResubmit')}</button></div></div>`;
 }
 
 function pgSolRejected(){
@@ -2985,7 +3148,7 @@ function pgSolRejected(){
         </div>
       </div>
     </div>
-    <div class="btn-row" style="justify-content:center;margin-top:20px;"><button class="btn btn-secondary" onclick="state.screen='home';state.viewingSolicitud=null;render();">${t('btnBack')}</button></div>
+    <div class="btn-row" style="justify-content:center;margin-top:20px;"><button class="btn btn-secondary" onclick="backFromDetail();">${t('btnBack')}</button></div>
   </div></div>`;
 }
 
@@ -3316,12 +3479,14 @@ function pgSalesCart(){
   const tabs=[
     {id:'credit',icon:'creditCard',label:t('salesTabCredit')},
     {id:'cart',icon:'shoppingCart',label:t('salesTabCart')},
+    {id:'activity',icon:'fileText',label:state.lang==='es'?'Actividad':'Activity'},
   ];
 
   const tabBar=`<div class="sales-tab-mobile" style="position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,0.06);">
-    ${tabs.map(tb=>`<div data-salestab="${tb.id}" style="flex:1;padding:8px 4px 10px;text-align:center;cursor:pointer;transition:color .2s;">
+    ${tabs.map(tb=>`<div data-salestab="${tb.id}" style="flex:1;padding:8px 4px 10px;text-align:center;cursor:pointer;transition:color .2s;position:relative;">
       <div style="display:flex;justify-content:center;margin-bottom:2px;color:${activeTab===tb.id?'var(--primary)':'var(--text-dim)'};">${icon(tb.icon,20,activeTab===tb.id?'#2B5CE6':'#8D93A5')}</div>
       <div style="font-size:10px;font-weight:${activeTab===tb.id?'700':'600'};color:${activeTab===tb.id?'var(--primary)':'var(--text-dim)'};">${tb.label}</div>
+      ${tb.id==='activity'?(function(){const clientDoc=customer.doc||'';const count=(state.solicitudes||[]).filter(s=>s.doc&&s.doc===clientDoc).length+(state.sales||[]).filter(v=>v.doc&&v.doc===clientDoc).length;return count>0?`<span style="position:absolute;top:4px;left:50%;margin-left:4px;background:var(--warning);color:white;font-size:8px;font-weight:700;padding:1px 5px;border-radius:10px;">${count}</span>`:''})():''}
     </div>`).join('')}
   </div>`;
 
@@ -3343,6 +3508,13 @@ function pgSalesCart(){
         <span class="sidebar-icon">${icon(tb.icon,18,activeTab===tb.id?'#2B5CE6':'#8D93A5')}</span>
         <span>${tb.label}</span>
         ${tb.id==='cart'&&items.length>0?`<span style="margin-left:auto;background:var(--primary);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;">${items.length}</span>`:''}
+        ${tb.id==='activity'?(function(){
+          const clientDoc=customer.doc||'';
+          const clientSols=(state.solicitudes||[]).filter(s=>s.doc&&s.doc===clientDoc);
+          const clientSales=(state.sales||[]).filter(v=>v.doc&&v.doc===clientDoc);
+          const count=clientSols.length+clientSales.length;
+          return count>0?`<span style="margin-left:auto;background:var(--warning);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;">${count}</span>`:'';
+        })():''}
       </div>`).join('')}
     </div>
     <div class="sales-sidebar-footer">
@@ -3646,8 +3818,7 @@ function pgSalesCart(){
       methods.push({id:'credit',label:t('salesPayCredit'),desc:t('salesPayCreditDesc'),extra:`<div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--success);margin-top:4px;">${state.lang==='es'?'Límite Disponible Mercadería':'Available Merchandise Limit'}: $${mercLimit.toLocaleString('en')}</div>${grandTotal>mercLimit?`<div style="font-size:11px;color:var(--danger);font-weight:600;margin-top:4px;">${state.lang==='es'?'El total excede el límite disponible':'Total exceeds available limit'}</div>`:``}`,highlight:true,disabled:false});
     }
     if(!hasPromo){
-      methods.push({id:'card',label:t('salesPayCard'),desc:t('salesPayCardDesc'),extra:'',highlight:false,disabled:false});
-      methods.push({id:'cash',label:t('salesPayCash'),desc:t('salesPayCashDesc'),extra:'',highlight:false,disabled:false});
+      methods.push({id:'contado',label:t('salesPayCard'),desc:t('salesPayCardDesc'),extra:'',highlight:false,disabled:false});
     }
 
     // Past due: show credit option but disabled with warning
@@ -3823,10 +3994,6 @@ function pgSalesCart(){
         </div>
       </div>
 
-      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
-        <div style="font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:4px;">${icon('calendar',12)} ${t('cpSince')}: <strong>${customer.since||'2020'}</strong></div>
-        <div style="font-size:11px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:var(--orange);">${icon('alertTriangle',12)}</span> <strong style="color:var(--orange);">${es?'Rating: '+customer.rating:'Rating: '+customer.rating}</strong></div>
-      </div>
       <!-- CMM -->
       <div style="padding:18px;border:1.5px solid #C5D0F0;border-radius:var(--radius-sm);background:var(--primary-light);margin-bottom:16px;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--primary);margin-bottom:2px;">${es?'Cuota Máxima Mensual':'Monthly Maximum Installment'}</div>
@@ -3946,10 +4113,6 @@ function pgSalesCart(){
         {icon:icon('banknote',16),label:t('prodCash'),limit:(cmmAvail*17.65).toFixed(0),maxTerm:36,color:'#0D9B68',hasCTA:true}
       ];
       content=`
-      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
-        <div style="font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:4px;">${icon('calendar',12)} ${t('cpSince')}: <strong>${customer.since||'2019'}</strong></div>
-        <div style="font-size:11px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:var(--success);">${icon('shield',12)}</span> <strong style="color:var(--success);">${t('cpRatingA')}</strong></div>
-      </div>
       <!-- CMM — Available prominent -->
       <div style="padding:18px;border:1.5px solid #C5D0F0;border-radius:var(--radius-sm);background:var(--primary-light);margin-bottom:16px;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--primary);margin-bottom:2px;">${es?'Cuota Máxima Mensual':'Monthly Maximum Installment'}</div>
@@ -4012,6 +4175,121 @@ function pgSalesCart(){
         </div>
       </div>`;
     }
+  } else if(activeTab==='activity'){
+    const es=state.lang==='es';
+    const clientDoc=customer.doc||'';
+    const clientName=(customer.name||'').toUpperCase();
+    // Filter by doc, fallback to name for session-generated records
+    const allSols=(state.solicitudes||[]).filter(s=>clientDoc?s.doc===clientDoc:s.client&&s.client.toUpperCase()===clientName);
+    const allSales=(state.sales||[]).filter(v=>clientDoc?v.doc===clientDoc:v.client&&v.client.toUpperCase()===clientName);
+
+    // Seed demo data for 'existing' scenario when no records match yet
+    const useDemoData=allSols.length===0&&allSales.length===0&&(state.salesScenario==='existing'||state.salesScenario==='existingPastDue');
+    const finalSols=useDemoData?[
+      {ref:'SOL-240301',client:customer.name,doc:clientDoc,product:es?'Mercadería':'Merchandise',amount:'$649.99',date:'22/03/2026',action:'cart',status:'analysis',billingStatus:null,hasVisit:false,phone:''},
+      {ref:'SOL-240305',client:customer.name,doc:clientDoc,product:'Cash',amount:'$500.00',date:'10/02/2026',action:'cash',status:'approved',billingStatus:'billed',hasVisit:false,phone:''}
+    ]:allSols;
+    const finalSales=useDemoData?[
+      {ref:'VTA-240401',client:customer.name,doc:clientDoc,items:es?'LG Refrigeradora 14 pies':'LG 14ft Refrigerator',amount:'$549.99',date:'15/01/2026',billingStatus:'billed'},
+      {ref:'VTA-240410',client:customer.name,doc:clientDoc,items:es?'Whirlpool Microondas 1.1 pies':'Whirlpool 1.1cu Microwave',amount:'$129.99',date:'20/03/2026',billingStatus:'pending_billing'}
+    ]:allSales;
+
+    // Status + billing maps — identical to pgHome
+    const statusMap={
+      analysis:{label:t('dashStatusAnalysis'),color:'var(--warning)',bg:'var(--warning-light)',border:'var(--warning-border)',icon:'clock'},
+      analysis_visit:{label:t('dashStatusAnalysisVisit'),color:'var(--primary)',bg:'var(--primary-light)',border:'#C5D0F0',icon:'mapPin'},
+      approved:{label:t('dashStatusApproved'),color:'var(--success)',bg:'var(--success-light)',border:'var(--success-border)',icon:'checkCircle'},
+      approved_pending_id:{label:t('dashStatusApprovedPendingId'),color:'var(--warning)',bg:'var(--warning-light)',border:'var(--warning-border)',icon:'shield'},
+      pending_billing:{label:t('dashStatusPendingBill'),color:'var(--success)',bg:'var(--success-light)',border:'var(--success-border)',icon:'checkCircle'},
+      billed:{label:t('dashStatusBilled'),color:'#0D9B68',bg:'#E6F7F1',border:'#A8DFC9',icon:'receipt'},
+      observed:{label:t('dashStatusObserved'),color:'var(--orange)',bg:'var(--orange-light)',border:'#F5C9A8',icon:'alertTriangle'},
+      rejected:{label:t('dashStatusRejected'),color:'var(--danger)',bg:'var(--danger-light)',border:'#F5B4BA',icon:'x'}
+    };
+    const billingMap={
+      pending_billing:{label:t('dashStatusPendingBill'),color:'var(--warning)',bg:'var(--warning-light)',border:'var(--warning-border)',icon:'clock'},
+      billed:{label:t('dashStatusBilled'),color:'#0D9B68',bg:'#E6F7F1',border:'#A8DFC9',icon:'receipt'}
+    };
+
+    // Card renderers — EXACT same markup as pgHome solCard / sales card
+    function actSolCard(a,idx,total){
+      const st=statusMap[a.status||'analysis'];
+      const bl=a.billingStatus?billingMap[a.billingStatus]:null;
+      const visitInfo=a.hasVisit&&a.visitDate?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:10px;color:var(--text-dim);">${icon('calendar',10,'var(--text-dim)')} ${es?'Visita:':'Visit:'} ${new Date(a.visitDate+'T12:00:00').toLocaleDateString(es?'es-SV':'en-US',{month:'short',day:'numeric'})} · ${a.visitTime==='am'?(es?'Mañana':'Morning'):a.visitTime==='mid'?(es?'Medio día':'Midday'):(es?'Tarde':'Afternoon')}</div>`:'';
+      const obsInfo=a.status==='observed'?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:10px;color:var(--orange);font-weight:600;">${icon('alertTriangle',10,'#E07428')} ${es?'Requiere acción':'Action required'}</div>`:'';
+      return`<div style="padding:14px;border:1px solid ${a.status==='observed'?'#F5C9A8':'var(--border)'};border-radius:var(--radius-sm);margin-bottom:${idx<total-1?'8':'0'}px;cursor:pointer;transition:all .2s;background:${a.status==='observed'?'#FFFBF7':'var(--white)'};" class="dash-app" data-solref="${a.ref}" onmouseover="this.style.borderColor='var(--primary)';this.style.boxShadow='var(--shadow)'" onmouseout="this.style.borderColor='${a.status==='observed'?'#F5C9A8':'var(--border)'}';this.style.boxShadow='none'">
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
+              <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--primary);">${a.ref}</span>
+              <span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;background:${st.bg};border:1px solid ${st.border};font-size:10px;font-weight:700;color:${st.color};">${icon(st.icon,10,st.color)} ${st.label}</span>
+              ${a.status!=='approved_pending_id'&&bl?`<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;background:${bl.bg};border:1px solid ${bl.border};font-size:10px;font-weight:700;color:${bl.color};">${icon(bl.icon,10,bl.color)} ${bl.label}</span>`:''}
+            </div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.client}</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">${a.doc}</div>
+            <div style="display:flex;gap:12px;font-size:11px;color:var(--text-secondary);">
+              <span>${a.product}</span>
+              ${a.amount&&a.amount!=='—'?`<span style="font-family:var(--mono);font-weight:700;">${a.amount}</span>`:''}
+              <span style="color:var(--text-dim);">${a.date}</span>
+            </div>
+            ${visitInfo}${obsInfo}
+          </div>
+          <span style="display:flex;color:var(--text-dim);flex-shrink:0;margin-top:8px;">${icon('chevronRight',16)}</span>
+        </div>
+      </div>`;
+    }
+
+    function actSaleCard(v,idx,total){
+      const bl=billingMap[v.billingStatus]||billingMap.pending_billing;
+      return`<div data-saleref="${v.ref}" style="padding:14px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:${idx<total-1?'8':'0'}px;background:var(--white);cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--primary)';this.style.boxShadow='var(--shadow)'" onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
+              <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--primary);">${v.ref}</span>
+              <span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;background:${bl.bg};border:1px solid ${bl.border};font-size:10px;font-weight:700;color:${bl.color};">${icon(bl.icon,10,bl.color)} ${bl.label}</span>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${v.client}</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">${v.doc||''}</div>
+            <div style="display:flex;gap:12px;font-size:11px;color:var(--text-secondary);">
+              <span style="font-family:var(--mono);font-weight:700;">${v.amount}</span>
+              <span style="color:var(--text-dim);">${v.date}</span>
+            </div>
+          </div>
+          <span style="display:flex;color:var(--text-dim);flex-shrink:0;margin-top:8px;">${icon('chevronRight',16)}</span>
+        </div>
+      </div>`;
+    }
+
+    // Sub-tab state
+    const actSubTab=state._activitySubTab||'solicitudes';
+
+    // Inner pill sub-tabs
+    const subTabBar=`<div style="display:flex;gap:8px;margin-bottom:16px;padding:3px;background:var(--surface-alt);border-radius:var(--radius-sm);border:1px solid var(--border);">
+      <div onclick="state._activitySubTab='solicitudes';render();" style="flex:1;text-align:center;padding:7px 10px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;${actSubTab==='solicitudes'?'background:var(--white);color:var(--primary);box-shadow:var(--shadow-sm);':'color:var(--text-dim);'}">
+        ${es?'Solicitudes de Crédito':'Credit Applications'}
+      </div>
+      <div onclick="state._activitySubTab='ventas';render();" style="flex:1;text-align:center;padding:7px 10px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;${actSubTab==='ventas'?'background:var(--white);color:var(--primary);box-shadow:var(--shadow-sm);':'color:var(--text-dim);'}">
+        ${es?'Ventas de Contado':'Cash Sales'}
+      </div>
+    </div>`;
+
+    const emptyState=(icon2,msg)=>`<div style="padding:32px 16px;text-align:center;border:1px dashed var(--border);border-radius:var(--radius-sm);background:var(--white);">
+      <div style="display:flex;justify-content:center;margin-bottom:10px;color:var(--text-dim);">${icon(icon2,36,'#8D93A5')}</div>
+      <div style="font-size:13px;color:var(--text-dim);">${msg}</div>
+    </div>`;
+
+    const solicitudesPanel=actSubTab==='solicitudes'?`
+      ${finalSols.length===0
+        ?emptyState('clipboardList',es?'Sin solicitudes de crédito registradas':'No credit applications on record')
+        :finalSols.map((a,idx)=>actSolCard(a,idx,finalSols.length)).join('')}
+    `:'';
+
+    const ventasPanel=actSubTab==='ventas'?`
+      ${finalSales.length===0
+        ?emptyState('shoppingCart',es?'Sin ventas de contado registradas':'No cash sales on record')
+        :finalSales.map((v,idx)=>actSaleCard(v,idx,finalSales.length)).join('')}
+    `:'';
+
+    content=`${subTabBar}${solicitudesPanel}${ventasPanel}`;
   } else {
     const tabName=tabs.find(tb=>tb.id===activeTab);
     content=`<div style="text-align:center;padding:80px 20px;"><div style="color:var(--text-dim);margin-bottom:12px;display:flex;justify-content:center;">${icon(tabName?tabName.icon:'menu',48,'#8D93A5')}</div><div style="font-size:16px;font-weight:700;color:var(--text-dim);margin-bottom:6px;">${tabName?tabName.label:''}</div><div style="font-size:12px;color:var(--text-dim);">${state.lang==='es'?'Próximamente':'Coming soon'}</div></div>`;
@@ -4055,23 +4333,34 @@ function selectResult(el){
   render();
 }
 
+/* ═══════════════ BACK FROM DETAIL ═══════════════ */
+function backFromDetail(){
+  state.viewingSolicitud=null;state._newSolStatus=null;
+  if(state._detailOrigin==='salesCart'){
+    state.screen='salesCart';state.salesTab='activity';state._detailOrigin=null;
+  } else {
+    state.screen='home';
+  }
+  render();
+}
+
 /* ═══════════════ GO HOME ═══════════════ */
 function goHome(){
-  const lang=state.lang,user=state.loginUser,store=state.selectedStore,sols=state.solicitudes||[];
+  const lang=state.lang,user=state.loginUser,store=state.selectedStore,sols=state.solicitudes||[],salesData=state.sales||[];
   state={lang:lang,screen:'home',loginUser:user,loginPass:'',showPass:false,selectedStore:store,
     idType:'',idNumber:'',outcome:null,action:null,prequalStep:0,
     pqData:{firstName:'',secondName:'',lastName1:'',lastName2:'',dob:'',gender:'',marital:'',email:'',phone:'',dept:'',muni:'',canton:'',street:'',p1:'',p2:'',p3:'',p4:'',income:'',activity:'',industry:'',income2:'',activity2:'',industry2:'',showSecondIncome:false,consentSig:false,consentTC:false},
     buroConsent:false,otpPhone:'',otpSent:false,otpVerified:false,otpEditPhone:false,
     simPlazo:undefined,simPrima:undefined,simCPI:true,simCartTotal:1200,limitUpgraded:false,
     amlAnswers:{},uploads:{address:[],income:[],idFront:false,idBack:false},
-    solicitudes:sols,viewingSolicitud:null,
+    solicitudes:sols,sales:salesData,viewingSolicitud:null,
     salesFlow:false,salesScenario:null,salesCustomer:null,salesTab:'cart',
     salesNewData:{firstName:'',secondName:'',lastName1:'',lastName2:'',dob:''},
     salesCartItems:[],salesIdType:'',salesIdNumber:'',
     salesSubScreen:null,salesDetailItem:null,salesCreditDiscount:false,
     salesNoDelivery:false,salesShipMethod:null,salesShipDate:null,salesPayMethod:null,
     forkAml:null,forkApproval:null,forkVisit:null,forkSociodemo:null,
-    salesReturnToCheckout:false};
+    salesReturnToCheckout:false,_dashSolOpen:true,_dashSalesOpen:true};
   render();
 }
 
@@ -4421,9 +4710,21 @@ function bind(){
       state.simDeliveryCost=deliveryCost;
       state.screen='simulation';state.salesSubScreen=null;
       render();
-    } else {
-      alert(state.lang==='es'?'Procesando pago con '+state.salesPayMethod+'...':'Processing payment with '+state.salesPayMethod+'...');
-      goHome();
+    } else if(state.salesPayMethod==='contado'){
+      // Contado purchase — create sale and show success
+      const cartSubtotal=(state.salesCartItems||[]).reduce((s,it)=>s+it.price+(it.warranty?it.warranty.price:0),0);
+      const deliveryCost=state.salesShipMethod==='home'?5.00:0;
+      const grandTotal=cartSubtotal+deliveryCost;
+      const clientName=state.salesCustomer?state.salesCustomer.name:'Cliente';
+      const clientDoc=state.salesCustomer?state.salesCustomer.doc:'';
+      const itemNames=(state.salesCartItems||[]).map(it=>it.name).join(', ');
+      const today=new Date();const dd=String(today.getDate()).padStart(2,'0'),mm=String(today.getMonth()+1).padStart(2,'0'),yy=today.getFullYear();
+      const saleRef='VTA-'+Math.floor(100000+Math.random()*900000);
+      state.sales.unshift({ref:saleRef,client:clientName,doc:clientDoc,items:itemNames,amount:'$'+grandTotal.toLocaleString('en',{minimumFractionDigits:2}),date:dd+'/'+mm+'/'+yy,billingStatus:'pending_billing'});
+      state._contadoSaleRef=saleRef;
+      state._contadoTotal=grandTotal;
+      state.screen='contadoDone';state.salesSubScreen=null;
+      render();
     }
   };
   // Cash loan from credit profile tab
@@ -4478,8 +4779,8 @@ function bind(){
     state.screen='prequal';
     render();
   };
-  // Dashboard solicitud clicks
-  document.querySelectorAll('[data-solref]').forEach(el=>{el.onclick=()=>{const ref=el.dataset.solref;const sol=state.solicitudes.find(s=>s.ref===ref);if(sol){state.viewingSolicitud=sol;state.bioSent=false;state.bioVerified=false;if(sol.status==='approved'||sol.status==='approved_pending_id'){state.screen='approved';}else if(sol.status==='observed'){state.screen='observed';}else if(sol.status==='rejected'){state.screen='solRejected';}else{state.screen='solDetail';}render();}};});
+  // Dashboard solicitud clicks — track origin so back button knows where to return
+  document.querySelectorAll('[data-solref]').forEach(el=>{el.onclick=()=>{const ref=el.dataset.solref;const sol=state.solicitudes.find(s=>s.ref===ref);if(sol){state.viewingSolicitud=sol;state.bioSent=false;state.bioVerified=false;state._detailOrigin=state.screen==='salesCart'?'salesCart':'home';if(sol.status==='approved'||sol.status==='approved_pending_id'){state.screen='approved';}else if(sol.status==='observed'){state.screen='observed';}else if(sol.status==='rejected'){state.screen='solRejected';}else{state.screen='solDetail';}render();}};});
   // Approved screen buttons
   const ap=$('btnApprovedPrint');if(ap)ap.onclick=()=>{alert(state.lang==='es'?'Imprimiendo documentos...':'Printing documents...');};
   const aa=$('btnApprovedAction');if(aa)aa.onclick=()=>{alert(state.lang==='es'?'Procesando...':'Processing...');goHome();};
@@ -4523,7 +4824,7 @@ function bind(){
   // Observed screen bindings
   const bor=$('btnObsResubmit');if(bor)bor.onclick=()=>{
     const sol=state.viewingSolicitud;
-    if(sol){sol.status=sol.hasVisit?'analysis_visit':'analysis';state.screen='home';state.viewingSolicitud=null;render();}
+    if(sol){sol.status=sol.hasVisit?'analysis_visit':'analysis';backFromDetail();}
   };
   const oua=$('obsUploadAddress');if(oua)oua.onclick=()=>{
     const sol=state.viewingSolicitud;if(sol){if(!sol.uploads)sol.uploads={address:[],income:[]};const n=sol.uploads.address.length+1;sol.uploads.address.push('documento_domicilio_'+n+'.pdf');render();}
@@ -4797,7 +5098,11 @@ function bind(){
       bb.onclick=()=>nav(-1);
     }
   }
-  const br=$('btnRestart');if(br)br.onclick=()=>{ goHome(); };
+  const br=$('btnRestart');if(br)br.onclick=()=>{if(state._detailOrigin==='salesCart'){backFromDetail();}else{goHome();}};
+  // Sale card clicks from dashboard — track origin
+  document.querySelectorAll('[data-saleref]').forEach(el=>{el.onclick=()=>{const ref=el.dataset.saleref;const sale=(state.sales||[]).find(s=>s.ref===ref);if(sale){state._viewingSale=sale;state._detailOrigin=state.screen==='salesCart'?'salesCart':'home';state.screen='saleDetail';render();}};});
+  // Sale detail back
+  const bsdb=$('btnSaleDetailBack');if(bsdb)bsdb.onclick=()=>{state._viewingSale=null;if(state._detailOrigin==='salesCart'){state.screen='salesCart';state.salesTab='activity';state._detailOrigin=null;}else{state.screen='home';}render()};
   const brtc=$('btnRejectedBackToCart');if(brtc)brtc.onclick=()=>{
     if(state.salesCustomer)state.salesCustomer.creditRejected=true;
     state.action=null;state.forkAml=null;state.forkApproval=null;state.forkVisit=null;state.forkSociodemo=null;
