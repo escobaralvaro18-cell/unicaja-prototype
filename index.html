@@ -2619,13 +2619,21 @@ function pgSaleDetail(){
   </div></div>`;
 }
 
-/* ═══════════════ EXPRESS DONE (1.2) ═══════════════ */
+/* ═══════════════ EXPRESS DONE (1.2 + bio para 0/1/3) ═══════════════ */
 function pgDoneExpress(){
   const client=state.salesCustomer?state.salesCustomer.name:'Carlos Eduardo Ramírez Flores';
   const refNum=state._expressRef||(state._expressRef='EXP-'+Math.floor(100000+Math.random()*900000));
-  const canProceed=true;
-  // Save solicitud for express flow (outcome 2) if not saved yet
-  if(!state._expSolSaved){
+  const isOutcome2=state.outcome===2;
+  const needsBio=!isOutcome2&&state._needsBioVerify;   // outcomes 0/1/3 express
+  const bioSent=state._bioExpressSent||false;
+  const bioVerified=state._bioExpressVerified||false;
+  const otpVerifiedO2=state.otpVerified||false;         // outcome 2 uses existing otpVerified
+  // For outcome 2: canProceed once otpVerified (or if phone not changed — already verified in otp screen)
+  // For outcomes 0/1/3 express: canProceed once biometric verified
+  const canProceed=isOutcome2?true:(!needsBio||bioVerified);
+
+  // Save solicitud once canProceed is reached (or immediately for outcome 2)
+  if(!state._expSolSaved&&(isOutcome2||canProceed)){
     const es=state.lang==='es';
     const actionLabel=state.action==='cart'?(es?'Mercadería':'Merchandise'):state.action==='cash'?'Cash':(es?'Línea de Crédito':'Credit Line');
     const amt=state.action==='cart'?'$'+(state.simCartTotal||0).toLocaleString('en',{minimumFractionDigits:2}):state.action==='cash'?'$'+(state.simCashAmt||0).toLocaleString('en',{minimumFractionDigits:2}):'—';
@@ -2635,10 +2643,58 @@ function pgDoneExpress(){
     state._expSolSaved=true;
   }
 
+  const es=state.lang==='es';
+  const ph=state.pqData.phone||'+503 7890-1234';
+
+  // ── Verification section ──
+  let verifySection='';
+
+  if(needsBio){
+    // Biometric for outcomes 0/1/3 — express approved, need identity verification before billing
+    if(bioVerified){
+      verifySection=`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--success);background:var(--success-light);margin-bottom:14px;">
+        <div style="text-align:center;">
+          <div style="display:flex;justify-content:center;margin-bottom:8px;"><div style="width:40px;height:40px;border-radius:50%;background:var(--success-light);border:2px solid var(--success);display:flex;align-items:center;justify-content:center;color:var(--success);">${icon('check',20,'var(--success)')}</div></div>
+          <div style="font-size:14px;font-weight:700;color:var(--success);margin-bottom:4px;">${es?'Identidad verificada':'Identity verified'}</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${es?'Verificación biométrica exitosa. Puede proceder con la facturación.':'Biometric verification successful. You may proceed with billing.'}</div>
+        </div>
+      </div>`;
+    } else if(bioSent){
+      verifySection=`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--white);margin-bottom:14px;">
+        <div style="text-align:center;">
+          <div style="display:flex;justify-content:center;margin-bottom:10px;"><div style="width:44px;height:44px;border-radius:50%;background:var(--primary-light);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;color:var(--primary);">${icon('smartphone',20)}</div></div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px;">${es?'Verificación biométrica enviada':'Biometric verification sent'}</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;max-width:340px;margin:0 auto 12px;">${es?'Se ha enviado un enlace de verificación biométrica al número del cliente.':'A biometric verification link has been sent to the customer\'s number.'}</div>
+          <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;background:var(--warning-light);border:1px solid var(--warning-border);font-size:11px;font-weight:700;color:var(--warning);margin-bottom:8px;">${icon('clock',12)} ${es?'Esperando verificación del cliente':'Waiting for customer verification'}</div>
+          <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);">${ph}</div>
+          <div style="margin-top:12px;"><button class="btn btn-secondary" id="btnSimBioExpress" style="font-size:11px;padding:6px 16px;border-style:dashed;">${es?'Simular verificación exitosa':'Simulate successful verification'}</button></div>
+        </div>
+      </div>`;
+    } else {
+      verifySection=`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--warning);background:var(--warning-light);margin-bottom:14px;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <span style="flex-shrink:0;display:flex;color:var(--warning);margin-top:2px;">${icon('shield',18)}</span>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">${es?'Verificación biométrica requerida':'Biometric verification required'}</div>
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:8px;">${es?'Antes de formalizar el crédito, el cliente debe verificar su identidad mediante biometría. Se enviará un enlace al número registrado.':'Before formalizing the credit, the customer must verify their identity via biometrics. A link will be sent to their registered number.'}</div>
+            <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);margin-bottom:10px;">${ph}</div>
+            <button class="btn btn-primary" id="btnSendBioExpress" style="padding:8px 20px;font-size:12px;display:inline-flex;align-items:center;gap:6px;">${icon('smartphone',14)} ${es?'Enviar verificación':'Send verification'}</button>
+          </div>
+        </div>
+      </div>`;
+    }
+  } else if(isOutcome2){
+    // Outcome 2: OTP already done in previous otp screen — show confirmed badge
+    verifySection=`<div style="padding:12px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--success);background:var(--success-light);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+      <span style="display:flex;color:var(--success);">${icon('shield',14,'#0D9B68')}</span>
+      <div style="font-size:12px;font-weight:700;color:var(--success);">${es?'Identidad verificada — Transacción autorizada':'Identity verified — Transaction authorized'}</div>
+    </div>`;
+  }
+
 
   return`<div class="card"><div class="success-screen">
-    <div class="success-circle" style="background:var(--success-light);border-color:var(--success);">${icon('check',28,'var(--success)')}</div>
-    <div class="success-title">${state.action==='cash'?t('doneExpTitleCash'):t('doneExpTitle')}</div>
+    <div class="success-circle" style="background:${canProceed?'var(--success-light)':'var(--primary-light)'};border-color:${canProceed?'var(--success)':'var(--primary)'};">${icon(canProceed?'check':'shield',28,canProceed?'var(--success)':'var(--primary)')}</div>
+    <div class="success-title">${canProceed?(state.action==='cash'?t('doneExpTitleCash'):t('doneExpTitle')):(es?'Verificación de Identidad':'Identity Verification')}</div>
     <div style="margin:20px auto 0;max-width:460px;text-align:left;">
 
       <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--surface-alt);border:1px solid var(--border);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
@@ -2646,17 +2702,15 @@ function pgDoneExpress(){
         <div style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--primary);">${refNum}</div>
       </div>
 
+      ${verifySection}
+
+      ${canProceed?`
       <div style="padding:16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);margin-bottom:14px;">
         <div style="text-align:center;">
           <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;background:var(--white);border:1px solid var(--success-border);font-size:12px;font-weight:700;color:var(--success);margin-bottom:10px;">${icon('checkCircle',14,'var(--success)')} ${t('doneExpStatusReady')}</div>
           <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">${client}</div>
           <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">${state.action==='cash'?t('doneExpDescCash'):t('doneExpDesc')}</div>
         </div>
-      </div>
-
-      <div style="padding:12px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--success);background:var(--success-light);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-        <span style="display:flex;color:var(--success);">${icon('shield',14,'#0D9B68')}</span>
-        <div style="font-size:12px;font-weight:700;color:var(--success);">${state.lang==='es'?'Identidad verificada — Transacción autorizada':'Identity verified — Transaction authorized'}</div>
       </div>
 
       ${state.action==='cart'?(function(){
@@ -2666,20 +2720,20 @@ function pgDoneExpress(){
           return`
           <div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--primary-light);margin-bottom:14px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-              <div style="font-size:12px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;">${state.lang==='es'?'Prima a Cobrar':'Down Payment Due'}</div>
+              <div style="font-size:12px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;">${es?'Prima a Cobrar':'Down Payment Due'}</div>
               <div style="font-family:var(--mono);font-size:22px;font-weight:800;color:var(--primary);">$${primaAmt.toLocaleString('en',{minimumFractionDigits:2})}</div>
             </div>
-            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;">${state.lang==='es'?'Este monto debe ser cobrado al cliente antes de entregar el producto.':'This amount must be collected from the customer before delivering the product.'}</div>
+            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;">${es?'Este monto debe ser cobrado al cliente antes de entregar el producto.':'This amount must be collected from the customer before delivering the product.'}</div>
           </div>
           <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--white);border:1px solid var(--border);margin-bottom:14px;">
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">${state.lang==='es'?'Próximos pasos':'Next steps'}</div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">${es?'Próximos pasos':'Next steps'}</div>
             <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
-              <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">1</div>
-              <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.lang==='es'?'Pasar a caja a pagar la prima de':'Go to cashier to pay the down payment of'} <strong style="font-family:var(--mono);">$${primaAmt.toLocaleString('en',{minimumFractionDigits:2})}</strong></div>
+              <div style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">1</div>
+              <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${es?'Pasar a caja a pagar la prima de':'Go to cashier to pay the down payment of'} <strong style="font-family:var(--mono);">$${primaAmt.toLocaleString('en',{minimumFractionDigits:2})}</strong></div>
             </div>
             <div style="display:flex;align-items:flex-start;gap:10px;">
-              <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">2</div>
-              <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.lang==='es'?'Imprimir y firmar documentación del crédito':'Print and sign credit documentation'}</div>
+              <div style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">2</div>
+              <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${es?'Imprimir y firmar documentación del crédito':'Print and sign credit documentation'}</div>
             </div>
           </div>`;
         } else {
@@ -2687,32 +2741,33 @@ function pgDoneExpress(){
           <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);margin-bottom:14px;">
             <div style="display:flex;align-items:center;gap:8px;">
               <span style="display:flex;color:var(--success);">${icon('checkCircle',16)}</span>
-              <div style="font-size:13px;font-weight:700;color:var(--success);">${state.lang==='es'?'Sin prima — Crédito al 100%':'No down payment — 100% Credit'}</div>
+              <div style="font-size:13px;font-weight:700;color:var(--success);">${es?'Sin prima — Crédito al 100%':'No down payment — 100% Credit'}</div>
             </div>
           </div>
           <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--white);border:1px solid var(--border);margin-bottom:14px;">
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">${state.lang==='es'?'Próximos pasos':'Next steps'}</div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">${es?'Próximos pasos':'Next steps'}</div>
             <div style="display:flex;align-items:flex-start;gap:10px;">
-              <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">1</div>
-              <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.lang==='es'?'Imprimir y firmar documentación del crédito':'Print and sign credit documentation'}</div>
+              <div style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">1</div>
+              <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${es?'Imprimir y firmar documentación del crédito':'Print and sign credit documentation'}</div>
             </div>
           </div>`;
         }
       })()
       :state.action==='cash'?`
       <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--white);border:1px solid var(--border);margin-bottom:14px;">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">${state.lang==='es'?'Próximos pasos':'Next steps'}</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">${es?'Próximos pasos':'Next steps'}</div>
         <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
-          <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">1</div>
-          <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.lang==='es'?'Imprimir y firmar documentación del préstamo':'Print and sign loan documentation'}</div>
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">1</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${es?'Imprimir y firmar documentación del préstamo':'Print and sign loan documentation'}</div>
         </div>
         <div style="display:flex;align-items:flex-start;gap:10px;">
-          <div style="width:22px;height:22px;border-radius:50%;background:${canProceed?'var(--primary)':'var(--text-dim)'};color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">2</div>
-          <div style="font-size:12px;color:${canProceed?'var(--text-secondary)':'var(--text-dim)'};line-height:1.5;">${state.lang==='es'?'Desembolsar efectivo al cliente':'Disburse cash to customer'}</div>
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;">2</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${es?'Desembolsar efectivo al cliente':'Disburse cash to customer'}</div>
         </div>
       </div>`:''}
+      `:''}
 
-      <button class="btn btn-primary" id="btnExpressPrint" style="display:none;"></button>
+      <button class="btn btn-primary" id="btnExpressPrint" style="${canProceed?'':'display:none;'}"></button>
     </div>
     <div class="btn-row" style="justify-content:center;margin-top:16px;"><button class="btn btn-secondary" id="btnRestart">${t('btnNewQuery')}</button></div>
   </div></div>`;
@@ -2727,7 +2782,9 @@ function pgApproved(){
   const isCash=act==='cash';
   const useOTP=sol.outcome===2;
   const useBio=!useOTP;
-  const needsVerification=sol.status==='approved_pending_id';
+  // Outcome 2: only needs verification if specifically flagged as pending_id
+  // Outcomes 0/1/3: ALWAYS require biometric before proceeding, even if status is 'approved'
+  const needsVerification=useOTP?(sol.status==='approved_pending_id'):true;
   const bioSent=state.bioSent;
   const bioVerified=state.bioVerified;
   const canProceed=needsVerification?bioVerified:true;
@@ -3588,50 +3645,71 @@ function pgSalesCart(){
     const creditChecked=state.salesCreditDiscount;
     const discountPct=0.10;
     const discountedPrice=creditChecked?parseFloat((p.price*(1-discountPct)).toFixed(2)):p.price;
-    const savings=creditChecked?(p.price-discountedPrice):0;
+    const savings=parseFloat((p.price-p.price*(1-discountPct)).toFixed(2));
+    const es2=state.lang==='es';
     return`<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);">
       <div style="padding:14px 16px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;">
         <span id="btnDetailBack" style="cursor:pointer;display:flex;color:var(--text-dim);transform:rotate(180deg);">${icon('chevronRight',22)}</span>
-        <div style="font-size:16px;font-weight:800;color:var(--text);">${state.lang==='es'?'Detalle de artículo':'Item Detail'}</div>
+        <div style="font-size:16px;font-weight:800;color:var(--text);">${es2?'Detalle de artículo':'Item Detail'}</div>
       </div>
       <div style="flex:1;overflow-y:auto;">
         <div style="height:220px;background:var(--white);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border);font-size:72px;">📦</div>
         <div style="padding:20px 16px;">
           <div class="inner-container">
             <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-sm);">
-              <div style="text-align:center;margin-bottom:14px;">
-                <div style="font-size:16px;font-weight:800;color:var(--primary);">${p.desc.split(',')[0].toUpperCase()}</div>
-                <div style="font-size:12px;color:var(--text-dim);font-family:var(--mono);">${p.code}</div>
+
+              <!-- Product title + code -->
+              <div style="margin-bottom:16px;">
+                <div style="font-size:15px;font-weight:800;color:var(--text);line-height:1.3;margin-bottom:4px;">${p.desc.split(',')[0]}</div>
+                <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);">${p.brand} · ${p.model} · ${p.code}</div>
               </div>
-              <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:16px;padding:10px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
-                <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);">${state.lang==='es'?'Precio lista':'List price'} <div style="width:36px;height:20px;border-radius:10px;background:${creditChecked?'var(--border)':'var(--primary)'};position:relative;transition:background .2s;"><div style="width:16px;height:16px;border-radius:50%;background:white;position:absolute;top:2px;${creditChecked?'left:2px':'left:18px'};box-shadow:0 1px 2px rgba(0,0,0,.2);transition:left .2s;"></div></div></div>
-                <div id="btnCreditCheckbox" style="display:flex;align-items:center;gap:6px;font-size:12px;color:${creditChecked?'var(--primary)':'var(--text-secondary)'};cursor:pointer;font-weight:${creditChecked?'700':'400'};"><div style="width:18px;height:18px;border-radius:3px;border:2px solid ${creditChecked?'var(--primary)':'var(--border)'};background:${creditChecked?'var(--primary)':'white'};display:flex;align-items:center;justify-content:center;transition:all .2s;">${creditChecked?`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`:''}</div> ${state.lang==='es'?'Crédito':'Credit'}</div>
+
+              <!-- ── Price selector ── -->
+              <div style="background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--radius-sm);padding:3px;display:flex;gap:3px;margin-bottom:16px;">
+                <!-- Contado option -->
+                <div id="btnSelectContado" style="flex:1;border-radius:5px;padding:12px 10px;cursor:pointer;transition:all .2s;background:${!creditChecked?'var(--white)':'transparent'};box-shadow:${!creditChecked?'var(--shadow-sm)':'none'};border:${!creditChecked?'1px solid var(--border)':'1px solid transparent'};">
+                  <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:${!creditChecked?'var(--text-secondary)':'var(--text-dim)'};margin-bottom:4px;">${es2?'Contado':'Cash'}</div>
+                  <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:${!creditChecked?'var(--text)':'var(--text-dim)'};">$${p.price.toFixed(2)}</div>
+                  ${!creditChecked?`<div style="font-size:10px;color:var(--text-dim);margin-top:3px;">${es2?'Precio de lista':'List price'}</div>`:''}
+                </div>
+                <!-- Crédito option -->
+                <div id="btnSelectCredito" style="flex:1;border-radius:5px;padding:12px 10px;cursor:pointer;transition:all .2s;background:${creditChecked?'var(--primary-light)':'transparent'};box-shadow:${creditChecked?'var(--shadow-sm)':'none'};border:${creditChecked?'1px solid var(--primary)':'1px solid transparent'};position:relative;">
+                  ${creditChecked?`<div style="position:absolute;top:8px;right:10px;display:flex;align-items:center;gap:3px;padding:1px 6px;border-radius:10px;background:var(--success-light);border:1px solid var(--success-border);">
+                    <span style="display:flex;color:var(--success);">${icon('tag',9,'var(--success)')}</span>
+                    <span style="font-size:9px;font-weight:700;color:var(--success);">-${(discountPct*100).toFixed(0)}%</span>
+                  </div>`:''}
+                  <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:${creditChecked?'var(--primary)':'var(--text-dim)'};margin-bottom:4px;">${es2?'Crédito':'Credit'}</div>
+                  <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:${creditChecked?'var(--primary)':'var(--text-dim)'};">$${(p.price*(1-discountPct)).toFixed(2)}</div>
+                  ${creditChecked
+                    ?`<div style="font-size:10px;color:var(--success);font-weight:600;margin-top:3px;">${es2?'Ahorrás':'You save'} $${savings.toFixed(2)}</div>`
+                    :`<div style="font-size:10px;color:var(--text-dim);margin-top:3px;">${es2?'Precio con financiamiento':'Financing price'}</div>`
+                  }
+                </div>
               </div>
-              ${creditChecked?`<div style="padding:10px 14px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-                <span style="display:flex;color:var(--success);">${icon('tag',14)}</span>
-                <div style="font-size:12px;color:var(--success);font-weight:600;">${state.lang==='es'?'Descuento por crédito':'Credit discount'}: -${(discountPct*100).toFixed(0)}% <span style="font-family:var(--mono);">(-$${savings.toFixed(2)})</span></div>
-              </div>`:''}
-              <div style="margin-bottom:14px;">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px;color:var(--text-secondary);"><span style="display:flex;color:var(--primary);">${icon('store',14)}</span><strong style="color:var(--text);">${state.lang==='es'?'Marca':'Brand'}:</strong> ${p.brand}</div>
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px;color:var(--text-secondary);"><span style="display:flex;color:var(--primary);">${icon('barcode',14)}</span><strong style="color:var(--text);">${state.lang==='es'?'Modelo':'Model'}:</strong> ${p.model}</div>
-                <div style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text-secondary);line-height:1.5;"><span style="display:flex;color:var(--primary);margin-top:2px;">${icon('fileText',14)}</span><span><strong style="color:var(--text);">${state.lang==='es'?'Descripción':'Description'}:</strong> ${p.desc}</span></div>
+
+              <!-- Product details -->
+              <div style="margin-bottom:16px;padding:12px 14px;border-radius:var(--radius-sm);background:var(--surface-alt);border:1px solid var(--border);">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px;color:var(--text-secondary);"><span style="display:flex;color:var(--primary);">${icon('store',13)}</span><span><strong style="color:var(--text);">${es2?'Marca':'Brand'}:</strong> ${p.brand}</span></div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px;color:var(--text-secondary);"><span style="display:flex;color:var(--primary);">${icon('barcode',13)}</span><span><strong style="color:var(--text);">${es2?'Modelo':'Model'}:</strong> ${p.model}</span></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text-secondary);line-height:1.5;"><span style="display:flex;color:var(--primary);margin-top:1px;">${icon('fileText',13)}</span><span><strong style="color:var(--text);">${es2?'Descripción':'Description'}:</strong> ${p.desc}</span></div>
               </div>
-              <div style="text-align:right;margin-bottom:16px;">
-                ${creditChecked?`<div style="font-family:var(--mono);font-size:14px;color:var(--text-dim);text-decoration:line-through;">$${p.price.toFixed(2)}</div>`:''}
-                <div style="font-family:var(--mono);font-size:26px;font-weight:700;color:${creditChecked?'var(--success)':'var(--text)'};">$${discountedPrice.toFixed(2)}</div>
-              </div>
+
+              <!-- Warranty -->
               <div class="form-group" style="margin-bottom:16px;">
+                <label class="form-label">${es2?'Garantía extendida':'Extended warranty'}</label>
                 <select class="form-select" id="serviceContract">
-                  <option value="">${state.lang==='es'?'Sin contrato':'No contract'}</option>
-                  <option value="${(discountedPrice*0.25).toFixed(2)}">24 ${state.lang==='es'?'meses':'months'} + $${(discountedPrice*0.25).toFixed(2)}</option>
-                  <option value="${(discountedPrice*0.15).toFixed(2)}">12 ${state.lang==='es'?'meses':'months'} + $${(discountedPrice*0.15).toFixed(2)}</option>
+                  <option value="">${es2?'Sin garantía extendida':'No extended warranty'}</option>
+                  <option value="${(discountedPrice*0.25).toFixed(2)}">24 ${es2?'meses':'months'} + $${(discountedPrice*0.25).toFixed(2)}</option>
+                  <option value="${(discountedPrice*0.15).toFixed(2)}">12 ${es2?'meses':'months'} + $${(discountedPrice*0.15).toFixed(2)}</option>
                 </select>
               </div>
-              <button class="btn" id="btnAddToCartDetail" style="width:100%;justify-content:center;background:var(--primary);color:white;padding:14px;font-size:15px;font-weight:700;">${state.lang==='es'?'AGREGAR AL CARRITO':'ADD TO CART'}</button>
+
+              <!-- Add to cart -->
+              <button class="btn" id="btnAddToCartDetail" style="width:100%;justify-content:center;background:var(--primary);color:white;padding:14px;font-size:14px;font-weight:700;letter-spacing:0.3px;">${es2?'AGREGAR AL CARRITO':'ADD TO CART'}</button>
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding:0 4px;">
-              <span style="font-size:13px;font-weight:600;color:var(--text-secondary);">${state.lang==='es'?'Descripción detallada':'Detailed description'}</span>
-              <div style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:20px;background:var(--primary);color:white;font-size:12px;font-weight:700;">📦 ${state.lang==='es'?'Saldo en tiendas':'Store stock'}</div>
+              <span style="font-size:13px;font-weight:600;color:var(--text-secondary);">${es2?'Descripción detallada':'Detailed description'}</span>
+              <div style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:20px;background:var(--primary);color:white;font-size:12px;font-weight:700;">📦 ${es2?'Saldo en tiendas':'Store stock'}</div>
             </div>
           </div>
         </div>
@@ -4579,7 +4657,8 @@ function bind(){
   const brb=$('btnResultsBack');if(brb)brb.onclick=()=>{if(!state.salesCustomer){state.salesSubScreen='search';}else{state.salesSubScreen=null;}render();};
   const bof=$('btnOpenFilters');if(bof)bof.onclick=()=>{state.salesSubScreen='search';render();};
   const bdb=$('btnDetailBack');if(bdb)bdb.onclick=()=>{state.salesSubScreen='results';state.salesCreditDiscount=false;render();};
-  const bcc2=$('btnCreditCheckbox');if(bcc2)bcc2.onclick=()=>{state.salesCreditDiscount=!state.salesCreditDiscount;render();};
+  const bcc2=$('btnSelectContado');if(bcc2)bcc2.onclick=()=>{state.salesCreditDiscount=false;render();};
+  const bcc3=$('btnSelectCredito');if(bcc3)bcc3.onclick=()=>{state.salesCreditDiscount=true;render();};
   document.querySelectorAll('[data-viewdetail]').forEach(el=>{el.onclick=()=>{state.salesDetailItem=el.dataset.viewdetail;state.salesSubScreen='detail';render();};});
   const batd=$('btnAddToCartDetail');if(batd&&!batd.disabled)batd.onclick=()=>{
     // If no customer identified, redirect to identification first
@@ -4936,8 +5015,8 @@ function bind(){
   for(let i=1;i<=6;i++){const d=$('expOtp'+i);if(d)d.oninput=e=>{if(e.target.value.length===1&&i<6){const nx=$('expOtp'+(i+1));if(nx)nx.focus();}let allFilled=true;for(let j=1;j<=6;j++){const dj=$('expOtp'+j);if(!dj||!dj.value)allFilled=false;}const pb=$('btnExpressPrint');if(pb)pb.disabled=!allFilled;};}
   const epr=$('btnExpressPrint');if(epr)epr.onclick=()=>{alert(state.lang==='es'?'Imprimiendo documentos y facturando...':'Printing documents and billing...');goHome();};
   // Biometric verification in express flow (new customers)
-  const sbE=$('btnSendBioExpress');if(sbE)sbE.onclick=()=>{state.bioSent=true;render();};
-  const simE=$('btnSimBioExpress');if(simE)simE.onclick=()=>{state.bioVerified=true;render();};
+  const sbE=$('btnSendBioExpress');if(sbE)sbE.onclick=()=>{state._bioExpressSent=true;render();};
+  const simE=$('btnSimBioExpress');if(simE)simE.onclick=()=>{state._bioExpressVerified=true;render();};
   // Sim
   const sl=$('simPlazo');if(sl)sl.onchange=e=>{state.simPlazo=e.target.value;render();};
   const sm=$('simPrima');if(sm){sm.oninput=e=>{const raw=e.target.value.replace(/[^0-9.]/g,'');state.simPrima=parseFloat(raw)||0;};sm.onblur=()=>render();};
@@ -5033,18 +5112,28 @@ function bind(){
       bn.onclick=()=>{
         const s=state.screen;
         if(isPreApprovedFlow){
-          // Pre-approved: simulation → forkAml → [aml] → otp (identity verification) → doneExpress
+          // Outcome 2 (línea aprobada): simulation → forkAml → [aml] → otp → doneExpress
           if(s==='simulation'){state.screen='forkAml';}
           else if(s==='forkAml'){state.screen=state.forkAml==='yes'?'aml':'otp';}
           else if(s==='aml'){state.screen='otp';}
           else if(s==='otp'){state.screen='doneExpress';}
         } else {
-          // Not pre-approved: simulation → forkAml → [aml] → application → forkApproval → [done|doneExpress]
+          // Outcomes 0/1/3: simulation → forkAml → [aml] → application → forkApproval → [bio+doneExpress | done | rejected]
           if(s==='simulation'){state.screen='forkAml';}
           else if(s==='forkAml'){state.screen=state.forkAml==='yes'?'aml':'application';}
           else if(s==='aml'){state.screen='application';}
           else if(s==='application'){state.screen='forkApproval';}
-          else if(s==='forkApproval'){state.screen=state.forkApproval==='express'?'doneExpress':state.forkApproval==='rejected'?'rejected':'done';}
+          else if(s==='forkApproval'){
+            if(state.forkApproval==='express'){
+              // Express approval for non-outcome-2: must do biometric before finalizing
+              state._needsBioVerify=true;state._bioExpressSent=false;state._bioExpressVerified=false;
+              state.screen='doneExpress';
+            } else if(state.forkApproval==='rejected'){
+              state.screen='rejected';
+            } else {
+              state.screen='done';
+            }
+          }
         }
         render();
       };
