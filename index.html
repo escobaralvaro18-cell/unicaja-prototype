@@ -4975,25 +4975,17 @@ function pgUpdateClient(){
 function creditBadge(c){
   const es=state.lang==='es';
   if(!c)return'';
-  if(c.isLegacyPastDue){
-    return`<div style="margin-top:4px;display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:10px;background:var(--orange-light);border:1px solid #F5C9A8;font-size:10px;font-weight:700;color:var(--orange);">${icon('alertTriangle',10,'#E07428')} ${es?'Activo sin Línea · En mora':'Active · No Line · Past Due'}</div>`;
-  }
-  if(c.isLegacy){
-    return`<div style="margin-top:4px;display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:10px;background:#F3E8FF;border:1px solid #DDD6FE;font-size:10px;font-weight:700;color:#7C3AED;">${icon('building',10,'#7C3AED')} ${es?'Activo sin Línea':'Active · No Line'}</div>`;
-  }
-  if(c.rating&&c.pastDue){
-    return`<div style="margin-top:4px;display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:10px;background:var(--orange-light);border:1px solid #F5C9A8;font-size:10px;font-weight:700;color:var(--orange);">${icon('alertTriangle',10,'#E07428')} ${es?'Línea activa — En mora':'Active line — Past due'}</div>`;
-  }
-  if(c.rating){
-    return`<div style="margin-top:4px;display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:10px;background:var(--success-light);border:1px solid var(--success-border);font-size:10px;font-weight:700;color:var(--success);">${icon('shield',10,'#0D9B68')} ${es?'Línea activa':'Active line'}</div>`;
-  }
-  if(c.isNewCredit||c.maxCuota){
-    return`<div style="margin-top:4px;display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:10px;background:var(--primary-light);border:1px solid #C5D0F0;font-size:10px;font-weight:700;color:var(--primary);">${icon('checkCircle',10,'#2B5CE6')} ${es?'Pre-calificado':'Pre-qualified'}</div>`;
-  }
-  if(c.creditRejected){
-    return`<div style="margin-top:4px;display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:10px;background:var(--danger-light);border:1px solid #F5B4BA;font-size:10px;font-weight:700;color:var(--danger);">${icon('x',10,'#D63B4A')} ${es?'Sin crédito':'No credit'}</div>`;
-  }
-  return`<div style="margin-top:4px;display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:10px;background:var(--surface-alt);border:1px solid var(--border);font-size:10px;font-weight:700;color:var(--text-dim);">${icon('user',10,'#8D93A5')} ${es?'Sin análisis crediticio':'No credit analysis'}</div>`;
+  const badge=(bg,border,color,label)=>`<div style="margin-top:4px;display:inline-flex;align-items:center;padding:2px 10px;border-radius:10px;background:${bg};border:1px solid ${border};font-size:10px;font-weight:700;color:${color};">${label}</div>`;
+  if(c.isLegacyPastDue)  return badge('var(--orange-light)','#F5C9A8','var(--orange)',          es?'SIN LÍNEA · MORA':'NO LINE · PAST DUE');
+  if(c.isLegacy)         return badge('#F3E8FF','#DDD6FE','#7C3AED',                            es?'SIN LÍNEA':'NO LINE');
+  if(c.rating&&c.pastDue)return badge('var(--orange-light)','#F5C9A8','var(--orange)',          es?'CON LÍNEA · MORA':'LINE · PAST DUE');
+  if(c.rating)           return badge('var(--success-light)','var(--success-border)','var(--success)', es?'CON LÍNEA':'WITH LINE');
+  if(c._inFlight==='inAnalysis')      return badge('var(--warning-light)','var(--warning-border)','var(--warning)',es?'EN ANÁLISIS':'IN ANALYSIS');
+  if(c._inFlight==='inAnalysisVisit') return badge('var(--warning-light)','var(--warning-border)','var(--warning)',es?'EN ANÁLISIS · VISITA':'IN ANALYSIS · VISIT');
+  if(c._inFlight==='pendingId')       return badge('var(--primary-light)','#C5D0F0','var(--primary)',  es?'APROBADO · PEND. ID':'APPROVED · PEND. ID');
+  if(c.isNewCredit||c.maxCuota) return badge('var(--success-light)','var(--success-border)','var(--success)',es?'PRE-CALIFICADO':'PRE-QUALIFIED');
+  if(c.creditRejected)   return badge('var(--danger-light)','#F5B4BA','var(--danger)',          es?'NO APTO':'NOT ELIGIBLE');
+  return badge('var(--surface-alt)','var(--border)','var(--text-dim)',                          es?'SIN EVALUAR':'NOT EVALUATED');
 }
 
 function pgSalesCart(){
@@ -6028,18 +6020,67 @@ function pgSalesCart(){
         {icon:icon('banknote',16),label:t('prodCash'),limit:limitCash,maxTerm:36,color:'#0D9B68'},
       ];
       content=`
-      <!-- Legacy badge — replaces "Oferta comercial aprobada" -->
-      <div style="padding:12px 16px;border-radius:var(--radius-sm);background:#F3E8FF;border:1px solid #DDD6FE;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
-        <span style="display:flex;color:#7C3AED;">${icon('building',18,'#7C3AED')}</span>
-        <div style="font-size:13px;font-weight:700;color:#7C3AED;">${es?'Activo sin Línea de Crédito':'Active · No Credit Line'}</div>
+      <!-- Legacy banner — operational message -->
+      <div style="padding:12px 16px;border-radius:var(--radius-sm);background:#F3E8FF;border:1px solid #DDD6FE;margin-bottom:16px;">
+        <div style="font-size:13px;font-weight:700;color:#7C3AED;margin-bottom:4px;">${es?'Límites aprobados — línea pendiente de activar':'Approved limits — line pending activation'}</div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${es?'Este cliente ya tiene límites de crédito aprobados. Para crear su línea y poder comprar o desembolsar, deberá validar su teléfono e identidad durante el proceso de apertura.':'This customer already has approved credit limits. To create their line and start purchasing or disbursing, they will need to validate their phone and identity during the opening process.'}</div>
       </div>
-      <!-- CMM — igual que precalificado -->
-      <div style="padding:18px;border:1.5px solid #C5D0F0;border-radius:var(--radius-sm);background:var(--primary-light);margin-bottom:16px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;"><div><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--primary);">${t('cmm')}</div><div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">${t('cmmShared')}</div></div><div style="font-family:var(--mono);font-size:28px;font-weight:700;color:var(--primary);">Q${(maxCuota||0).toFixed(2)}</div></div>
-      </div>
-      <!-- Limits — igual que precalificado -->
+      <!-- CMM con barra de uso — créditos previos ya comprometen capacidad -->
+      ${(()=>{
+        const legacyTotal=maxCuota;
+        const legacyUsed=Math.round(maxCuota*0.57*100)/100; // 57% comprometido por créditos previos
+        const legacyAvail=Math.round((legacyTotal-legacyUsed)*100)/100;
+        const legacyPct=Math.round(legacyUsed/legacyTotal*100);
+        return`<div style="padding:18px;border:1.5px solid #C5D0F0;border-radius:var(--radius-sm);background:var(--primary-light);margin-bottom:16px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--primary);margin-bottom:2px;">${t('cmm')}</div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:12px;">${es?'Capacidad de pago total del cliente':'Total payment capacity of the customer'}</div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px;">
+            <div style="font-family:var(--mono);font-size:32px;font-weight:700;color:var(--primary);">Q${legacyAvail.toFixed(2)}</div>
+            <div style="font-size:12px;color:var(--text-secondary);">${es?'disponible':'available'}</div>
+          </div>
+          <div style="height:8px;background:rgba(255,255,255,.6);border-radius:4px;overflow:hidden;margin-bottom:8px;">
+            <div style="height:100%;width:${legacyPct}%;background:var(--primary);border-radius:4px;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;">
+            <span style="color:var(--text-secondary);">${es?'Comprometida':'Committed'}: <strong style="font-family:var(--mono);">Q${legacyUsed.toFixed(2)}</strong></span>
+            <span style="color:var(--text-secondary);">${es?'Total aprobada':'Total approved'}: <strong style="font-family:var(--mono);color:var(--primary);">Q${legacyTotal.toFixed(2)}</strong></span>
+          </div>
+        </div>`;
+      })()}
+      <!-- Límites disponibles -->
       <div style="margin-bottom:16px;"><div class="section-label">${es?'Límites disponibles':'Available limits'}</div>
         <div class="product-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">${cpP.map(p=>`<div style="padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);border-left:3px solid ${p.color};"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:${p.color};">${p.icon}</span> ${p.label}</div><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text);">Q${parseInt(p.limit).toLocaleString('en')}</div><div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text-dim);">${t('maxTerm')} ${p.maxTerm} ${t('months')}</div></div>`).join('')}</div>
+      </div>
+      <!-- Créditos previos activos -->
+      <div style="margin-bottom:16px;">
+        <div class="section-label" style="display:flex;align-items:center;gap:6px;">${icon('clipboardList',12)} ${es?'Créditos previos activos':'Active prior credits'}</div>
+        ${[
+          {id:'CRD-2024-08821',typeIcon:'shoppingCart',typeColor:'var(--success)',product:es?'Crédito Mercadería':'Merchandise Credit',date:'10/09/2024',amount:2400.00,cuota:56.80,paid:19,total:36,status:'current'},
+          {id:'CRD-2023-04412',typeIcon:'banknote',typeColor:'#0D9B68',product:es?'Préstamo Cash':'Cash Loan',date:'05/03/2023',amount:3000.00,cuota:77.10,paid:37,total:48,status:'current'},
+        ].map(c=>`<div style="padding:14px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;background:var(--white);">
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:var(--success-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon(c.typeIcon,16,c.typeColor)}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                <span style="font-size:13px;font-weight:700;color:var(--text);">${c.product}</span>
+                <span style="padding:2px 8px;border-radius:10px;background:var(--success-light);border:1px solid var(--success-border);font-size:9px;font-weight:700;color:var(--success);">${es?'Al día':'Current'}</span>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--text-dim);margin-bottom:6px;">
+                <span style="font-family:var(--mono);">${c.id}</span>
+                <span>${c.date}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;font-size:12px;">
+                <div><span style="color:var(--text-dim);">${es?'Monto':'Amount'}:</span> <strong style="font-family:var(--mono);">Q${c.amount.toLocaleString('en',{minimumFractionDigits:2})}</strong></div>
+                <div><span style="color:var(--text-dim);">${es?'Cuota':'Payment'}:</span> <strong style="font-family:var(--mono);">Q${c.cuota.toFixed(2)}</strong></div>
+                <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);">${c.paid}/${c.total}</div>
+              </div>
+            </div>
+          </div>
+        </div>`).join('')}
+        <div style="margin-top:4px;padding:8px 12px;border-radius:var(--radius-sm);background:var(--surface-alt);font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:6px;">
+          <span style="display:flex;">${icon('info',12)}</span>
+          ${es?'Estas cuotas están incluidas en la CMM comprometida.':'These installments are included in the committed MMI.'}
+        </div>
       </div>
       <!-- 2 actions -->
       <div class="section-label">${t('actQ')}</div>
