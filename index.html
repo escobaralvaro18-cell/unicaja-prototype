@@ -356,12 +356,12 @@ es:{
   salesScenarioWarn:'Esta pantalla es solo para fines de demostración. En el producto real, el sistema determinará automáticamente el escenario del cliente.',
   salesExisting:'Línea activa — al día',salesExistingDesc:'Puede comprar a crédito con la disponibilidad de su CMM.',salesExistingPath:'Cotización directa',
   salesExistingPastDue:'Línea activa — saldo vencido',salesExistingPastDueDesc:'No puede acceder a nuevos créditos hasta ponerse al día.',salesExistingPastDuePath:'Solo pago de contado o tarjeta',
-  salesExistingPrequal:'Pre-calificado',salesExistingPrequalDesc:'Puede solicitar su línea o un préstamo cash hoy.',salesExistingPrequalPath:'Ver oferta → Solicitar línea o Cash',
-  salesExistingNoCredit:'Sin evaluación crediticia',salesExistingNoCreditDesc:'Puede iniciar originación de crédito hoy.',salesExistingNoCreditPath:'Puede pre-calificarse',
+  salesExistingPrequal:'Pre-calificado',salesExistingPrequalDesc:'Tiene límites y oferta comercial vigente. Puede formalizar su línea de crédito, solicitar un crédito de mercadería o un préstamo cash — en los dos últimos casos la línea se aprueba en conjunto con la compra.',salesExistingPrequalPath:'Ver oferta → Solicitar línea o Cash',
+  salesExistingNoCredit:'Sin evaluación crediticia',salesExistingNoCreditDesc:'Existe en la base de clientes pero no ha sido pre-calificado. Se puede iniciar la evaluación hoy para determinar su capacidad de crédito.',salesExistingNoCreditPath:'Puede pre-calificarse',
   salesExistingLegacy:'Cliente activo sin línea',salesExistingLegacyDesc:'Tiene créditos previos en Unicomer. Puede abrir su línea hoy con verificación de identidad.',salesExistingLegacyPath:'Biometría + contrato de línea',
   salesExistingLegacyPastDue:'Cliente activo sin línea — mora',salesExistingLegacyPastDueDesc:'Tiene créditos previos en Unicomer con saldo vencido pendiente.',salesExistingLegacyPastDuePath:'Solo pago de contado o tarjeta',
-  salesNew:'No encontrado en el sistema',salesNewDesc:'Se iniciará el proceso de originación desde cero.',salesNewPath:'Crear cliente',
-  salesRejected:'Evaluado — no apto para crédito',salesRejectedDesc:'Fue evaluado y no califica para crédito interno en este momento.',salesRejectedPath:'Solo pago de contado',
+  salesNew:'No encontrado en el sistema',salesNewDesc:'No existe en el sistema. Debe crearse como cliente primero, y luego podrá iniciar el proceso de pre-calificación para determinar si es apto para crédito.',salesNewPath:'Crear cliente',
+  salesRejected:'Evaluado — no apto para crédito',salesRejectedDesc:'Fue evaluado y no califica para crédito interno en este momento. Puede deberse a su perfil actual de riesgo o a un historial de comportamiento de pago con Unicomer — incluso estando al día, no es candidato a nuevos créditos hoy.',salesRejectedPath:'Solo pago de contado',
   salesInAnalysis:'Solicitud en análisis',salesInAnalysisDesc:'El área de crédito está evaluando su solicitud de línea. No puede realizar compras a crédito hasta obtener resolución.',
   salesInAnalysisVisit:'Solicitud en análisis — visita agendada',salesInAnalysisVisitDesc:'Hay una visita de verificación programada como parte del proceso de evaluación.',
   salesPendingId:'Aprobado — verificación biométrica pendiente',salesPendingIdDesc:'La línea fue aprobada. Falta confirmar la identidad del cliente para activarla.',
@@ -426,11 +426,11 @@ es:{
   // Outcome
   ocTitle:'Resultado de Consulta',ocDesc:'Seleccione el escenario que aplica al cliente.',
   demoWarn:'Esta pantalla es solo para fines de demostración. En el producto real, el sistema determinará automáticamente el escenario correcto del cliente.',
-  oc0t:'Pre-calificado',oc0d:'Puede solicitar su línea o un préstamo cash hoy.',oc0p:'Ver oferta → Solicitar línea o Cash',
-  oc1t:'Sin evaluación crediticia',oc1d:'Puede iniciar originación de crédito hoy.',oc1p:'Pre-calificación completa',
+  oc0t:'Pre-calificado',oc0d:'Tiene límites y oferta comercial vigente. Puede formalizar su línea de crédito, solicitar un crédito de mercadería o un préstamo cash — en los dos últimos casos la línea se aprueba en conjunto con la compra.',oc0p:'Ver oferta → Solicitar línea o Cash',
+  oc1t:'Sin evaluación crediticia',oc1d:'Existe en la base de clientes pero no ha sido pre-calificado. Se puede iniciar la evaluación hoy para determinar su capacidad de crédito.',oc1p:'Pre-calificación completa',
   oc2t:'Línea activa — al día',oc2d:'Puede comprar a crédito con la disponibilidad de su CMM.',oc2p:'Cotización directa',
-  oc3t:'No encontrado en el sistema',oc3d:'Se iniciará el proceso de originación desde cero.',oc3p:'Crear cliente',
-  oc4t:'Evaluado — no apto para crédito',oc4d:'Fue evaluado y no califica para crédito interno en este momento.',oc4p:'Solo pago de contado',
+  oc3t:'No encontrado en el sistema',oc3d:'No existe en el sistema. Debe crearse como cliente primero, y luego podrá iniciar el proceso de pre-calificación para determinar si es apto para crédito.',oc3p:'Crear cliente',
+  oc4t:'Evaluado — no apto para crédito',oc4d:'Fue evaluado y no califica para crédito interno en este momento. Puede deberse a su perfil actual de riesgo o a un historial de comportamiento de pago con Unicomer — incluso estando al día, no es candidato a nuevos créditos hoy.',oc4p:'Solo pago de contado',
   oc5t:'Línea activa — saldo vencido',oc5d:'No puede acceder a nuevos créditos hasta ponerse al día.',oc5p:'Solo pago de contado o tarjeta',
   // Prequal
   pqTitle:'Pre-calificación',pqDesc:'Complete la información del cliente paso a paso.',
@@ -593,12 +593,12 @@ en:{
   salesScenarioWarn:'This screen is for demo purposes only. In the actual product, the system will automatically determine the customer scenario.',
   salesExisting:'Active line — current',salesExistingDesc:'Can purchase on credit using available MMI.',salesExistingPath:'Direct quote',
   salesExistingPastDue:'Active line — past due',salesExistingPastDueDesc:'Cannot access new credit until payments are current.',salesExistingPastDuePath:'Cash or card payment only',
-  salesExistingPrequal:'Pre-qualified',salesExistingPrequalDesc:'Can request their line or a cash loan today.',salesExistingPrequalPath:'View offer → Request line or Cash',
-  salesExistingNoCredit:'No credit evaluation',salesExistingNoCreditDesc:'Can start credit origination today.',salesExistingNoCreditPath:'Can be pre-qualified',
+  salesExistingPrequal:'Pre-qualified',salesExistingPrequalDesc:'Has active limits and a commercial offer. Can formalize their credit line, request a merchandise credit, or a cash loan — in the latter two cases the line is approved together with the purchase.',salesExistingPrequalPath:'View offer → Request line or Cash',
+  salesExistingNoCredit:'No credit evaluation',salesExistingNoCreditDesc:'Exists in the customer database but has not been pre-qualified. The evaluation can be started today to determine their credit capacity.',salesExistingNoCreditPath:'Can be pre-qualified',
   salesExistingLegacy:'Active customer without line',salesExistingLegacyDesc:'Has previous credits at Unicomer. Can open their line today with identity verification.',salesExistingLegacyPath:'Biometrics + line contract',
   salesExistingLegacyPastDue:'Active customer without line — past due',salesExistingLegacyPastDueDesc:'Has previous credits at Unicomer with an outstanding past due balance.',salesExistingLegacyPastDuePath:'Cash or card payment only',
-  salesNew:'Not found in the system',salesNewDesc:'Credit origination will start from scratch.',salesNewPath:'Create customer',
-  salesRejected:'Evaluated — not eligible for credit',salesRejectedDesc:'Was evaluated and does not qualify for internal credit at this time.',salesRejectedPath:'Cash payment only',
+  salesNew:'Not found in the system',salesNewDesc:'Does not exist in the system. Must be created as a customer first, then the pre-qualification process can begin to determine if they are eligible for credit.',salesNewPath:'Create customer',
+  salesRejected:'Evaluated — not eligible for credit',salesRejectedDesc:'Was evaluated and does not qualify for internal credit at this time. This may be due to their current risk profile or payment behavior history with Unicomer — even if currently up to date, they are not a candidate for new credit today.',salesRejectedPath:'Cash payment only',
   salesInAnalysis:'Application under review',salesInAnalysisDesc:'The credit team is evaluating the line application. Cannot purchase on credit until resolved.',
   salesInAnalysisVisit:'Application under review — visit scheduled',salesInAnalysisVisitDesc:'A verification visit is scheduled as part of the evaluation process.',
   salesPendingId:'Approved — biometric verification pending',salesPendingIdDesc:'The line was approved. Customer identity must be confirmed to activate it.',
@@ -656,11 +656,11 @@ en:{
   sel:'Select...',
   ocTitle:'Query Result',ocDesc:'Select the scenario that applies to the customer.',
   demoWarn:'This screen is for demo purposes only. In the actual product, the system will automatically determine the correct customer scenario.',
-  oc0t:'Pre-qualified',oc0d:'Can request their line or a cash loan today.',oc0p:'View offer → Request line or Cash',
-  oc1t:'No credit evaluation',oc1d:'Can start credit origination today.',oc1p:'Full pre-qualification',
+  oc0t:'Pre-qualified',oc0d:'Has active limits and a commercial offer. Can formalize their credit line, request a merchandise credit, or a cash loan — in the latter two cases the line is approved together with the purchase.',oc0p:'View offer → Request line or Cash',
+  oc1t:'No credit evaluation',oc1d:'Exists in the customer database but has not been pre-qualified. The evaluation can be started today to determine their credit capacity.',oc1p:'Full pre-qualification',
   oc2t:'Active line — current',oc2d:'Can purchase on credit using available MMI.',oc2p:'Direct quote',
-  oc3t:'Not found in the system',oc3d:'Credit origination will start from scratch.',oc3p:'Create customer',
-  oc4t:'Evaluated — not eligible for credit',oc4d:'Was evaluated and does not qualify for internal credit at this time.',oc4p:'Cash payment only',
+  oc3t:'Not found in the system',oc3d:'Does not exist in the system. Must be created as a customer first, then the pre-qualification process can begin to determine if they are eligible for credit.',oc3p:'Create customer',
+  oc4t:'Evaluated — not eligible for credit',oc4d:'Was evaluated and does not qualify for internal credit at this time. This may be due to their current risk profile or payment behavior history with Unicomer — even if currently up to date, they are not a candidate for new credit today.',oc4p:'Cash payment only',
   oc5t:'Active line — past due',oc5d:'Cannot access new credit until payments are current.',oc5p:'Cash or card payment only',
   pqTitle:'Pre-qualification',pqDesc:'Complete customer information step by step.',
   pqS1:'Additional Data',pqS2:'Contact',pqS3:'Address',pqS4:'Income Information',pqS5:'Consent',
@@ -1004,8 +1004,10 @@ solicitudes:[
       requestedLimits:{cmmAvail:721.70,limitMerc:23400,limitMoto:48126,limitCash:13800},
       refs:[{name:'',phone:'',rel:''},{name:'',phone:'',rel:''}],uploads:{address:[],income:['constancia_salario.pdf','estado_cuenta.pdf'],idFront:true,idBack:true},limitMerc:23400,limitCash:13800,maxCuota:721.70,cmmTotal:1100,cmmComp:378.30},
     // ══════════════ LÍNEA EN CURSO — 3 sub-estados ══════════════
-    {ref:'SOL-LC-001',client:'Roberto Carlos Mendoza Lima',doc:'DPI 1122334455101',product:'Línea de Crédito',amount:'—',date:'03/04/2026',action:'preapprove',outcome:0,isNew:false,phone:'+502 5123-4567',status:'analysis',billingStatus:null,hasVisit:false,
-      refs:[{name:'',phone:'',rel:''},{name:'',phone:'',rel:''}],uploads:{address:['recibo_luz.pdf'],income:[],idFront:true,idBack:true},limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),maxCuota:663,cmmTotal:663,cmmComp:0},
+    {ref:'SOL-LC-001',client:'Roberto Carlos Mendoza Lima',doc:'DPI 1122334455101',product:'Línea + Mercadería',amount:'Q4,799.99',date:'03/04/2026',action:'cart',outcome:0,isNew:false,phone:'+502 5123-4567',status:'analysis',billingStatus:null,hasVisit:false,
+      cartItems:[{id:'tv_samsung1',name:'Samsung 55" Crystal UHD',sku:'SAM-UN55CU7000',price:4799.99,category:'electronica',creditPromo:false,warranty:null}],
+      creditTerms:{montoFinanciar:4319.99,plazo:24,tasa:24.0,gracia:1,cuota:228.45,cpi:27.30,cuotaTotal:255.75},
+      refs:[{name:'Ana Mendoza',phone:'5234-5678',rel:'Esposa'},{name:'',phone:'',rel:''}],uploads:{address:['recibo_luz.pdf'],income:[],idFront:true,idBack:true},limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),maxCuota:663,cmmTotal:663,cmmComp:0},
     {ref:'SOL-LC-002',client:'Patricia Eugenia Vásquez Godoy',doc:'DPI 2233445566202',product:'Línea de Crédito',amount:'—',date:'02/04/2026',action:'preapprove',outcome:0,isNew:false,phone:'+502 4234-5678',status:'analysis_visit',billingStatus:null,hasVisit:true,visitAddr:'home',visitDate:'2026-04-07',visitTime:'am',visitAddrDetail:'Zona 10, Guatemala Ciudad, 12 Calle 2-04',
       refs:[{name:'',phone:'',rel:''},{name:'',phone:'',rel:''}],uploads:{address:['recibo_agua.pdf'],income:[],idFront:true,idBack:true},limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),maxCuota:663,cmmTotal:663,cmmComp:0},
     {ref:'SOL-LC-003',client:'Diego Alejandro Fuentes Morales',doc:'DPI 3344556677303',product:'Línea de Crédito',amount:'—',date:'01/04/2026',action:'preapprove',outcome:0,isNew:false,phone:'+502 5345-6789',status:'approved_pending_id',billingStatus:null,hasVisit:false,
@@ -5036,9 +5038,9 @@ function pgSalesCart(){
         <span>${tb.label}</span>
         ${tb.id==='cart'&&items.length>0?`<span style="margin-left:auto;background:var(--primary);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;">${items.length}</span>`:''}
         ${tb.id==='activity'?(function(){
-          const clientDoc=customer.doc||'';
-          const clientSols=(state.solicitudes||[]).filter(s=>s.doc&&s.doc===clientDoc);
-          const clientSales=(state.sales||[]).filter(v=>v.doc&&v.doc===clientDoc);
+          const clientDocN=(customer.doc||'').replace(/:\s*/,' ').trim();
+          const clientSols=(state.solicitudes||[]).filter(s=>s.doc&&(s.doc||'').replace(/:\s*/,' ').trim()===clientDocN);
+          const clientSales=(state.sales||[]).filter(v=>v.doc&&(v.doc||'').replace(/:\s*/,' ').trim()===clientDocN);
           const count=clientSols.length+clientSales.length;
           return count>0?`<span style="margin-left:auto;background:var(--warning);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;">${count}</span>`:'';
         })():''}
@@ -6184,13 +6186,14 @@ function pgSalesCart(){
     }
   } else if(activeTab==='activity'){
     const es=state.lang==='es';
-    const clientDoc=customer.doc||'';
+    // Normalize doc: strip colon separator so 'DPI: 123' matches 'DPI 123'
+    const clientDoc=(customer.doc||'').replace(/:\s*/,' ').trim();
     const clientName=(customer.name||'').toUpperCase();
-    // Filter by doc, fallback to name for session-generated records
-    const allSols=(state.solicitudes||[]).filter(s=>clientDoc?s.doc===clientDoc:s.client&&s.client.toUpperCase()===clientName);
-    const allSales=(state.sales||[]).filter(v=>clientDoc?v.doc===clientDoc:v.client&&v.client.toUpperCase()===clientName);
+    // Filter by normalized doc, fallback to name for session-generated records
+    const allSols=(state.solicitudes||[]).filter(s=>clientDoc?(s.doc||'').replace(/:\s*/,' ').trim()===clientDoc:s.client&&s.client.toUpperCase()===clientName);
+    const allSales=(state.sales||[]).filter(v=>clientDoc?(v.doc||'').replace(/:\s*/,' ').trim()===clientDoc:v.client&&v.client.toUpperCase()===clientName);
 
-    // Seed demo data for 'existing' scenario when no records match yet
+    // Seed demo data for 'existing' / 'existingPastDue' when no records match yet
     const useDemoData=allSols.length===0&&allSales.length===0&&(state.salesScenario==='existing'||state.salesScenario==='existingPastDue');
     const finalSols=useDemoData?[
       {ref:'SOL-240301',client:customer.name,doc:clientDoc,product:es?'Mercadería':'HP',amount:'Q5,069.92',date:'22/03/2026',action:'cart',status:'analysis',billingStatus:null,hasVisit:false,phone:''},
@@ -6540,9 +6543,9 @@ function bind(){
           'pendingId':'SOL-LC-003',
         };
         const custMap={
-          'inAnalysis':{name:'ROBERTO CARLOS MENDOZA LIMA',doc:(state.idType||'DPI')+' '+(state.idNumber||'1122334455101'),since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
-          'inAnalysisVisit':{name:'PATRICIA EUGENIA VÁSQUEZ GODOY',doc:(state.idType||'DPI')+' '+(state.idNumber||'2233445566202'),since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
-          'pendingId':{name:'DIEGO ALEJANDRO FUENTES MORALES',doc:(state.idType||'DPI')+' '+(state.idNumber||'3344556677303'),since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
+          'inAnalysis':{name:'ROBERTO CARLOS MENDOZA LIMA',doc:'DPI 1122334455101',since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
+          'inAnalysisVisit':{name:'PATRICIA EUGENIA VÁSQUEZ GODOY',doc:'DPI 2233445566202',since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
+          'pendingId':{name:'DIEGO ALEJANDRO FUENTES MORALES',doc:'DPI 3344556677303',since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
         };
         state.salesCustomer=custMap[state.salesScenario];
         // Link to existing sol in seed data
@@ -6592,9 +6595,9 @@ function bind(){
     } else if(state.salesScenario==='inAnalysis'||state.salesScenario==='inAnalysisVisit'||state.salesScenario==='pendingId'){
       const solMap={'inAnalysis':'SOL-LC-001','inAnalysisVisit':'SOL-LC-002','pendingId':'SOL-LC-003'};
       const custMap={
-        'inAnalysis':{name:'ROBERTO CARLOS MENDOZA LIMA',doc:(state.salesIdType||'DPI')+': '+(state.salesIdNumber||'1122334455101'),since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
-        'inAnalysisVisit':{name:'PATRICIA EUGENIA VÁSQUEZ GODOY',doc:(state.salesIdType||'DPI')+': '+(state.salesIdNumber||'2233445566202'),since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
-        'pendingId':{name:'DIEGO ALEJANDRO FUENTES MORALES',doc:(state.salesIdType||'DPI')+': '+(state.salesIdNumber||'3344556677303'),since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
+        'inAnalysis':{name:'ROBERTO CARLOS MENDOZA LIMA',doc:'DPI 1122334455101',since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
+        'inAnalysisVisit':{name:'PATRICIA EUGENIA VÁSQUEZ GODOY',doc:'DPI 2233445566202',since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
+        'pendingId':{name:'DIEGO ALEJANDRO FUENTES MORALES',doc:'DPI 3344556677303',since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
       };
       state.salesCustomer=custMap[state.salesScenario];
       const sol=state.solicitudes.find(s=>s.ref===solMap[state.salesScenario]);
