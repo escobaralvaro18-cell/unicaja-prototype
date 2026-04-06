@@ -2792,9 +2792,7 @@ function pgDocScan(){
 
   // ── DOC TYPES ──────────────────────────────────────────────────
   const docTypes=[
-    {id:'dpi',     label:es?'DPI (Documento Personal de Identificación)':'DPI (National Identity Document)', icon:'idCard',    sides:2},
-    {id:'pasaporte',label:es?'Pasaporte':'Passport',                                                          icon:'shield',    sides:1},
-    {id:'residencia',label:es?'Carné de Residencia':'Residence Card',                                         icon:'home',      sides:1},
+    {id:'dpi', label:es?'DPI (Documento Personal de Identificación)':'DPI (National Identity Document)', icon:'idCard', sides:2},
   ];
 
   // ── PHASE: SELECT DOCUMENT ──────────────────────────────────────
@@ -2866,10 +2864,6 @@ function pgDocScan(){
         </svg>`;
 
     return`<div style="background:var(--white);min-height:100%;display:flex;flex-direction:column;">
-      <div style="padding:12px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);">
-        <div id="btnDocSelectBack" style="cursor:pointer;display:flex;color:var(--text-dim);transform:rotate(180deg);">${icon('chevronRight',22)}</div>
-        <div style="font-size:15px;font-weight:700;">${es?'Verificar identidad':'Verify your identity'}</div>
-      </div>
       <div style="flex:1;padding:28px 24px 24px;display:flex;flex-direction:column;align-items:center;">
         <div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:8px;text-align:center;">${sideLabel}</div>
         <div style="font-size:14px;color:var(--text-secondary);margin-bottom:28px;text-align:center;line-height:1.5;">${es?'Asegúrate que el documento esté sobre una superficie plana con buena iluminación y sin reflejos.':'Make sure the document is on a flat surface with good lighting and no glare.'}</div>
@@ -2902,10 +2896,6 @@ function pgDocScan(){
     const isFront=scanStep===0;
     const sideLabel=isFront?(es?'Frente del DPI':'Front of DPI'):(es?'Reverso del DPI':'Back of DPI');
     return`<div style="background:#0A0A0A;min-height:100%;display:flex;flex-direction:column;">
-      <div style="padding:14px 20px;display:flex;align-items:center;gap:10px;">
-        <div id="btnDocCamBack" style="cursor:pointer;display:flex;color:rgba(255,255,255,.6);transform:rotate(180deg);">${icon('chevronRight',22,'rgba(255,255,255,.6)')}</div>
-        <div style="font-size:15px;font-weight:700;color:white;">${sideLabel}</div>
-      </div>
       <!-- Simulated camera view -->
       <div style="flex:1;position:relative;display:flex;align-items:center;justify-content:center;padding:20px;">
         <!-- dark vignette -->
@@ -2950,10 +2940,6 @@ function pgDocScan(){
     const isFront=scanStep===0;
     const sideLabel=isFront?(es?'Frente del DPI':'Front of DPI'):(es?'Reverso del DPI':'Back of DPI');
     return`<div style="background:#F2F2F2;min-height:100%;display:flex;flex-direction:column;">
-      <div style="padding:14px 20px;background:white;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);">
-        <div id="btnDocReviewBack" style="cursor:pointer;display:flex;color:var(--text-dim);transform:rotate(180deg);">${icon('chevronRight',22)}</div>
-        <div style="font-size:15px;font-weight:700;">${es?'Verificar identidad':'Verify your identity'}</div>
-      </div>
       <div style="flex:1;padding:24px 20px;display:flex;flex-direction:column;align-items:center;">
         <!-- captured doc preview -->
         <div style="width:100%;max-width:320px;aspect-ratio:1.586/1;border-radius:10px;overflow:hidden;background:#BFC4CE;margin-bottom:16px;position:relative;box-shadow:0 4px 20px rgba(0,0,0,.15);">
@@ -3249,8 +3235,8 @@ function pgCustomerProfile(){
     <div style="font-size:11px;color:var(--text-dim);margin-bottom:12px;line-height:1.5;">${t('cmmExcl')}</div>
     <div class="product-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
     ${products.map(p=>{
-      return`<div style="padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);border-left:3px solid ${p.color};position:relative;">
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:${p.color};">${p.icon}</span> ${p.label}</div>
+      return`<div style="padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);border-left:2px solid var(--color-border-secondary,var(--border));position:relative;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:var(--text-dim);">${p.icon}</span> ${p.label}</div>
       <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text);">Q${parseInt(p.limit).toLocaleString('en')}</div>
       <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text-dim);">${t('maxTerm')} ${p.maxTerm} ${t('months')}</div>
       ${p.hasCTA?`<div id="btnCashFromLimit" style="margin-top:8px;padding:6px 0;border-radius:var(--radius-sm);background:${p.color};cursor:pointer;display:flex;align-items:center;justify-content:center;"><span style="font-size:10px;font-weight:700;color:white;">${es?'Solicitar':'Request'}</span></div>`:''}
@@ -3667,56 +3653,119 @@ function pgSolicitudDetail(){
   }
 
   else if(displayState==='approved_pending_id'){
-    // Only applies to new line (outcome !== 2) — biometric verification via SMS link
     const bioSent=state.bioSent;
     const bioVerified=state.bioVerified;
     const editingPhone=state._editBioPhone||false;
     const currentPhone=state._bioPhoneOverride||sol.phone;
-    if(bioVerified){
-      zona3=`<div style="border-radius:var(--radius-sm);border:1.5px solid var(--success);background:var(--success-light);padding:16px;text-align:center;">
-        <div style="display:flex;justify-content:center;margin-bottom:8px;"><div style="width:44px;height:44px;border-radius:50%;background:white;border:2px solid var(--success);display:flex;align-items:center;justify-content:center;">${icon('check',22,'var(--success)')}</div></div>
-        <div style="font-size:14px;font-weight:700;color:var(--success);margin-bottom:4px;">${es?'Identidad verificada':'Identity verified'}</div>
-        <div style="font-size:12px;color:var(--text-secondary);">${es?'La biometría coincide con el DPI capturado. Podés proceder a formalizar.':'Biometrics match the captured ID. You may proceed to formalize.'}</div>
-      </div>`;
-    } else if(bioSent){
-      zona3=`<div style="border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--white);padding:16px;text-align:center;">
-        <div style="display:flex;justify-content:center;margin-bottom:10px;"><div style="width:44px;height:44px;border-radius:50%;background:var(--primary-light);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;">${icon('smartphone',20,'var(--primary)')}</div></div>
-        <div style="font-size:13px;font-weight:700;margin-bottom:4px;">${es?'Link de verificación enviado':'Verification link sent'}</div>
-        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">${es?'El cliente debe abrir el link en su celular y completar la selfie para el face match.':'The customer must open the link on their phone and complete the selfie for face match.'}</div>
-        <div style="font-size:12px;color:var(--text-dim);font-family:var(--mono);margin-bottom:12px;">${currentPhone}</div>
-        <div style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;background:var(--warning-light);border:1px solid var(--warning-border);font-size:11px;font-weight:700;color:var(--warning);margin-bottom:12px;">${icon('clock',11)} ${es?'Esperando verificación...':'Waiting for verification...'}</div>
-        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
-          <button class="btn btn-secondary" id="btnSimBioApproved" style="font-size:11px;padding:6px 16px;border-style:dashed;">${es?'Simular verificación exitosa':'Simulate successful verification'}</button>
-          <button class="btn btn-secondary" id="btnBioChangePhone" style="font-size:11px;padding:6px 16px;">${es?'Cambiar teléfono':'Change phone'}</button>
+    const hasPurchase=sol.action==='cart'||sol.action==='cash'; // mixed solicitud
+    const maxCuota=sol.maxCuota||663;
+    const limitMerc=sol.limitMerc||vpLimit(maxCuota,25,48);
+    const limitMoto=sol.limitMoto||vpLimit(maxCuota,25,60);
+    const limitCash=sol.limitCash||vpLimit(maxCuota,26,36);
+
+    // ── Bio component (shared for both cases) ────────────────────────────
+    const bioBlock=(()=>{
+      if(bioVerified){
+        return`<div style="border-radius:var(--radius-sm);border:1.5px solid var(--success);background:var(--success-light);padding:14px 16px;text-align:center;">
+          <div style="display:flex;justify-content:center;margin-bottom:8px;"><div style="width:40px;height:40px;border-radius:50%;background:white;border:2px solid var(--success);display:flex;align-items:center;justify-content:center;">${icon('check',20,'var(--success)')}</div></div>
+          <div style="font-size:13px;font-weight:700;color:var(--success);margin-bottom:3px;">${es?'Identidad verificada':'Identity verified'}</div>
+          <div style="font-size:11px;color:var(--text-secondary);">${es?'La biometría coincide con el DPI capturado.':'Biometrics match the captured ID.'}</div>
+        </div>`;
+      } else if(bioSent){
+        return`<div style="border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--white);padding:14px 16px;text-align:center;">
+          <div style="display:flex;justify-content:center;margin-bottom:8px;"><div style="width:40px;height:40px;border-radius:50%;background:var(--primary-light);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;">${icon('smartphone',18,'var(--primary)')}</div></div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:4px;">${es?'Link enviado — esperando verificación':'Link sent — waiting for verification'}</div>
+          <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);margin-bottom:10px;">${currentPhone}</div>
+          <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+            <button class="btn btn-secondary" id="btnSimBioApproved" style="font-size:11px;padding:6px 14px;border-style:dashed;">${es?'Simular verificación exitosa':'Simulate successful verification'}</button>
+            <button class="btn btn-secondary" id="btnBioChangePhone" style="font-size:11px;padding:6px 14px;">${es?'Cambiar teléfono':'Change phone'}</button>
+          </div>
+        </div>`;
+      } else {
+        return`<div style="border-radius:var(--radius-sm);border:1.5px solid #B5D4F4;background:var(--primary-light);padding:14px 16px;">
+          <div style="font-size:12px;font-weight:700;color:#0C447C;margin-bottom:4px;">${es?'Verificación biométrica pendiente':'Biometric verification pending'}</div>
+          <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;margin-bottom:10px;">${es?'Se enviará un enlace de validación por SMS al número registrado del cliente.':'A validation link will be sent by SMS to the customer\'s registered number.'}</div>
+          ${editingPhone?`
+            <div style="margin-bottom:10px;">
+              <label class="form-label" style="font-size:11px;">${es?'Nuevo número':'New number'}</label>
+              <div style="display:flex;gap:8px;">
+                <input class="form-input" id="bioNewPhone" type="tel" placeholder="+502 5890-1234" value="${state._bioNewPhoneVal||''}" style="flex:1;font-family:var(--mono);"/>
+                <button class="btn btn-secondary" id="btnBioCancelPhone" style="padding:6px 12px;font-size:11px;">${es?'Cancelar':'Cancel'}</button>
+              </div>
+            </div>
+          `:`
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+              <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);">${currentPhone}</div>
+              <button class="btn btn-secondary" id="btnBioEditPhone" style="padding:3px 10px;font-size:10px;">${es?'Cambiar':'Change'}</button>
+            </div>
+          `}
+          <button class="btn btn-primary" id="btnSendBioApproved" style="width:100%;justify-content:center;padding:10px;font-size:13px;gap:8px;">${icon('smartphone',16,'white')} ${es?'Enviar verificación biométrica':'Send biometric verification'}</button>
+        </div>`;
+      }
+    })();
+
+    if(hasPurchase){
+      // Two-component layout: line + purchase independent
+      const isCashAction=sol.action==='cash';
+      const purchaseLabel=isCashAction?(es?'Préstamo Cash':'Cash Loan'):(es?'Compra':'Purchase');
+      const purchaseAmt=sol.amount||'—';
+      const purchaseNote=isCashAction
+        ?(es?'Desembolso y formalización en orPOS. Si el cliente no desea proceder, la línea puede activarse de forma independiente.':'Disbursement and formalization in orPOS. If the customer does not wish to proceed, the line can be activated independently.')
+        :(es?'Formalización, cobro de prima y facturación en orPOS. Si el cliente no desea la compra, la línea puede activarse de forma independiente.':'Formalization, down payment collection and billing in orPOS. If the customer does not want the purchase, the line can be activated independently.');
+
+      zona3=`
+      <!-- Componente 1: Línea -->
+      <div style="border:1.5px solid #B5D4F4;border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden;">
+        <div style="padding:8px 14px;background:#EBF0FD;border-bottom:1px solid #B5D4F4;display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#1E4BD4;"></div>
+            <span style="font-size:11px;font-weight:700;color:#0C447C;">${es?'Línea de crédito':'Credit line'}</span>
+          </div>
+          <span style="font-family:var(--font-mono,monospace);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:#EBF0FD;color:#1E4BD4;border:1px solid #B5D4F4;">${es?'PEND. VERIFICACIÓN':'PEND. VERIFICATION'}</span>
+        </div>
+        <div style="padding:14px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+            ${[{l:es?'CMM':t('cmm'),v:'Q'+(maxCuota||663).toFixed(2)},{l:es?'Mercadería':'Goods',v:'Q'+parseInt(limitMerc).toLocaleString('en')},{l:'Cash',v:'Q'+parseInt(limitCash).toLocaleString('en')}].map(x=>`<div style="padding:8px;border-radius:6px;background:var(--primary-light);border:1px solid #C5D0F0;text-align:center;"><div style="font-size:9px;color:#185FA5;font-weight:700;text-transform:uppercase;margin-bottom:2px;">${x.l}</div><div style="font-family:var(--mono);font-size:12px;font-weight:700;color:#0C447C;">${x.v}</div></div>`).join('')}
+          </div>
+          ${bioBlock}
+        </div>
+      </div>
+      <!-- Componente 2: Compra / Cash -->
+      <div style="border:0.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;">
+        <div style="padding:8px 14px;background:var(--surface-alt);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--text-dim);"></div>
+            <span style="font-size:11px;font-weight:700;color:var(--text);">${purchaseLabel}${sol.cartItems&&sol.cartItems.length>0?' · '+sol.cartItems[0].name:''}</span>
+          </div>
+          <span style="font-family:var(--font-mono,monospace);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--surface-alt);color:var(--text-dim);border:1px solid var(--border);">${es?'PEND. ORPOS':'PEND. ORPOS'}</span>
+        </div>
+        <div style="padding:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span style="font-size:11px;color:var(--text-secondary);">${es?'Monto':'Amount'}</span><span style="font-family:var(--mono);font-size:13px;font-weight:700;">${purchaseAmt}</span></div>
+          ${sol.creditTerms?`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span style="font-size:11px;color:var(--text-secondary);">${es?'Cuota mensual':'Monthly payment'}</span><span style="font-family:var(--mono);font-size:13px;font-weight:700;">Q${sol.creditTerms.cuotaTotal?.toFixed(2)||'—'}</span></div>`:''}
+          <div style="margin-top:10px;padding:10px 12px;border-radius:var(--radius-sm);background:var(--surface-alt);border:1px solid var(--border);font-size:11px;color:var(--text-secondary);line-height:1.5;">${purchaseNote}</div>
         </div>
       </div>`;
+      footerCTA=`<div class="btn-row" style="justify-content:center;margin-top:20px;"><button class="btn btn-secondary" onclick="backFromDetail();">${t('btnBack')}</button></div>`;
     } else {
-      zona3=`<div style="border-radius:var(--radius-sm);border:1.5px solid var(--warning);background:var(--warning-light);padding:16px;">
-        <div style="display:flex;align-items:flex-start;gap:10px;">
-          <span style="flex-shrink:0;display:flex;color:var(--warning);margin-top:2px;">${icon('shield',18)}</span>
-          <div style="flex:1;">
-            <div style="font-size:13px;font-weight:700;margin-bottom:4px;">${es?'Verificación Biométrica Requerida':'Biometric Verification Required'}</div>
-            <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:10px;">${es?'El cliente es nuevo y debe completar una verificación biométrica antes de proceder. Se enviará un enlace de validación por SMS.':'The customer is new and must complete a biometric verification before proceeding. A validation SMS link will be sent.'}</div>
-            ${editingPhone?`
-              <div style="margin-bottom:10px;">
-                <label class="form-label" style="font-size:11px;">${es?'Nuevo número de teléfono':'New phone number'}</label>
-                <div style="display:flex;gap:8px;align-items:center;">
-                  <input class="form-input" id="bioNewPhone" type="tel" placeholder="+502 5890-1234" value="${state._bioNewPhoneVal||''}" style="flex:1;font-family:var(--mono);"/>
-                  <button class="btn btn-secondary" id="btnBioCancelPhone" style="padding:6px 12px;font-size:11px;">${es?'Cancelar':'Cancel'}</button>
-                </div>
-              </div>
-            `:`
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                <div style="font-size:12px;color:var(--text-dim);font-family:var(--mono);">${currentPhone}</div>
-                <button class="btn btn-secondary" id="btnBioEditPhone" style="padding:3px 10px;font-size:10px;">${es?'Cambiar':'Change'}</button>
-              </div>
-            `}
-            <button class="btn btn-primary" id="btnSendBioApproved" style="padding:8px 20px;font-size:12px;display:inline-flex;align-items:center;gap:6px;">${icon('smartphone',14,'white')} ${es?'Enviar Verificación':'Send Verification'}</button>
+      // Line-only solicitud
+      if(bioVerified){
+        zona3=`<div style="border-radius:var(--radius-sm);border:1.5px solid var(--success);background:var(--success-light);padding:16px;text-align:center;">
+          <div style="display:flex;justify-content:center;margin-bottom:8px;"><div style="width:44px;height:44px;border-radius:50%;background:white;border:2px solid var(--success);display:flex;align-items:center;justify-content:center;">${icon('check',22,'var(--success)')}</div></div>
+          <div style="font-size:14px;font-weight:700;color:var(--success);margin-bottom:4px;">${es?'Identidad verificada':'Identity verified'}</div>
+          <div style="font-size:12px;color:var(--text-secondary);">${es?'La biometría coincide con el DPI capturado. Podés proceder a formalizar.':'Biometrics match the captured ID. You may proceed to formalize.'}</div>
+        </div>`;
+      } else {
+        zona3=`
+        <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--primary-light);border:1.5px solid #B5D4F4;margin-bottom:12px;">
+          <div style="font-size:11px;font-weight:700;color:#0C447C;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px;">${es?'Línea aprobada — límites':'Approved line — limits'}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+            ${[{l:es?'CMM':t('cmm'),v:'Q'+(maxCuota||663).toFixed(2)},{l:es?'Mercadería':'Goods',v:'Q'+parseInt(limitMerc).toLocaleString('en')},{l:'Cash',v:'Q'+parseInt(limitCash).toLocaleString('en')}].map(x=>`<div style="padding:8px;border-radius:6px;background:white;border:1px solid #C5D0F0;text-align:center;"><div style="font-size:9px;color:#185FA5;font-weight:700;text-transform:uppercase;margin-bottom:2px;">${x.l}</div><div style="font-family:var(--mono);font-size:12px;font-weight:700;color:#0C447C;">${x.v}</div></div>`).join('')}
           </div>
         </div>
-      </div>`;
+        ${bioBlock}`;
+      }
+      footerCTA=`<div class="btn-row" style="justify-content:center;margin-top:20px;"><button class="btn btn-secondary" onclick="backFromDetail();">${t('btnBack')}</button></div>`;
     }
-    footerCTA=`<div class="btn-row" style="justify-content:center;margin-top:20px;"><button class="btn btn-secondary" onclick="backFromDetail();">${t('btnBack')}</button></div>`;
   }
 
   else if(displayState==='pending_billing'){
@@ -4986,10 +5035,10 @@ function creditBadge(c){
   const es=state.lang==='es';
   if(!c)return'';
   const badge=(bg,border,color,label)=>`<div style="margin-top:4px;display:inline-flex;align-items:center;padding:2px 10px;border-radius:10px;background:${bg};border:1px solid ${border};font-size:10px;font-weight:700;color:${color};">${label}</div>`;
-  if(c.isLegacyPastDue)  return badge('var(--orange-light)','#F5C9A8','var(--orange)',          es?'SIN LÍNEA · MORA':'NO LINE · PAST DUE');
-  if(c.isLegacy)         return badge('#F3E8FF','#DDD6FE','#7C3AED',                            es?'SIN LÍNEA':'NO LINE');
-  if(c.rating&&c.pastDue)return badge('var(--orange-light)','#F5C9A8','var(--orange)',          es?'CON LÍNEA · MORA':'LINE · PAST DUE');
-  if(c.rating)           return badge('var(--success-light)','var(--success-border)','var(--success)', es?'CON LÍNEA':'WITH LINE');
+  if(c.isLegacyPastDue)  return badge('var(--orange-light)','#F5C9A8','var(--orange)',          es?'CLIENTE ACTIVO · SIN LÍNEA · MORA':'ACTIVE CUSTOMER · NO LINE · PAST DUE');
+  if(c.isLegacy)         return badge('#F3E8FF','#DDD6FE','#7C3AED',                            es?'CLIENTE ACTIVO · SIN LÍNEA':'ACTIVE CUSTOMER · NO LINE');
+  if(c.rating&&c.pastDue)return badge('var(--orange-light)','#F5C9A8','var(--orange)',          es?'LÍNEA ACTIVA · MORA':'ACTIVE CREDIT LINE · PAST DUE');
+  if(c.rating)           return badge('var(--success-light)','var(--success-border)','var(--success)', es?'LÍNEA ACTIVA':'ACTIVE CREDIT LINE');
   if(c._inFlight==='inAnalysis')      return badge('var(--warning-light)','var(--warning-border)','var(--warning)',es?'EN ANÁLISIS':'IN ANALYSIS');
   if(c._inFlight==='inAnalysisVisit') return badge('var(--warning-light)','var(--warning-border)','var(--warning)',es?'EN ANÁLISIS · VISITA':'IN ANALYSIS · VISIT');
   if(c._inFlight==='pendingId')       return badge('var(--primary-light)','#C5D0F0','var(--primary)',  es?'APROBADO · PEND. ID':'APPROVED · PEND. ID');
@@ -5879,14 +5928,74 @@ function pgSalesCart(){
           text:es?'Hay una visita de verificación programada. No se pueden iniciar nuevas operaciones de crédito hasta obtener resolución.':'A verification visit is scheduled. No new credit operations can be started until resolved.'},
         pendingId:{bg:'var(--primary-light)',border:'#C5D0F0',color:'var(--primary)',
           title:es?'Línea aprobada — verificación biométrica pendiente':'Line approved — biometric verification pending',
-          text:es?'La línea fue aprobada. El cliente debe completar la verificación biométrica para activarla y poder hacer compras a crédito.':'The line was approved. The customer must complete biometric verification to activate it and make credit purchases.'},
+          text:es?'La línea fue aprobada. Envíe la verificación al cliente o búsquela en el tab Actividad para ver el detalle completo.':'The line was approved. Send verification to the customer or find it in the Activity tab for full details.'},
       };
       const cfg=bannerCfg[inFlight];
+      // Post-verification: pendingId + bioVerified → show as active line
+      if(inFlight==='pendingId'&&state.bioVerified){
+        const totalCMM=maxCuota,cmmUsed=0,cmmAvail=totalCMM,cmmPct=0;
+        content=`
+        <div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+          <span style="color:var(--success);display:flex;">${icon('checkCircle',16,'var(--success)')}</span>
+          <div style="font-size:13px;font-weight:700;color:var(--success);">${es?'Identidad verificada — línea activa':'Identity verified — line active'}</div>
+        </div>
+        <div style="padding:18px;border:1.5px solid #C5D0F0;border-radius:var(--radius-sm);background:var(--primary-light);margin-bottom:16px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--primary);margin-bottom:2px;">${t('cmm')}</div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:12px;">${t('cmmShared')}</div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px;">
+            <div style="font-family:var(--mono);font-size:32px;font-weight:700;color:var(--primary);">Q${cmmAvail.toFixed(2)}</div>
+            <div style="font-size:12px;color:var(--text-secondary);">${es?'disponible':'available'}</div>
+          </div>
+          <div style="height:8px;background:rgba(255,255,255,.6);border-radius:4px;overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:${cmmPct}%;background:var(--primary);border-radius:4px;"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;">
+            <span style="color:var(--text-secondary);">${es?'Comprometida':'Committed'}: <strong style="font-family:var(--mono);">Q0.00</strong></span>
+            <span style="color:var(--text-secondary);">${es?'Total aprobada':'Total approved'}: <strong style="font-family:var(--mono);color:var(--primary);">Q${totalCMM.toFixed(2)}</strong></span>
+          </div>
+        </div>
+        <div class="section-label">${es?'Límites disponibles':'Available limits'}</div>
+        <div class="product-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">${cpP.map(p=>`<div style="padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);border-left:2px solid var(--color-border-secondary,var(--border));"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:var(--text-dim);">${p.icon}</span> ${p.label}</div><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text);">Q${parseInt(p.limit).toLocaleString('en')}</div><div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text-dim);">${t('maxTerm')} ${p.maxTerm} ${t('months')}</div></div>`).join('')}</div>
+        <div class="section-label">${t('actQ')}</div>
+        <div class="action-options" style="grid-template-columns:1fr 1fr;">
+          <div class="action-option" id="btnGoToCartFromActive"><div class="action-icon">${icon('shoppingCart',22)}</div><div class="action-label">${t('prodMerc')}</div></div>
+          <div class="action-option" id="btnCashFromActive"><div class="action-icon">${icon('banknote',22)}</div><div class="action-label">${t('actCash')}</div></div>
+        </div>`;
+      } else {
       content=`
       <div style="padding:14px 16px;border-radius:var(--radius-sm);background:${cfg.bg};border:1.5px solid ${cfg.border};margin-bottom:16px;">
         <div style="font-size:13px;font-weight:700;color:${cfg.color};margin-bottom:4px;">${cfg.title}</div>
         <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${cfg.text}</div>
         ${inFlight==='inAnalysisVisit'&&linkedSol?.visitDate?`<div style="margin-top:8px;display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--primary);">${icon('calendar',12,'var(--primary)')} ${es?'Visita:':'Visit:'} ${new Date(linkedSol.visitDate+'T12:00:00').toLocaleDateString(es?'es-SV':'en-US',{weekday:'long',month:'long',day:'numeric'})} · ${linkedSol.visitTime==='am'?(es?'Mañana':'Morning'):linkedSol.visitTime==='mid'?(es?'Medio día':'Midday'):(es?'Tarde':'Afternoon')}</div>`:''}
+        ${inFlight==='pendingId'?`
+        <div style="margin-top:12px;border-top:1px solid ${cfg.border};padding-top:12px;">
+          ${state.bioSent?`
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:var(--radius-sm);background:var(--white);border:1px solid var(--warning-border);margin-bottom:8px;">
+            <span style="display:flex;color:var(--warning);">${icon('clock',14,'var(--warning)')}</span>
+            <div style="flex:1;">
+              <div style="font-size:11px;font-weight:700;color:var(--warning);">${es?'Esperando verificación del cliente':'Waiting for customer verification'}</div>
+              <div style="font-size:10px;color:var(--text-dim);font-family:var(--mono);">${state._bioPhoneOverride||linkedSol?.phone||'+502 5345-6789'}</div>
+            </div>
+            <button class="btn btn-secondary" id="btnTabBioChangePhone" style="padding:3px 10px;font-size:10px;flex-shrink:0;">${es?'Cambiar':'Change'}</button>
+          </div>
+          <button class="btn btn-secondary" id="btnSimBioFromTab" style="width:100%;justify-content:center;font-size:11px;border-style:dashed;">${es?'Simular verificación exitosa':'Simulate successful verification'}</button>
+          `:`
+          ${state._tabEditBioPhone?`
+          <div style="margin-bottom:10px;">
+            <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:6px;">${es?'Número para enviar verificación':'Number to send verification'}</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input class="form-input" id="tabBioPhoneInput" type="tel" placeholder="+502 5890-1234" value="${state._bioNewPhoneVal||state._bioPhoneOverride||linkedSol?.phone||''}" style="flex:1;font-family:var(--mono);font-size:13px;"/>
+              <button class="btn btn-secondary" id="btnTabBioCancelPhone" style="padding:6px 12px;font-size:11px;flex-shrink:0;">${es?'Cancelar':'Cancel'}</button>
+            </div>
+          </div>
+          `:`
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <span style="display:flex;color:var(--text-dim);">${icon('smartphone',13,'var(--text-dim)')}</span>
+            <div style="font-size:12px;color:var(--text-dim);font-family:var(--mono);">${state._bioPhoneOverride||linkedSol?.phone||'+502 5345-6789'}</div>
+            <button class="btn btn-secondary" id="btnTabBioEditPhone" style="padding:3px 10px;font-size:10px;margin-left:auto;">${es?'Cambiar':'Change'}</button>
+          </div>
+          `}
+          <button class="btn btn-primary" id="btnSendBioFromTab" style="width:100%;justify-content:center;padding:10px;font-size:13px;gap:8px;">${icon('smartphone',16,'white')} ${es?'Enviar verificación biométrica':'Send biometric verification'}</button>
+          `}
+        </div>`:''}
       </div>
       <!-- CMM -->
       <div style="padding:18px;border:1.5px solid #C5D0F0;border-radius:var(--radius-sm);background:var(--primary-light);margin-bottom:16px;opacity:${inFlight==='pendingId'?1:0.6};">
@@ -5895,18 +6004,19 @@ function pgSalesCart(){
       <!-- Limits -->
       <div style="margin-bottom:16px;opacity:${inFlight==='pendingId'?1:0.6};">
         <div class="section-label">${es?'Límites aprobados':'Approved limits'}</div>
-        <div class="product-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">${cpP.map(p=>`<div style="padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);border-left:3px solid ${p.color};"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:${p.color};">${p.icon}</span> ${p.label}</div><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text);">Q${parseInt(p.limit).toLocaleString('en')}</div><div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text-dim);">${t('maxTerm')} ${p.maxTerm} ${t('months')}</div></div>`).join('')}</div>
+        <div class="product-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">${cpP.map(p=>`<div style="padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);border-left:2px solid var(--color-border-secondary,var(--border));"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:var(--text-dim);">${p.icon}</span> ${p.label}</div><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text);">Q${parseInt(p.limit).toLocaleString('en')}</div><div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text-dim);">${t('maxTerm')} ${p.maxTerm} ${t('months')}</div></div>`).join('')}</div>
       </div>
-      <!-- CTA to solicitud -->
-      ${linkedSol?`<div style="padding:14px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;" id="btnGoToInFlightSol">
+      <!-- CTA to solicitud — solo para análisis, no para pendingId (se accede desde tab actividad) -->
+      ${linkedSol&&inFlight!=='pendingId'?`<div style="padding:14px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;" id="btnGoToInFlightSol">
         <div>
           <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px;">${es?'Ver solicitud':'View application'} · <span style="font-family:var(--mono);color:var(--primary);">${linkedSol.ref}</span></div>
-          <div style="font-size:11px;color:var(--text-secondary);">${inFlight==='pendingId'?(es?'Ir a solicitud para enviar verificación biométrica':'Go to application to send biometric verification'):(es?'Ver estado y detalles de la solicitud en curso':'View status and details of the in-progress application')}</div>
+          <div style="font-size:11px;color:var(--text-secondary);">${es?'Ver estado y detalles de la solicitud en curso':'View status and details of the in-progress application'}</div>
         </div>
         <span style="flex-shrink:0;color:var(--primary);">${icon('chevronRight',18)}</span>
       </div>`:''}`;
-    } else if(isRejected&&customer.isLegacyPastDue){
-      // Legacy customer with mora — specific messaging
+      }
+    }
+    else if(isRejected&&customer.isLegacyPastDue){      // Legacy customer with mora — specific messaging
       const es=state.lang==='es';
       content=`<div style="text-align:center;padding:40px 20px;">
         <div style="width:56px;height:56px;border-radius:50%;background:var(--orange-light);border:2px solid #F5C9A8;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">${icon('alertTriangle',26,'var(--orange)')}</div>
@@ -5980,8 +6090,8 @@ function pgSalesCart(){
       <div style="margin-bottom:16px;opacity:0.5;">
         <div class="section-label" style="margin-bottom:6px;">${es?'Límites disponibles por producto':'Available limits by product'} <span style="font-size:9px;color:var(--danger);font-weight:700;">(${es?'SUSPENDIDOS':'SUSPENDED'})</span></div>
         <div class="product-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-          ${cpP.map(p=>`<div style="padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);border-left:3px solid ${p.color};">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:${p.color};">${p.icon}</span> ${p.label}</div>
+          ${cpP.map(p=>`<div style="padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);border-left:2px solid var(--color-border-secondary,var(--border));">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:var(--text-dim);">${p.icon}</span> ${p.label}</div>
             <div style="font-family:var(--mono);font-size:20px;font-weight:700;">Q${parseInt(p.limit).toLocaleString('en')}</div>
             <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text-dim);">${t('maxTerm')} ${p.maxTerm} ${t('months')}</div>
           </div>`).join('')}
@@ -6059,7 +6169,7 @@ function pgSalesCart(){
       })()}
       <!-- Límites disponibles -->
       <div style="margin-bottom:16px;"><div class="section-label">${es?'Límites disponibles':'Available limits'}</div>
-        <div class="product-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">${cpP.map(p=>`<div style="padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);border-left:3px solid ${p.color};"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:${p.color};">${p.icon}</span> ${p.label}</div><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text);">Q${parseInt(p.limit).toLocaleString('en')}</div><div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text-dim);">${t('maxTerm')} ${p.maxTerm} ${t('months')}</div></div>`).join('')}</div>
+        <div class="product-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">${cpP.map(p=>`<div style="padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);border-left:2px solid var(--color-border-secondary,var(--border));"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:var(--text-dim);">${p.icon}</span> ${p.label}</div><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text);">Q${parseInt(p.limit).toLocaleString('en')}</div><div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text-dim);">${t('maxTerm')} ${p.maxTerm} ${t('months')}</div></div>`).join('')}</div>
       </div>
       <!-- Créditos previos activos -->
       <div style="margin-bottom:16px;">
@@ -6135,7 +6245,7 @@ function pgSalesCart(){
       </div>
       <!-- Limits -->
       <div style="margin-bottom:16px;"><div class="section-label">${state.lang==='es'?'Límites disponibles':'Available limits'}</div>
-        <div class="product-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">${cpP.map(p=>`<div style="padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);border-left:3px solid ${p.color};"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:${p.color};">${p.icon}</span> ${p.label}</div><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text);">Q${parseInt(p.limit).toLocaleString('en')}</div><div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text-dim);">${t('maxTerm')} ${p.maxTerm} ${t('months')}</div></div>`).join('')}</div>
+        <div class="product-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">${cpP.map(p=>`<div style="padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);border-left:2px solid var(--color-border-secondary,var(--border));"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:var(--text-dim);">${p.icon}</span> ${p.label}</div><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text);">Q${parseInt(p.limit).toLocaleString('en')}</div><div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text-dim);">${t('maxTerm')} ${p.maxTerm} ${t('months')}</div></div>`).join('')}</div>
       </div>
       <!-- Actions: Pre-approve + Cash -->
       <div class="section-label">${t('actQ')}</div>
@@ -6181,8 +6291,8 @@ function pgSalesCart(){
         <div class="section-label" style="margin-bottom:6px;">${es?'Límites disponibles por producto':'Available limits by product'}</div>
         <div style="font-size:11px;color:var(--text-dim);margin-bottom:12px;line-height:1.5;">${t('cmmExcl')}</div>
         <div class="product-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-          ${cpP.map(p=>`<div style="padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);border-left:3px solid ${p.color};">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:${p.color};">${p.icon}</span> ${p.label}</div>
+          ${cpP.map(p=>`<div style="padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);border-left:2px solid var(--color-border-secondary,var(--border));">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:4px;"><span style="display:flex;color:var(--text-dim);">${p.icon}</span> ${p.label}</div>
             <div style="font-family:var(--mono);font-size:20px;font-weight:700;">Q${parseInt(p.limit).toLocaleString('en')}</div>
             <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text-dim);">${t('maxTerm')} ${p.maxTerm} ${t('months')}</div>
             ${p.hasCTA?`<div id="btnCashFromLimit" style="margin-top:8px;padding:6px 0;border-radius:var(--radius-sm);background:${p.color};cursor:pointer;display:flex;align-items:center;justify-content:center;"><span style="font-size:10px;font-weight:700;color:white;">${es?'Solicitar':'Request'}</span></div>`:''}
@@ -7008,10 +7118,57 @@ function bind(){
     render();
   };
   // Limit increase flow
+  // Bio from credit tab (pendingId in-flight scenario)
+  const sbft=$('btnSendBioFromTab');if(sbft)sbft.onclick=()=>{
+    // Save phone if editing
+    const inp=$('tabBioPhoneInput');
+    if(inp&&inp.value.trim()){state._bioPhoneOverride=inp.value.trim();}
+    state._tabEditBioPhone=false;
+    state.bioSent=true;render();
+  };
+  const ssbft=$('btnSimBioFromTab');if(ssbft)ssbft.onclick=()=>{
+    state.bioVerified=true;
+    // Update the linked solicitud to approved + pending_billing
+    const solRefMap={'inAnalysis':'SOL-LC-001','inAnalysisVisit':'SOL-LC-002','pendingId':'SOL-LC-003'};
+    const inFlight=state.salesCustomer&&state.salesCustomer._inFlight;
+    const ref=solRefMap[inFlight];
+    const linkedSol=ref?state.solicitudes.find(s=>s.ref===ref):null;
+    if(linkedSol&&linkedSol.status==='approved_pending_id'){
+      linkedSol.status='approved';
+      linkedSol.billingStatus='pending_billing';
+    }
+    // Also update viewingSolicitud if it matches
+    if(state.viewingSolicitud&&state.viewingSolicitud.status==='approved_pending_id'){
+      state.viewingSolicitud.status='approved';
+      state.viewingSolicitud.billingStatus='pending_billing';
+    }
+    render();
+  };
+  // Tab bio phone editing handlers
+  const tbep=$('btnTabBioEditPhone');if(tbep)tbep.onclick=()=>{
+    const solRefMap={'inAnalysis':'SOL-LC-001','inAnalysisVisit':'SOL-LC-002','pendingId':'SOL-LC-003'};
+    const inFl=state.salesCustomer&&state.salesCustomer._inFlight;
+    const lsol=state.solicitudes.find(s=>s.ref===solRefMap[inFl]);
+    state._bioNewPhoneVal=state._bioPhoneOverride||lsol?.phone||'';
+    state._tabEditBioPhone=true;render();
+  };
+  const tbcp=$('btnTabBioCancelPhone');if(tbcp)tbcp.onclick=()=>{state._tabEditBioPhone=false;render();};
+  const tbchp=$('btnTabBioChangePhone');if(tbchp)tbchp.onclick=()=>{
+    const solRefMap={'inAnalysis':'SOL-LC-001','inAnalysisVisit':'SOL-LC-002','pendingId':'SOL-LC-003'};
+    const inFl=state.salesCustomer&&state.salesCustomer._inFlight;
+    const lsol=state.solicitudes.find(s=>s.ref===solRefMap[inFl]);
+    state._bioNewPhoneVal=state._bioPhoneOverride||lsol?.phone||'';
+    state._tabEditBioPhone=true;state.bioSent=false;render();
+  };
+  const tbpi=$('tabBioPhoneInput');if(tbpi)tbpi.oninput=e=>{state._bioNewPhoneVal=e.target.value;};
+  // Post-verification actions from credit tab (now active line)
+  const gtcfa=$('btnGoToCartFromActive');if(gtcfa)gtcfa.onclick=()=>{state.salesTab='cart';render();};
+  const bcfa=$('btnCashFromActive');if(bcfa)bcfa.onclick=()=>{state.action='cash';state.screen='simulation';render();};
   const bgtifs=$('btnGoToInFlightSol');if(bgtifs)bgtifs.onclick=()=>{
     if(state.viewingSolicitud){
       const sol=state.viewingSolicitud;
       state._detailOrigin='salesCart';
+      state.bioSent=false;state.bioVerified=false;
       if(sol.status==='approved_pending_id')state.screen='approved';
       else state.screen='solDetail';
       render();
@@ -7483,7 +7640,14 @@ function bind(){
   // Phase: review → retake (back to camera)
   const drt=$('btnDocRetake');if(drt)drt.onclick=()=>{state.docScanPhase='camera';render();};
   // Phase: review → use photo (verified)
-  const dup=$('btnDocUsePhoto');if(dup)dup.onclick=()=>{state.docScanPhase='verified';render();};
+  const dup=$('btnDocUsePhoto');if(dup)dup.onclick=()=>{
+    // Skip verified intermediate screen — go directly to next side or summary
+    const needsBack=state.docScanDocType==='dpi';
+    const isFront=state.docScanStep===0;
+    if(isFront&&needsBack){state.docScanStep=1;state.docScanPhase='instruct';}
+    else{state.docScanStep=2;state.docScanPhase='summary';}
+    render();
+  };
   // Phase: verified → next side (back only for DPI)
   const dns=$('btnDocNextSide');if(dns)dns.onclick=()=>{state.docScanStep=1;state.docScanPhase='instruct';render();};
   // Phase: verified → summary
