@@ -1696,12 +1696,12 @@ function renderClientResults(scenarios, selectedValue, onSelectAttr, title, subt
 function pgOutcome(){
   const es=state.lang==='es';
   const badges={
-    3:{label:'NUEVO',bg:'#F1EFE8',color:'#444441'},
-    1:{label:'SIN EVALUAR',bg:'#F1EFE8',color:'#444441'},
-    0:{label:'PRE-CALIFICADO',bg:'#E8F7F1',color:'#0A6B48'},
-    2:{label:'CON LÍNEA',bg:'#E8F7F1',color:'#0A6B48'},
-    5:{label:'CON LÍNEA · MORA',bg:'#FEF0E6',color:'#7A3A0A'},
-    4:{label:'NO APTO',bg:'#FDECEE',color:'#991B2A'},
+    3:{label:es?'NUEVO':'NEW',bg:'#F1EFE8',color:'#444441'},
+    1:{label:es?'SIN EVALUAR':'NOT EVALUATED',bg:'#F1EFE8',color:'#444441'},
+    0:{label:es?'PRE-CALIFICADO':'PRE-QUALIFIED',bg:'#E8F7F1',color:'#0A6B48'},
+    2:{label:es?'CON LÍNEA':'WITH LINE',bg:'#E8F7F1',color:'#0A6B48'},
+    5:{label:es?'CON LÍNEA · MORA':'LINE · PAST DUE',bg:'#FEF0E6',color:'#7A3A0A'},
+    4:{label:es?'NO APTO':'NOT ELIGIBLE',bg:'#FDECEE',color:'#991B2A'},
   };
   function ocCard(val,title,desc){
     const sel=state.outcome===val;
@@ -2179,9 +2179,7 @@ function translateProduct(product){
 }
 function productBadge(product){
   const label=translateProduct(product);
-  const pColors={'Línea + Mercadería':{bg:'var(--success-light)',c:'var(--success)',border:'var(--success-border)'},'Línea + Moto':{bg:'var(--primary-light)',c:'var(--primary)',border:'#C5D0F0'},'Línea + Cash':{bg:'var(--warning-light)',c:'var(--warning)',border:'var(--warning-border)'},'Línea de Crédito':{bg:'var(--primary-light)',c:'var(--primary)',border:'#C5D0F0'},'Mercadería':{bg:'var(--success-light)',c:'var(--success)',border:'var(--success-border)'},'Moto':{bg:'var(--primary-light)',c:'var(--primary)',border:'#C5D0F0'},'Cash':{bg:'var(--warning-light)',c:'var(--warning)',border:'var(--warning-border)'},'Incremento de Línea':{bg:'var(--orange-light)',c:'var(--orange)',border:'#F5C9A8'}};
-  const pc=pColors[product]||{bg:'var(--surface-alt)',c:'var(--text-dim)',border:'var(--border)'};
-  return`<span style="padding:2px 8px;border-radius:10px;background:${pc.bg};border:1px solid ${pc.border};font-size:10px;font-weight:700;color:${pc.c};white-space:nowrap;">${label}</span>`;
+  return`<span style="padding:2px 8px;border-radius:10px;background:var(--surface-alt);border:1px solid var(--border);font-size:10px;font-weight:600;color:var(--text-secondary);white-space:nowrap;">${label}</span>`;
 }
 function getCatalog(){
   const es=state.lang==='es';
@@ -2385,11 +2383,23 @@ function pgSimulation(){
       <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">${state.lang==='es'?'Cuota aprobada':'Approved payment'}: <strong>Q${cuotaT.toFixed(2)}</strong> (${state.lang==='es'?'excede CMM de':'exceeds CMM of'} Q${(maxC||0).toFixed(2)} ${state.lang==='es'?'en':'by'} ${((cuotaT-maxC)/maxC*100).toFixed(0)}%)</div></div>
     </div>`:''}
     ${!state.limitUpgraded&&!state.mgrAuthorized&&!(cuotaT>maxC)?`<div style="margin-top:12px;padding:12px 16px;border-radius:var(--radius-sm);border:1.5px dashed var(--primary);background:var(--primary-light);cursor:pointer;" id="btnRequestLimit"><div style="display:flex;align-items:center;gap:10px;"><span style="display:flex;color:var(--primary);">${icon('trendingUp',18)}</span><div><div style="font-size:13px;font-weight:700;color:var(--primary);">${state.lang==='es'?'¿Necesita más límite?':'Need a higher limit?'}</div><div style="font-size:11px;color:var(--text-secondary);">${state.lang==='es'?'Solicitar incremento con comprobantes de ingreso':'Request increase with income documents'}</div></div></div></div>`:''}
+    ${state.outcome===2&&state.salesCustomer&&state.salesCustomer._incrementApplied?`<div style="margin-top:12px;padding:12px 16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);display:flex;align-items:center;gap:10px;">
+      <span style="color:var(--success);display:flex;">${icon('checkCircle',18,'var(--success)')}</span>
+      <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--success);">${state.lang==='es'?'Incremento aprobado':'Increase approved'}</div>
+      <div style="font-size:11px;color:var(--text-secondary);margin-top:1px;">${state.lang==='es'?`Nueva CMM disponible: <strong>Q${(state.salesCustomer.maxCuota||0).toFixed(2)}</strong>. Puede confirmar la cotización.`:`New available MMI: <strong>Q${(state.salesCustomer.maxCuota||0).toFixed(2)}</strong>. You can confirm the quote.`}</div></div>
+    </div>`:''}
     ${state.limitUpgraded?`<div style="margin-top:12px;padding:10px 14px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);font-size:12px;display:flex;align-items:center;justify-content:space-between;">
       <span style="font-weight:600;color:var(--success);">✓ Límite incrementado — Mercadería: Q23,400 · CMM: Q780.00</span>
       <button class="btn btn-secondary" id="btnUndoLimit" style="padding:4px 12px;font-size:10px;flex-shrink:0;margin-left:10px;">Deshacer</button>
     </div>`:''}
-
+    ${state.outcome===2&&state.salesCustomer&&state.salesCustomer._incrementInAnalysis&&cuotaT>maxC?`<div style="margin-top:12px;padding:12px 16px;border-radius:var(--radius-sm);background:var(--warning-light);border:1.5px solid var(--warning-border);">
+      <div style="font-size:13px;font-weight:700;color:var(--warning);margin-bottom:4px;display:flex;align-items:center;gap:6px;">${icon('alertTriangle',14,'var(--warning)')} ${state.lang==='es'?'Incremento en análisis':'Increase under review'}</div>
+      <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;">${state.lang==='es'?'La solicitud de incremento fue enviada a análisis. La cotización no puede confirmarse hasta que sea aprobada.':'The increase request was sent for review. The quote cannot be confirmed until approved.'}</div>
+    </div>`:''}
+    ${state.outcome===2&&state.salesCustomer&&state.salesCustomer._incrementInAnalysis&&!(cuotaT>maxC)?`<div style="margin-top:12px;padding:10px 14px;border-radius:var(--radius-sm);background:var(--surface-alt);border:1px solid var(--border);font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;">
+      <span style="display:flex;color:var(--text-dim);">${icon('info',14)}</span>
+      ${state.lang==='es'?'Solicitud de incremento en análisis. Puede confirmar la cotización con la CMM actual.':'Increase request under review. You can confirm the quote with the current MMI.'}
+    </div>`:''}
     <!-- Manager Auth Modal -->
     <div id="mgrModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center;">
     <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:28px;max-width:440px;width:90%;animation:fadeUp .3s;box-shadow:var(--shadow-lg);">
@@ -2424,7 +2434,7 @@ function pgSimulation(){
     <div style="padding:10px 14px;border-radius:var(--radius-sm);background:var(--surface-alt);border:1px solid var(--border);margin-bottom:16px;font-size:12px;color:var(--text-secondary);line-height:1.5;display:flex;align-items:center;gap:8px;"><span style="font-size:16px;">⏱</span><div>El incremento requiere <strong style="color:var(--text);">validación por el área de crédito</strong>. Tiempo estimado de aprobación: <strong style="color:var(--primary);">~24 horas</strong>.</div></div>
     <p style="font-size:13px;font-weight:700;margin-bottom:12px;">¿El cliente tiene la documentación lista?</p>
     <div style="display:flex;gap:10px;"><button class="btn btn-primary" id="btnAcceptLimit" style="flex:1;">Aceptar incremento</button><button class="btn btn-secondary" id="btnDeclineLimit" style="flex:1;">Mantener actual</button></div></div></div>
-    <div class="btn-row"><button class="btn btn-secondary" id="btnBack">Atrás</button><button class="btn btn-primary" id="btnNext" ${!pv||(cuotaT>maxC&&!state.mgrAuthorized&&!state.limitUpgraded)?'disabled':''}>Confirmar Cotización</button></div></div>`;
+    <div class="btn-row"><button class="btn btn-secondary" id="btnBack">Atrás</button><button class="btn btn-primary" id="btnNext" ${!pv||(cuotaT>maxC&&!state.mgrAuthorized&&!state.limitUpgraded)||(state.salesCustomer&&state.salesCustomer._incrementInAnalysis&&cuotaT>maxC)?'disabled':''}>Confirmar Cotización</button></div></div>`;
   }else{
     // Cash loan cotización - uses commercial plans
     const selPlanIdCash=state.simCommPlanCash||'default_cash';
@@ -4610,17 +4620,17 @@ function pgSalesScenario(){
 
   // Badge styles per scenario
   const badges={
-    new:          {label:'NUEVO',          bg:'#F1EFE8',color:'#444441'},
-    existingNoCredit:{label:'SIN EVALUAR', bg:'#F1EFE8',color:'#444441'},
-    existingPrequal: {label:'PRE-CALIFICADO',bg:'#E8F7F1',color:'#0A6B48'},
-    existingLegacy:  {label:'SIN LÍNEA',   bg:'#EEEDFE',color:'#3C3489'},
-    inAnalysis:      {label:'EN ANÁLISIS', bg:'#FEF4E6',color:'#7A4A0A'},
-    inAnalysisVisit: {label:'EN ANÁLISIS · VISITA',bg:'#FEF4E6',color:'#7A4A0A'},
-    pendingId:       {label:'APROBADO · PEND. ID',bg:'#EBF0FD',color:'#1E4BD4'},
-    existing:        {label:'CON LÍNEA',   bg:'#E8F7F1',color:'#0A6B48'},
-    existingPastDue: {label:'CON LÍNEA · MORA',bg:'#FEF0E6',color:'#7A3A0A'},
-    rejected:        {label:'NO APTO',     bg:'#FDECEE',color:'#991B2A'},
-    existingLegacyPastDue:{label:'SIN LÍNEA · MORA',bg:'#FEF0E6',color:'#7A3A0A'},
+    new:          {label:es?'NUEVO':'NEW',                             bg:'#F1EFE8',color:'#444441'},
+    existingNoCredit:{label:es?'SIN EVALUAR':'NOT EVALUATED',          bg:'#F1EFE8',color:'#444441'},
+    existingPrequal: {label:es?'PRE-CALIFICADO':'PRE-QUALIFIED',       bg:'#E8F7F1',color:'#0A6B48'},
+    existingLegacy:  {label:es?'SIN LÍNEA':'NO LINE',                  bg:'#EEEDFE',color:'#3C3489'},
+    inAnalysis:      {label:es?'EN ANÁLISIS':'IN ANALYSIS',            bg:'#FEF4E6',color:'#7A4A0A'},
+    inAnalysisVisit: {label:es?'EN ANÁLISIS · VISITA':'IN ANALYSIS · VISIT',bg:'#FEF4E6',color:'#7A4A0A'},
+    pendingId:       {label:es?'APROBADO · PEND. ID':'APPROVED · PEND. ID',bg:'#EBF0FD',color:'#1E4BD4'},
+    existing:        {label:es?'CON LÍNEA':'WITH LINE',                bg:'#E8F7F1',color:'#0A6B48'},
+    existingPastDue: {label:es?'CON LÍNEA · MORA':'LINE · PAST DUE',  bg:'#FEF0E6',color:'#7A3A0A'},
+    rejected:        {label:es?'NO APTO':'NOT ELIGIBLE',               bg:'#FDECEE',color:'#991B2A'},
+    existingLegacyPastDue:{label:es?'SIN LÍNEA · MORA':'NO LINE · PAST DUE',bg:'#FEF0E6',color:'#7A3A0A'},
   };
 
   function badgeHtml(key){
@@ -7019,7 +7029,17 @@ function bind(){
   // btnLimitIncBack: step-aware back navigation
   const liBack=$('btnLimitIncBack');if(liBack)liBack.onclick=()=>{
     const step=state._limitIncreaseStep||0;
-    if(step===0){state.salesSubScreen=null;state._limitIncreaseData=null;state._limitIncreaseStep=0;state._liEvalResult=null;state._liSelectedResult=null;state.salesTab='credit';render();}
+    if(step===0){
+      if(state._simReturnAfterIncrease){
+        // Came from simulation — cancel and go back
+        state._simReturnAfterIncrease=false;state._simCuotaExceedsCMM=false;
+        state.salesSubScreen=null;state._limitIncreaseData=null;state._limitIncreaseStep=0;
+        state._liEvalResult=null;state._liSelectedResult=null;state.salesTab='credit';
+        state.screen='simulation';render();
+      } else {
+        state.salesSubScreen=null;state._limitIncreaseData=null;state._limitIncreaseStep=0;state._liEvalResult=null;state._liSelectedResult=null;state.salesTab='credit';render();
+      }
+    }
     else if(step===1){state._limitIncreaseStep=0;state._liSelectedResult=null;render();}
     else if(step===2){state._limitIncreaseStep=1;state._liVisitAddr=null;state._liVisitDate=null;state._liVisitTime=null;render();}
     else{state._limitIncreaseStep=1;render();}
@@ -7136,6 +7156,35 @@ function bind(){
       state.salesCustomer.limitMoto=sol.limitMoto;
       state.salesCustomer.maxCuota=newAvail;
     }
+
+    // If we came from simulation (outcome 2 limit increase from sim screen)
+    if(state._simReturnAfterIncrease){
+      const cuotaExceeded=state._simCuotaExceedsCMM;
+      state._simReturnAfterIncrease=false;
+      state._simCuotaExceedsCMM=false;
+      state.salesSubScreen=null;state._limitIncreaseData=null;state._limitIncreaseStep=0;
+      state._liSelectedResult=null;state._liEvalResult=null;
+      state._liVisitAddr=null;state._liVisitDate=null;state._liVisitTime=null;
+      if(isExpress){
+        // CMM updated — return to simulation with new limits, show confirmation banner
+        state.salesCustomer._incrementApplied=true;
+        state.salesCustomer._incrementInAnalysis=false;
+        state.screen='simulation';render();return;
+      } else {
+        // Analysis or visit
+        state.salesCustomer._incrementInAnalysis=true;
+        state.salesCustomer._incrementApplied=false;
+        if(cuotaExceeded){
+          // Cuota doesn't fit current CMM — show solDetail (blocked)
+          state.viewingSolicitud=sol;state._detailOrigin='salesCart';
+          state.screen='solDetail';render();return;
+        } else {
+          // Cuota fits current CMM — return to simulation, increment in background
+          state.screen='simulation';render();return;
+        }
+      }
+    }
+
     state.viewingSolicitud=sol;state._detailOrigin='salesCart';
     state.salesSubScreen=null;state._limitIncreaseData=null;state._limitIncreaseStep=0;
     state._liSelectedResult=null;state._liEvalResult=null;
@@ -7495,8 +7544,23 @@ function bind(){
   const cpSel=$('simCommPlan');if(cpSel)cpSel.onchange=e=>{state.simCommPlan=e.target.value;state.simPrima=undefined;state.simPlazo=undefined;render();};
   const cpSelM=$('simMotoPlan');if(cpSelM)cpSelM.onchange=e=>{state.simMotoPlan=e.target.value;state.simPrima=undefined;state.simPlazo=undefined;render();};
   const cpSelC=$('simCommPlanCash');if(cpSelC)cpSelC.onchange=e=>{state.simCommPlanCash=e.target.value;state.simPlazoCash=undefined;render();};
-  // Limit modal
-  const rl=$('btnRequestLimit');if(rl)rl.onclick=()=>{const m=$('limitModal');if(m)m.style.display='flex';};
+  // Limit modal — only for outcomes 0/1/3 (prequal flows with declared income)
+  // For outcome 2 (active line), limit increase goes to the formal limitIncrease flow
+  function startLimitIncreaseFromSim(cuotaExceedsCMM){
+    state._limitIncreaseData={income:'',income2:'',activity:'',industry:'',activity2:'',industry2:'',empName:'',empName2:'',depSource:'',depSource2:'',p1:'',p2:'',p3:'',p4:'',p1_2:'',p2_2:'',p3_2:'',p4_2:'',showSecondIncome:false,docs1:[],docs2:[]};
+    state._limitIncreaseStep=0;
+    state._liEvalResult=null;state._liSelectedResult=null;
+    state._liVisitAddr=null;state._liVisitDate=null;state._liVisitTime=null;
+    state._simReturnAfterIncrease=true;   // flag: return to simulation when done
+    state._simCuotaExceedsCMM=!!cuotaExceedsCMM; // flag: was cuota over CMM?
+    state.salesSubScreen='limitIncrease';
+    state.screen='salesCart';
+    render();
+  }
+  const rl=$('btnRequestLimit');if(rl)rl.onclick=()=>{
+    if(state.outcome===2){startLimitIncreaseFromSim(false);return;}
+    const m=$('limitModal');if(m)m.style.display='flex';
+  };
   const al=$('btnAcceptLimit');if(al)al.onclick=()=>{state.limitUpgraded=true;render();};
   const dl=$('btnDeclineLimit');if(dl)dl.onclick=()=>{const m=$('limitModal');if(m)m.style.display='none';};
   const ul=$('btnUndoLimit');if(ul)ul.onclick=()=>{state.limitUpgraded=false;render();};
@@ -7504,7 +7568,10 @@ function bind(){
   const ew=$('btnExpandWarning');if(ew)ew.onclick=()=>{state.warningExpanded=!state.warningExpanded;render();};
   document.querySelectorAll('[data-woption]').forEach(el=>{el.onclick=()=>{
     const v=el.dataset.woption;
-    if(v==='incremento'){const m=$('limitModal');if(m)m.style.display='flex';return;}
+    if(v==='incremento'){
+      if(state.outcome===2){startLimitIncreaseFromSim(true);return;}
+      const m=$('limitModal');if(m)m.style.display='flex';return;
+    }
     if(v==='excepcion'){const m=$('mgrModal');if(m)m.style.display='flex';return;}
     state.warningOption=state.warningOption===v?'':v;
     render();
@@ -7515,7 +7582,10 @@ function bind(){
   const ewc=$('btnExpandWarningCash');if(ewc)ewc.onclick=()=>{state.warningExpandedCash=!state.warningExpandedCash;render();};
   document.querySelectorAll('[data-woptionc]').forEach(el=>{el.onclick=()=>{
     const v=el.dataset.woptionc;
-    if(v==='incremento'){const m=$('limitModal');if(m)m.style.display='flex';return;}
+    if(v==='incremento'){
+      if(state.outcome===2){startLimitIncreaseFromSim(true);return;}
+      const m=$('limitModal');if(m)m.style.display='flex';return;
+    }
     if(v==='excepcion'){const m=$('mgrModalCash');if(m)m.style.display='flex';return;}
     state.warningOptionCash=state.warningOptionCash===v?'':v;
     render();
