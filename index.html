@@ -1699,8 +1699,8 @@ function pgOutcome(){
     3:{label:es?'NUEVO':'NEW',bg:'#F1EFE8',color:'#444441'},
     1:{label:es?'SIN EVALUAR':'NOT EVALUATED',bg:'#F1EFE8',color:'#444441'},
     0:{label:es?'PRE-CALIFICADO':'PRE-QUALIFIED',bg:'#E8F7F1',color:'#0A6B48'},
-    2:{label:es?'CON LÍNEA':'WITH LINE',bg:'#E8F7F1',color:'#0A6B48'},
-    5:{label:es?'CON LÍNEA · MORA':'LINE · PAST DUE',bg:'#FEF0E6',color:'#7A3A0A'},
+    2:{label:es?'LÍNEA ACTIVA':'ACTIVE CREDIT LINE',bg:'#E8F7F1',color:'#0A6B48'},
+    5:{label:es?'LÍNEA ACTIVA · MORA':'ACTIVE CREDIT LINE · PAST DUE',bg:'#FEF0E6',color:'#7A3A0A'},
     4:{label:es?'NO APTO':'NOT ELIGIBLE',bg:'#FDECEE',color:'#991B2A'},
   };
   function ocCard(val,title,desc){
@@ -3770,28 +3770,8 @@ function pgSolicitudDetail(){
 
   else if(displayState==='pending_billing'){
     if(isPre){
-      // Línea de crédito: no prima, no producto — mostrar límites y pasos de formalización
-      const maxCuota=sol.maxCuota||663;
-      const limitMerc=sol.limitMerc||19500;
-      const limitCash=sol.limitCash||11700;
+      // Línea de crédito: no prima, no producto — mostrar pasos de formalización
       zona3+=`
-        <div style="border-radius:var(--radius-sm);background:var(--primary-light);border:1px solid #C5D0F0;padding:14px 16px;margin-bottom:12px;">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--primary);margin-bottom:10px;">${es?'Línea de crédito aprobada':'Approved credit line'}</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div style="padding:10px;border-radius:var(--radius-sm);background:var(--white);border:1px solid #C5D0F0;text-align:center;">
-              <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;">${es?'Mercadería':'Goods'}</div>
-              <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--text);">Q${limitMerc.toLocaleString('en')}</div>
-            </div>
-            <div style="padding:10px;border-radius:var(--radius-sm);background:var(--white);border:1px solid #C5D0F0;text-align:center;">
-              <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;">Cash</div>
-              <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--text);">Q${limitCash.toLocaleString('en')}</div>
-            </div>
-          </div>
-          <div style="margin-top:8px;padding:8px 10px;border-radius:var(--radius-sm);background:var(--white);border:1px solid #C5D0F0;display:flex;align-items:center;justify-content:space-between;">
-            <div style="font-size:10px;color:var(--text-dim);font-weight:700;text-transform:uppercase;">${es?'Cuota máx. mensual':'Max monthly payment'}</div>
-            <div style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--primary);">Q${(maxCuota||0).toFixed(2)}</div>
-          </div>
-        </div>
         <div style="border-radius:var(--radius-sm);background:var(--white);border:1px solid var(--border);padding:14px 16px;">
           <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-dim);margin-bottom:12px;">${es?'Pasos a seguir':'Steps to follow'}</div>
           ${[
@@ -4669,17 +4649,17 @@ function pgSalesScenario(){
 
   // Badge styles per scenario
   const badges={
-    new:          {label:es?'NUEVO':'NEW',                             bg:'#F1EFE8',color:'#444441'},
-    existingNoCredit:{label:es?'SIN EVALUAR':'NOT EVALUATED',          bg:'#F1EFE8',color:'#444441'},
-    existingPrequal: {label:es?'PRE-CALIFICADO':'PRE-QUALIFIED',       bg:'#E8F7F1',color:'#0A6B48'},
-    existingLegacy:  {label:es?'SIN LÍNEA':'NO LINE',                  bg:'#EEEDFE',color:'#3C3489'},
-    inAnalysis:      {label:es?'EN ANÁLISIS':'IN ANALYSIS',            bg:'#FEF4E6',color:'#7A4A0A'},
-    inAnalysisVisit: {label:es?'EN ANÁLISIS · VISITA':'IN ANALYSIS · VISIT',bg:'#FEF4E6',color:'#7A4A0A'},
-    pendingId:       {label:es?'APROBADO · PEND. ID':'APPROVED · PEND. ID',bg:'#EBF0FD',color:'#1E4BD4'},
-    existing:        {label:es?'CON LÍNEA':'WITH LINE',                bg:'#E8F7F1',color:'#0A6B48'},
-    existingPastDue: {label:es?'CON LÍNEA · MORA':'LINE · PAST DUE',  bg:'#FEF0E6',color:'#7A3A0A'},
-    rejected:        {label:es?'NO APTO':'NOT ELIGIBLE',               bg:'#FDECEE',color:'#991B2A'},
-    existingLegacyPastDue:{label:es?'SIN LÍNEA · MORA':'NO LINE · PAST DUE',bg:'#FEF0E6',color:'#7A3A0A'},
+    new:          {label:es?'NUEVO':'NEW',                                              bg:'#F1EFE8',color:'#444441'},
+    existingNoCredit:{label:es?'SIN EVALUAR':'NOT EVALUATED',                          bg:'#F1EFE8',color:'#444441'},
+    existingPrequal: {label:es?'PRE-CALIFICADO':'PRE-QUALIFIED',                       bg:'#E8F7F1',color:'#0A6B48'},
+    existingLegacy:  {label:es?'CLIENTE ACTIVO · SIN LÍNEA':'ACTIVE CUSTOMER · NO LINE', bg:'#EEEDFE',color:'#3C3489'},
+    inAnalysis:      {label:es?'EN ANÁLISIS':'IN ANALYSIS',                            bg:'#FAEEDA',color:'#7A4A0A'},
+    inAnalysisVisit: {label:es?'EN ANÁLISIS · VISITA':'IN ANALYSIS · VISIT',           bg:'#FAEEDA',color:'#7A4A0A'},
+    pendingId:       {label:es?'APROBADO · PEND. ID':'APPROVED · PEND. ID',            bg:'#EBF0FD',color:'#1E4BD4'},
+    existing:        {label:es?'LÍNEA ACTIVA':'ACTIVE CREDIT LINE',                    bg:'#E8F7F1',color:'#0A6B48'},
+    existingPastDue: {label:es?'LÍNEA ACTIVA · MORA':'ACTIVE CREDIT LINE · PAST DUE',  bg:'#FEF0E6',color:'#7A3A0A'},
+    rejected:        {label:es?'NO APTO':'NOT ELIGIBLE',                               bg:'#FDECEE',color:'#991B2A'},
+    existingLegacyPastDue:{label:es?'CLIENTE ACTIVO · SIN LÍNEA · MORA':'ACTIVE CUSTOMER · NO LINE · PAST DUE',bg:'#FEF0E6',color:'#7A3A0A'},
   };
 
   function badgeHtml(key){
