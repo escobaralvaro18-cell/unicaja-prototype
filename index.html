@@ -177,6 +177,43 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes popIn{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
 
+/* ── Polish: Interactive card hover (replaces inline onmouseover/onmouseout) ── */
+.card-interactive{transition:border-color .2s, box-shadow .2s;cursor:pointer;}
+.card-interactive:hover{border-color:var(--primary) !important;box-shadow:var(--shadow) !important;}
+.card-interactive.observed-card{border-color:#F5C9A8;background:#FFFBF7;}
+.card-interactive.observed-card:hover{border-color:var(--primary) !important;}
+
+/* ── Polish: Button active micro-interaction ── */
+.btn{transition:all .2s;}
+.btn:active:not(:disabled){transform:scale(.97);}
+.action-option{transition:all .2s;}
+.action-option:active{transform:scale(.97);}
+.q-opt:active{transform:scale(.95);}
+.consent-box:active{transform:scale(.99);}
+
+/* ── Polish: Focus visible rings for accessibility ── */
+.btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px;box-shadow:0 0 0 4px var(--primary-light);}
+.action-option:focus-visible,.consent-box:focus-visible,.card-interactive:focus-visible{outline:2px solid var(--primary);outline-offset:2px;box-shadow:0 0 0 4px var(--primary-light);}
+.q-opt:focus-visible{outline:2px solid var(--primary);outline-offset:1px;}
+[data-salestab]:focus-visible{outline:2px solid var(--primary);outline-offset:-2px;}
+.sales-sidebar-item:focus-visible{outline:2px solid var(--primary);outline-offset:2px;}
+
+/* ── Polish: Styled scrollbar for sidebar ── */
+.sales-sidebar{scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.sales-sidebar::-webkit-scrollbar{width:5px;}
+.sales-sidebar::-webkit-scrollbar-track{background:transparent;}
+.sales-sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+.sales-sidebar::-webkit-scrollbar-thumb:hover{background:var(--text-dim);}
+
+/* ── Polish: Language toggle pill transition ── */
+.lang-pill{padding:2px 8px;border-radius:12px;transition:background .25s ease, color .25s ease;}
+.lang-pill.active{background:var(--primary);color:white;}
+
+/* ── Polish: Empty state styling ── */
+.empty-state{text-align:center;padding:28px 16px;}
+.empty-state-icon{margin-bottom:8px;color:var(--text-dim);display:flex;justify-content:center;opacity:.5;}
+.empty-state-text{font-size:12px;color:var(--text-dim);}
+
 /* ── Responsive ── */
 .otb-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
 @media(max-width:640px){
@@ -288,8 +325,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
       <span style="font-size:10px;font-weight:700;color:var(--text-secondary);letter-spacing:0.1px;">GT</span>
     </div>
     <div id="langToggle" style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px 10px;border-radius:20px;background:var(--surface-alt);border:1px solid var(--border);font-size:11px;font-weight:700;user-select:none;">
-      <span id="langES" style="padding:2px 8px;border-radius:12px;">ES</span>
-      <span id="langEN" style="padding:2px 8px;border-radius:12px;">EN</span>
+      <span id="langES" class="lang-pill">ES</span>
+      <span id="langEN" class="lang-pill">EN</span>
     </div>
   </div>
 </div>
@@ -398,7 +435,10 @@ es:{
   dashTitle:'Mis solicitudes de crédito',dashEmpty:'No hay solicitudes recientes',
   salesDashTitle:'Mis ventas al contado',salesDashEmpty:'No hay ventas recientes',salesDashPendingBill:'Pendiente facturar',salesDashBilled:'Facturada',
   dashRef:'Ref.',dashClient:'Cliente',dashProduct:'Producto',dashAmount:'Monto',dashDate:'Fecha',
-  dashStatusAnalysis:'En análisis',dashStatusApproved:'Aprobada',dashStatusApprovedPendingId:'Aprobada — Pendiente ID',dashStatusPendingBill:'Pendiente facturar',dashStatusBilled:'Facturada',dashStatusRejected:'Rechazada',dashStatusVisit:'Visita pendiente',dashStatusObserved:'Observada',dashStatusAnalysisVisit:'En análisis — Visita agendada',
+  dashStatusAnalysis:'En análisis',dashStatusApproved:'Aprobada',dashStatusApprovedPendingId:'Aprobada — Pendiente ID',dashStatusPendingBill:'Pendiente facturar',dashStatusBilled:'Facturada',dashStatusRejected:'Rechazada',dashStatusVisit:'Visita pendiente',dashStatusObserved:'Observada',dashStatusAnalysisVisit:'En análisis — Visita agendada',dashStatusCancelled:'Cancelada',
+  prequalValidUntil:'Vigente hasta',prequalExpiresDays:'Vence en',prequalDays:'días',prequalExpired:'Oferta vencida',
+  warrantyReminderTitle:'¿Agregar garantía extendida?',warrantyReminderDesc:'Este producto no tiene garantía extendida. Te recomendamos agregar una para mayor protección.',warrantySkip:'Continuar sin garantía',warrantyAdd:'Agregar garantía',
+  cancelSolTitle:'Cancelar solicitud',cancelSaleTitle:'Cancelar venta',cancelConfirmMsg:'¿Está seguro que desea cancelar esta operación? Esta acción no se puede deshacer.',cancelReasonLabel:'Motivo (opcional)',cancelReasonPh:'Ingrese el motivo de la cancelación...',cancelBtn:'Confirmar cancelación',cancelBack:'Volver',
   // Observed screen
   obsTitle:'Solicitud Observada',obsDesc:'El área de crédito ha revisado la solicitud y requiere correcciones o información adicional.',
   obsComments:'Comentarios del Analista',obsResubmit:'Reenviar Solicitud',obsBackDash:'Volver al Dashboard',
@@ -525,12 +565,28 @@ es:{
   btnConfirm:'Confirmar Cotización',
   otbLabel:'Límite Disponible',cuotaLabel:'Cuota vs CMM Disponible',
   grace:'gracia:',
-  // AML
-  amlTitle:'Verificación AML',amlDesc:'Preguntas de debida diligencia.',
-  aml1:'¿Es el cliente una Persona Políticamente Expuesta (PEP)?',
-  aml2:'¿Tiene familiares directos que sean PEP?',
-  aml3:'¿Tiene vínculos con personas en listas de sanciones?',
-  aml4:'¿El origen de fondos proviene de actividades de alto riesgo?',
+  // AML / FEIC
+  amlTitle:'Formulario FEIC',amlDesc:'Debida diligencia — Cliente Natural',
+  feicStep1:'Datos Complementarios',feicStep2:'PEP y Cumplimiento',feicStep3:'Información Económica',
+  feicClientData:'Datos del cliente',
+  feicNit:'NIT',feicNitPh:'Ej: 200244426',
+  feicProfesion:'Profesión u oficio',
+  feicBirthPlace:'Lugar de nacimiento',feicBirthCountry:'País de nacimiento',
+  feicPepTitle:'Persona Políticamente Expuesta (PEP)',
+  feicPep1:'¿El cliente es PEP, tiene parentesco o es asociado cercano a una PEP?',
+  feicPep2:'¿Tiene parentesco cercano a una PEP? (Familiar)',
+  feicPep3:'¿Tiene asociado cercano a una PEP?',
+  feicCpeTitle:'Contratistas y proveedores del Estado',
+  feicCpe:'¿Es cliente CPE o pertenece a partidos políticos?',
+  feicCpeNa:'No aplica',
+  feicEconData:'Datos económicos del cliente',
+  feicIncome:'Ingreso mensual',feicCurrency:'Moneda',feicIncSource:'Fuente de ingreso',
+  feicEmployer:'Empleador / Negocio',feicActivity:'Actividad económica',feicPurpose:'Propósito relación comercial',
+  feicPurposeVal:'Financiamiento / Crédito',
+  feicEgresos:'Monto mensual de egresos',feicEgresosPh:'0.00',
+  feicFundsOrigin:'Origen de los fondos',
+  feicFundsOwn:'Fondos propios',feicFundsThird:'Fondos de un tercero',feicFundsBoth:'Propios y de un tercero',
+  feicSibWarning:'Preguntas requeridas por normativa de la SIB para debida diligencia.',
   // Application
   appTitle:'Completar Solicitud',appDesc:'Referencias personales y documentos requeridos.',appDescCash:'Referencias personales, método de envío y documentos requeridos.',
   limUpBanner:'<strong style="color:var(--warning);">Incremento solicitado</strong> — Se requiere comprobante de ingresos para validar el nuevo límite.',
@@ -635,7 +691,10 @@ en:{
   dashTitle:'My credit applications',dashEmpty:'No recent applications',
   salesDashTitle:'My cash sales',salesDashEmpty:'No recent sales',salesDashPendingBill:'Pending billing',salesDashBilled:'Billed',
   dashRef:'Ref.',dashClient:'Client',dashProduct:'Product',dashAmount:'Amount',dashDate:'Date',
-  dashStatusAnalysis:'Under review',dashStatusApproved:'Approved',dashStatusApprovedPendingId:'Approved — Pending ID',dashStatusPendingBill:'Pending billing',dashStatusBilled:'Billed',dashStatusRejected:'Rejected',dashStatusVisit:'Visit pending',dashStatusObserved:'Observed',dashStatusAnalysisVisit:'Under review — Visit scheduled',
+  dashStatusAnalysis:'Under review',dashStatusApproved:'Approved',dashStatusApprovedPendingId:'Approved — Pending ID',dashStatusPendingBill:'Pending billing',dashStatusBilled:'Billed',dashStatusRejected:'Rejected',dashStatusVisit:'Visit pending',dashStatusObserved:'Observed',dashStatusAnalysisVisit:'Under review — Visit scheduled',dashStatusCancelled:'Cancelled',
+  prequalValidUntil:'Valid until',prequalExpiresDays:'Expires in',prequalDays:'days',prequalExpired:'Offer expired',
+  warrantyReminderTitle:'Add extended warranty?',warrantyReminderDesc:'This product has no extended warranty. We recommend adding one for greater protection.',warrantySkip:'Continue without warranty',warrantyAdd:'Add warranty',
+  cancelSolTitle:'Cancel application',cancelSaleTitle:'Cancel sale',cancelConfirmMsg:'Are you sure you want to cancel this operation? This action cannot be undone.',cancelReasonLabel:'Reason (optional)',cancelReasonPh:'Enter the reason for cancellation...',cancelBtn:'Confirm cancellation',cancelBack:'Go back',
   obsTitle:'Observed Application',obsDesc:'The credit department has reviewed the application and requires corrections or additional information.',
   obsComments:'Analyst Comments',obsResubmit:'Resubmit Application',obsBackDash:'Back to Dashboard',
   cpTitle:'Customer Profile',cpDesc:'Existing pre-approved customer. Can proceed directly with a purchase or loan.',
@@ -751,11 +810,27 @@ en:{
   btnConfirm:'Confirm Quote',
   otbLabel:'Open to Buy',cuotaLabel:'Installment vs MMI Available',
   grace:'grace:',
-  amlTitle:'AML Verification',amlDesc:'Due diligence questions.',
-  aml1:'Is the customer a Politically Exposed Person (PEP)?',
-  aml2:'Does the customer have direct relatives who are PEP?',
-  aml3:'Does the customer have ties to persons on sanctions lists?',
-  aml4:'Does the source of funds come from high-risk activities?',
+  amlTitle:'FEIC Form',amlDesc:'Due diligence — Natural Person',
+  feicStep1:'Complementary Data',feicStep2:'PEP & Compliance',feicStep3:'Economic Information',
+  feicClientData:'Customer data',
+  feicNit:'NIT',feicNitPh:'E.g.: 200244426',
+  feicProfesion:'Profession / Trade',
+  feicBirthPlace:'Place of birth',feicBirthCountry:'Country of birth',
+  feicPepTitle:'Politically Exposed Person (PEP)',
+  feicPep1:'Is the customer a PEP, related to, or closely associated with a PEP?',
+  feicPep2:'Does the customer have a close relative who is a PEP? (Family)',
+  feicPep3:'Does the customer have a close associate who is a PEP?',
+  feicCpeTitle:'State contractors and suppliers',
+  feicCpe:'Is the customer a CPE or belongs to political parties?',
+  feicCpeNa:'N/A',
+  feicEconData:'Customer economic data',
+  feicIncome:'Monthly income',feicCurrency:'Currency',feicIncSource:'Income source',
+  feicEmployer:'Employer / Business',feicActivity:'Economic activity',feicPurpose:'Commercial relationship purpose',
+  feicPurposeVal:'Financing / Credit',
+  feicEgresos:'Monthly expenses',feicEgresosPh:'0.00',
+  feicFundsOrigin:'Source of funds',
+  feicFundsOwn:'Own funds',feicFundsThird:'Third-party funds',feicFundsBoth:'Own and third-party',
+  feicSibWarning:'Questions required by SIB regulations for due diligence.',
   appTitle:'Complete Application',appDesc:'Personal references and required documents.',appDescCash:'Personal references, disbursement method, and required documents.',
   limUpBanner:'<strong style="color:var(--warning);">Increase requested</strong> — Income proof required to validate the new limit.',
   refTitle:'Personal References',ref1:'Reference 1',ref2:'Reference 2',
@@ -878,7 +953,7 @@ let state = {
   otpPhone:'',otpSent:false,otpVerified:false,otpEditPhone:false,
   simPlazo:undefined,simPrima:undefined,simCPI:true,simCartTotal:9360,
   limitUpgraded:false,
-  amlAnswers:{},
+  amlAnswers:{},feicStep:0,feicData:{nit:'',profesion:'',birthCountry:'guatemala',birthDept:'',birthMuni:'',pep:'',pepFam:'',pepAsoc:'',cpe:'',egresos:'',fundsOrigin:''},
   uploads:{address:[],income:[],idFront:false,idBack:false},
 solicitudes:[
     // ══════════════ MERCADERÍA — 7 estados ══════════════
@@ -1026,7 +1101,11 @@ solicitudes:[
   salesSubScreen:null,salesDetailItem:null,salesCreditDiscount:false,
   salesNoDelivery:false,salesShipMethod:null,salesShipDate:null,salesPayMethod:null,
   forkAml:null,forkApproval:null,forkVisit:null,forkSociodemo:null,
-  salesReturnToCheckout:false
+  salesReturnToCheckout:false,
+  prequalDate:null,
+  _warrantyReminder:null, // {item, warrantyOptions, callback}
+  _cancelConfirm:null,    // {type:'sol'|'sale', ref, onConfirm}
+_cancelMode:false       // inline cancel mode for zona1
 };
 
 function getFlowSteps(){
@@ -1115,7 +1194,7 @@ function render(){
       const sub=state.salesSubScreen;
       // Allow search/results/detail without customer (browsing products)
       if(!state.salesCustomer&&(sub==='search'||sub==='results'||sub==='detail')){
-        app.innerHTML=pgSalesCart();bind();return;
+        app.innerHTML=pgSalesCart();{const _m=warrantyReminderModal()+cancelConfirmModal();if(_m)app.insertAdjacentHTML('beforeend',_m);}bind();return;
       }
       // If no customer: either build from credit origination flow or redirect to identification
       if(!state.salesCustomer){
@@ -1196,7 +1275,7 @@ function render(){
         render();return;
       } else {
         if(!state.salesTab)state.salesTab='credit';
-        app.innerHTML=pgSalesCart();bind();return;
+        app.innerHTML=pgSalesCart();{const _m=warrantyReminderModal()+cancelConfirmModal();if(_m)app.insertAdjacentHTML('beforeend',_m);}bind();return;
       }
     }
     let sh='';
@@ -1225,21 +1304,22 @@ function render(){
     else if(s==='doneExpress')cardContent=pgDoneExpress();
     else if(s==='rejected')cardContent=pgRejected();
     else if(s==='approved')cardContent=pgSolicitudDetail();
+    // Always show back + customer for detail/done screens
+    const showBackBtn=true;
+    const backAction=isDone?'backFromDetail':'salesFlowBack';
     app.innerHTML=`<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);">
       <div style="padding:12px 16px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;">
-        ${!isDone?`<span id="btnSalesFlowBack" style="cursor:pointer;display:flex;color:var(--text-dim);transform:rotate(180deg);">${icon('chevronRight',20)}</span>`:''}
-        <div style="font-size:16px;font-weight:800;flex:1;">${screenTitle}</div>
-      </div>
-      ${!isDone?`<div style="padding:12px 16px;background:var(--white);border-bottom:1px solid var(--border);">
-        <div class="inner-container" style="display:flex;align-items:center;gap:12px;">
-          <div style="width:38px;height:38px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">${initials}</div>
-          <div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${customer.name}</div><div style="font-size:11px;color:var(--text-dim);">${customer.doc}</div>${creditBadge(customer)}</div>
+        ${showBackBtn?`<span id="btn_${backAction}" style="cursor:pointer;display:flex;color:var(--text-dim);transform:rotate(180deg);">${icon('chevronRight',20)}</span>`:''}
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${customer.name}</div>
+          <div style="font-size:11px;color:var(--text-dim);">${customer.doc}</div>
         </div>
-      </div>`:''}
+      </div>
       <div style="flex:1;padding:16px;overflow-y:auto;">
         <div class="inner-container">${cardContent}</div>
       </div>
     </div>`;
+    {const _m=warrantyReminderModal()+cancelConfirmModal();if(_m)app.insertAdjacentHTML('beforeend',_m);}
     bind();return;
   }
   const hideSteps=true;
@@ -1269,7 +1349,7 @@ function render(){
     </div>`;
     bind();return;
   }
-  else if(s==='limits')h+=pgLimits();
+  else if(s==='limits'){if(!state.prequalDate){const _d=new Date();state.prequalDate=_d.toISOString().slice(0,10);}h+=pgLimits();}
   else if(s==='simulation')h+=pgSimulation();
   else if(s==='aml')h+=pgAML();
   else if(s==='application')h+=pgApplication();
@@ -1282,23 +1362,64 @@ function render(){
         state.salesScenario='existing';
         state.salesTab='credit';
       }
-      app.innerHTML=pgSalesCart();bind();return;
+      app.innerHTML=pgSalesCart();{const _m=warrantyReminderModal()+cancelConfirmModal();if(_m)app.insertAdjacentHTML('beforeend',_m);}bind();return;
     }
     h+=pgCustomerProfile();
   }
   else if(s==='done')h+=pgDone();
   else if(s==='doneExpress'){state.screen='approved';app.innerHTML='';bind();return;}
-  else if(s==='contadoDone')h+=pgVentaDetail();
-  else if(s==='saleDetail')h+=pgVentaDetail();
-  else if(s==='approved')h+=pgSolicitudDetail();
-  else if(s==='observed')h+=pgSolicitudDetail();
-  else if(s==='solDetail')h+=pgSolicitudDetail();
-  else if(s==='solRejected')h+=pgSolicitudDetail();
+  else if(s==='contadoDone'||s==='saleDetail'){
+    // Unified detail header for sale screens
+    const sale=state._viewingSale;
+    const cust=state.salesCustomer;
+    const clientName=sale?sale.client:(cust?cust.name:'');
+    const clientDoc=sale?(sale.doc||''):(cust?cust.doc||'':'');
+    const cardContent=pgVentaDetail();
+    app.innerHTML=`<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);">
+      <div style="padding:12px 16px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;">
+        <span id="btn_saleDetailBack" style="cursor:pointer;display:flex;color:var(--text-dim);transform:rotate(180deg);">${icon('chevronRight',20)}</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${clientName}</div>
+          ${clientDoc?`<div style="font-size:11px;color:var(--text-dim);">${clientDoc}</div>`:''}
+        </div>
+      </div>
+      <div style="flex:1;padding:16px;overflow-y:auto;">
+        <div class="inner-container">${cardContent}</div>
+      </div>
+    </div>`;
+    {const _m=warrantyReminderModal()+cancelConfirmModal();if(_m)app.insertAdjacentHTML('beforeend',_m);}
+    bind();return;
+  }
+  else if(s==='approved'||s==='observed'||s==='solDetail'||s==='solRejected'){
+    // Unified detail header for solicitud screens accessed from dashboard
+    const sol=state.viewingSolicitud;
+    const clientName=sol?sol.client:'';
+    const clientDoc=sol?sol.doc||'':'';
+    const initials=clientName.split(' ').filter(Boolean).map(w=>w[0]).slice(0,2).join('');
+    const cardContent=pgSolicitudDetail();
+    app.innerHTML=`<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);">
+      <div style="padding:12px 16px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;">
+        <span id="btn_backFromDetail" style="cursor:pointer;display:flex;color:var(--text-dim);transform:rotate(180deg);">${icon('chevronRight',20)}</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${clientName}</div>
+          ${clientDoc?`<div style="font-size:11px;color:var(--text-dim);">${clientDoc}</div>`:''}
+        </div>
+      </div>
+      <div style="flex:1;padding:16px;overflow-y:auto;">
+        <div class="inner-container">${cardContent}</div>
+      </div>
+    </div>`;
+    {const _m=warrantyReminderModal()+cancelConfirmModal();if(_m)app.insertAdjacentHTML('beforeend',_m);}
+    bind();return;
+  }
   else if(s==='forkDashStatus')h+=pgForkDashStatus();
   h+=`<div style="text-align:center;padding:12px 0 4px;font-size:10px;color:var(--text-dim);">
     <span style="display:inline-flex;vertical-align:middle;margin-right:2px;">${icon('store',10)}</span> ${state.selectedStore||'—'} · <span style="display:inline-flex;vertical-align:middle;margin-right:2px;">${icon('user',10)}</span> ${state.loginUser?state.loginUser.toUpperCase():'—'}
   </div>`;
   app.innerHTML=h;
+  // Append overlay modals
+  const modals=warrantyReminderModal()+cancelConfirmModal();
+  if(modals)app.insertAdjacentHTML('beforeend',modals);
   bind();
 }
 
@@ -1373,18 +1494,20 @@ function pgHome(){
     billed:{label:t('dashStatusBilled'),color:'#0D9B68',bg:'#E6F7F1',border:'#A8DFC9',icon:'receipt'},
     observed:{label:t('dashStatusObserved'),color:'var(--orange)',bg:'var(--orange-light)',border:'#F5C9A8',icon:'alertTriangle'},
     rejected:{label:t('dashStatusRejected'),color:'var(--danger)',bg:'var(--danger-light)',border:'#F5B4BA',icon:'x'},
-    activated:{label:es?'Línea activada':'Line activated',color:'var(--success)',bg:'var(--success-light)',border:'var(--success-border)',icon:'checkCircle'}
+    activated:{label:es?'Línea activada':'Line activated',color:'var(--success)',bg:'var(--success-light)',border:'var(--success-border)',icon:'checkCircle'},
+    cancelled:{label:t('dashStatusCancelled'),color:'var(--text-dim)',bg:'var(--surface-alt)',border:'var(--border)',icon:'x'}
   };
   const billingMap={
     pending_billing:{label:t('dashStatusPendingBill'),color:'var(--warning)',bg:'var(--warning-light)',border:'var(--warning-border)',icon:'clock'},
-    billed:{label:t('dashStatusBilled'),color:'#0D9B68',bg:'#E6F7F1',border:'#A8DFC9',icon:'receipt'}
+    billed:{label:t('dashStatusBilled'),color:'#0D9B68',bg:'#E6F7F1',border:'#A8DFC9',icon:'receipt'},
+    cancelled:{label:t('dashStatusCancelled'),color:'var(--text-dim)',bg:'var(--surface-alt)',border:'var(--border)',icon:'x'}
   };
   function solCard(a,idx,total){
     const st=statusMap[a.status==='approved'&&a.billingStatus==='activated'?'activated':a.status||'analysis'];
     const bl=a.billingStatus?billingMap[a.billingStatus]:null;
     const visitInfo=a.hasVisit&&a.visitDate?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:10px;color:var(--text-dim);">${icon('calendar',10,'var(--text-dim)')} ${es?'Visita:':'Visit:'} ${new Date(a.visitDate+'T12:00:00').toLocaleDateString(es?'es-SV':'en-US',{month:'short',day:'numeric'})} · ${a.visitTime==='am'?(es?'Mañana':'Morning'):a.visitTime==='mid'?(es?'Medio día':'Midday'):(es?'Tarde':'Afternoon')}</div>`:'';
     const obsInfo=a.status==='observed'?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:10px;color:var(--orange);font-weight:600;">${icon('alertTriangle',10,'#E07428')} ${es?'Requiere acción':'Action required'}</div>`:'';
-    return`<div style="padding:14px;border:1px solid ${a.status==='observed'?'#F5C9A8':'var(--border)'};border-radius:var(--radius-sm);margin-bottom:${idx<total-1?'8':'0'}px;cursor:pointer;transition:all .2s;background:${a.status==='observed'?'#FFFBF7':'var(--white)'};" class="dash-app" data-solref="${a.ref}" onmouseover="this.style.borderColor='var(--primary)';this.style.boxShadow='var(--shadow)'" onmouseout="this.style.borderColor='${a.status==='observed'?'#F5C9A8':'var(--border)'}';this.style.boxShadow='none'">
+    return`<div style="padding:14px;border:1px solid ${a.status==='observed'?'#F5C9A8':'var(--border)'};border-radius:var(--radius-sm);margin-bottom:${idx<total-1?'8':'0'}px;cursor:pointer;transition:all .2s;background:${a.status==='observed'?'#FFFBF7':'var(--white)'};" class="dash-app card-interactive ${a.status==='observed'?'observed-card':''}" data-solref="${a.ref}">
       <div style="display:flex;align-items:flex-start;gap:12px;">
         <div style="flex:1;min-width:0;">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
@@ -1450,8 +1573,8 @@ function pgHome(){
           <span style="font-size:10px;font-weight:700;color:var(--text-secondary);letter-spacing:0.1px;">GT</span>
         </div>
         <div id="homeLangToggle" style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px 10px;border-radius:20px;background:var(--surface-alt);border:1px solid var(--border);font-size:11px;font-weight:700;">
-          <span style="padding:2px 8px;border-radius:12px;${state.lang==='es'?'background:var(--primary);color:white;':''}">ES</span>
-          <span style="padding:2px 8px;border-radius:12px;${state.lang==='en'?'background:var(--primary);color:white;':''}">EN</span>
+          <span class="lang-pill ${state.lang==='es'?'active':''}">ES</span>
+          <span class="lang-pill ${state.lang==='en'?'active':''}">EN</span>
         </div>
       </div>
     </div>
@@ -1510,7 +1633,7 @@ function pgHome(){
                 </div>
               </div>
               ${state._dashSolOpen?`<div style="padding:14px 18px;">
-                ${previewApps.length===0?`<div style="text-align:center;padding:20px 0;font-size:12px;color:var(--text-dim);">${t('dashEmpty')}</div>`
+                ${previewApps.length===0?`<div class="empty-state"><div class="empty-state-icon">${icon('clipboardList',32)}</div><div class="empty-state-text">${t('dashEmpty')}</div></div>`
                   :previewApps.map((a,idx)=>solCard(a,idx,previewApps.length)).join('')}
                 <div id="btnViewAllSolicitudes" style="display:flex;align-items:center;justify-content:center;gap:4px;margin-top:12px;padding:10px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;font-weight:700;color:var(--primary);background:var(--primary-light);transition:all .15s;" onmouseover="this.style.background='#D6DFFA'" onmouseout="this.style.background='var(--primary-light)'">${es?'Ver todas las solicitudes':'View all applications'} ${icon('chevronRight',14,'#2B5CE6')}</div>
               </div>`:''}
@@ -1531,10 +1654,10 @@ function pgHome(){
                   </div>
                 </div>
                 ${state._dashSalesOpen?`<div style="padding:14px 18px;">
-                  ${previewVentas.length===0?`<div style="text-align:center;padding:20px 0;font-size:12px;color:var(--text-dim);">${t('salesDashEmpty')}</div>`
+                  ${previewVentas.length===0?`<div class="empty-state"><div class="empty-state-icon">${icon('receipt',32)}</div><div class="empty-state-text">${t('salesDashEmpty')}</div></div>`
                     :previewVentas.map((v,idx)=>{
                       const bl=ventaBillingMap[v.billingStatus]||ventaBillingMap.pending_billing;
-                      return`<div data-saleref="${v.ref}" style="padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:${idx<previewVentas.length-1?'8':'0'}px;background:var(--white);cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--primary)';this.style.boxShadow='var(--shadow)'" onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+                      return`<div data-saleref="${v.ref}" style="padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:${idx<previewVentas.length-1?'8':'0'}px;background:var(--white);" class="card-interactive">
                         <div style="display:flex;align-items:flex-start;gap:12px;">
                           <div style="flex:1;min-width:0;">
                             <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
@@ -1606,8 +1729,8 @@ function pgAllSolicitudes(){
         <div class="topbar-logo" id="btnHome" style="cursor:pointer;">UNICAJA</div>
       </div>
       <div id="homeLangToggle" style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px 10px;border-radius:20px;background:var(--surface-alt);border:1px solid var(--border);font-size:11px;font-weight:700;">
-        <span style="padding:2px 8px;border-radius:12px;${state.lang==='es'?'background:var(--primary);color:white;':''}">ES</span>
-        <span style="padding:2px 8px;border-radius:12px;${state.lang==='en'?'background:var(--primary);color:white;':''}">EN</span>
+        <span class="lang-pill ${state.lang==='es'?'active':''}">ES</span>
+        <span class="lang-pill ${state.lang==='en'?'active':''}">EN</span>
       </div>
     </div>
     <div style="flex:1;padding:20px 16px;">
@@ -1631,7 +1754,7 @@ function pgAllSolicitudes(){
             const bl=a.billingStatus?blMap[a.billingStatus]:null;
             const visitInfo=a.hasVisit&&a.visitDate?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:10px;color:var(--text-dim);">${icon('calendar',10,'var(--text-dim)')} ${es?'Visita:':'Visit:'} ${new Date(a.visitDate+'T12:00:00').toLocaleDateString(es?'es-SV':'en-US',{month:'short',day:'numeric'})}</div>`:'';
             const obsInfo=a.status==='observed'?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:10px;color:var(--orange);font-weight:600;">${icon('alertTriangle',10,'#E07428')} ${es?'Requiere acción':'Action required'}</div>`:'';
-            return`<div style="padding:14px;border:1px solid ${a.status==='observed'?'#F5C9A8':'var(--border)'};border-radius:var(--radius-sm);margin-bottom:8px;cursor:pointer;transition:all .2s;background:${a.status==='observed'?'#FFFBF7':'var(--white)'};" class="dash-app" data-solref="${a.ref}" onmouseover="this.style.borderColor='var(--primary)';this.style.boxShadow='var(--shadow)'" onmouseout="this.style.borderColor='${a.status==='observed'?'#F5C9A8':'var(--border)'}';this.style.boxShadow='none'">
+            return`<div style="padding:14px;border:1px solid ${a.status==='observed'?'#F5C9A8':'var(--border)'};border-radius:var(--radius-sm);margin-bottom:8px;cursor:pointer;transition:all .2s;background:${a.status==='observed'?'#FFFBF7':'var(--white)'};" class="dash-app card-interactive ${a.status==='observed'?'observed-card':''}" data-solref="${a.ref}">
               <div style="display:flex;align-items:flex-start;gap:12px;">
                 <div style="flex:1;min-width:0;">
                   <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
@@ -1749,7 +1872,7 @@ function pgOutcome(){
     ${ocGroup(es?'Sin acceso a crédito':'No credit access',t('grpBlockedDesc'),
       ocCard(4,t('oc4t'),t('oc4d'))
     )}
-    <div class="btn-row"><button class="btn btn-secondary" id="btnBack">${t('btnBack')}</button><button class="btn btn-primary" id="btnNext" ${state.outcome===null?'disabled':''}>${t('btnNext')}</button></div>
+    <div class="btn-row"><button class="btn btn-secondary" id="btnBack">${t('btnBack')}</button></div>
   </div>`;
 }
 
@@ -1947,34 +2070,30 @@ function pgPrequal(){
     <div class="form-row"><div class="form-group"><label class="form-label">${t('workDept')}</label><select class="form-select" id="pqWorkDept"><option value="">${t('sel')}</option>${deptOptions(state.pqData.workDept)}</select></div><div class="form-group"><label class="form-label">${t('workMuni')}</label><input class="form-input" id="pqWorkMuni" placeholder="${t('workMuni')}" value="${state.pqData.workMuni||''}"/></div></div>
     <div class="form-row"><div class="form-group"><label class="form-label">${es?'Zona / Colonia':'Zone / Colony'}</label><input class="form-input" id="pqWorkCanton" placeholder="${es?'Ej: Zona 10':'E.g.: Zone 10'}" value="${state.pqData.workCanton||''}"/></div><div class="form-group"><label class="form-label">${t('workStreet')}</label><input class="form-input" id="pqWorkStreet" placeholder="${t('workStreet')}" value="${state.pqData.workStreet||''}"/></div></div>`;
   }else if(step===consentStep){
-    const docs=[
-      {key:'consentSig',title:t('consentSigTitle'),body:t('consentSigBody'),state:state.pqData.consentSig,expanded:state.expandedConsent==='sig',id:'sig'},
-      {key:'consentTC',title:t('consentTCTitle'),body:t('consentTCBody'),state:state.pqData.consentTC,expanded:state.expandedConsent==='tc',id:'tc'},
-      {key:'consentBuro',title:t('consentBuroTitle'),body:t('consentBuroBody'),state:state.buroConsent,expanded:state.expandedConsent==='buro',id:'buro'}
-    ];
-    c=docs.map(d=>`
-      <div style="border:1.5px solid ${d.state?'var(--success-border)':d.expanded?'var(--primary)':'var(--border)'};border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden;transition:border-color .2s;${d.state?'background:var(--success-light);':''}">
-        <div style="padding:14px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;" data-consent-toggle="${d.id}">
-          <div style="width:22px;height:22px;border-radius:4px;border:2px solid ${d.state?'var(--success)':'var(--border)'};background:${d.state?'var(--success)':'var(--white)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;color:white;transition:all .2s;">${d.state?icon('check',14,'white'):''}</div>
-          <div style="flex:1;font-size:12px;color:var(--text-secondary);line-height:1.4;">${t(d.key)}</div>
-          <span style="font-size:10px;font-weight:700;color:${d.state?'var(--success)':d.expanded?'var(--text-dim)':'var(--primary)'};">${d.state?t('consentSigned'):d.expanded?'▲':'▼'}</span>
+    const buroExpanded=!state.buroConsent;
+    c=`
+      <div style="border:1.5px solid ${state.buroConsent?'var(--success-border)':buroExpanded?'var(--primary)':'var(--border)'};border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden;transition:border-color .2s;${state.buroConsent?'background:var(--success-light);':''}">
+        <div style="padding:14px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;" data-consent-toggle="buro">
+          <div style="width:22px;height:22px;border-radius:4px;border:2px solid ${state.buroConsent?'var(--success)':'var(--border)'};background:${state.buroConsent?'var(--success)':'var(--white)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;color:white;transition:all .2s;">${state.buroConsent?icon('check',14,'white'):''}</div>
+          <div style="flex:1;font-size:12px;color:var(--text-secondary);line-height:1.4;">${t('consentBuro')}</div>
+          <span style="font-size:10px;font-weight:700;color:${state.buroConsent?'var(--success)':buroExpanded?'var(--text-dim)':'var(--primary)'};">${state.buroConsent?t('consentSigned'):buroExpanded?'▲':'▼'}</span>
         </div>
-        ${d.expanded&&!d.state?`<div style="animation:fadeUp .3s;">
+        ${buroExpanded?`<div style="animation:fadeUp .3s;">
           <div style="margin:0 16px;padding:16px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-sm);max-height:180px;overflow-y:auto;">
-            <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text);">${d.title}</div>
-            <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">${d.body}</div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text);">${t('consentBuroTitle')}</div>
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">${t('consentBuroBody')}</div>
           </div>
           <div style="margin:12px 16px;padding:12px;background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--radius-sm);">
             <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;">${t('consentSignHere')}</div>
-            <canvas id="sigPad_${d.id}" width="400" height="80" style="width:100%;height:80px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--white);cursor:crosshair;touch-action:none;"></canvas>
+            <canvas id="sigPad_buro" width="400" height="120" style="width:100%;height:120px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--white);cursor:crosshair;touch-action:none;"></canvas>
             <div style="display:flex;gap:8px;margin-top:8px;">
-              <button class="btn btn-primary" id="btnAcceptConsent_${d.id}" style="flex:1;padding:8px 16px;font-size:12px;">${t('consentAccept')}</button>
-              <button class="btn btn-secondary" id="btnClearSig_${d.id}" style="padding:8px 12px;font-size:11px;">${t('consentClear')}</button>
+              <button class="btn btn-primary" id="btnAcceptConsent_buro" style="flex:1;padding:8px 16px;font-size:12px;">${t('consentAccept')}</button>
+              <button class="btn btn-secondary" id="btnClearSig_buro" style="padding:8px 12px;font-size:11px;">${t('consentClear')}</button>
             </div>
           </div>
         </div>`:''}
       </div>
-    `).join('');
+    `;
   }else if(step===bureauStep){
     // Bureau result - HIT / No HIT / Rejected (only for outcomes 1 and 3)
     c=`<div style="padding:10px 14px;border-radius:var(--radius-sm);background:var(--warning-light);border:1px solid var(--warning-border);margin-bottom:16px;font-size:12px;color:var(--warning);line-height:1.5;display:flex;align-items:flex-start;gap:8px;"><span style="flex-shrink:0;display:flex;margin-top:1px;">${icon('alertTriangle',14)}</span><span>${es?'Esta pantalla es solo para fines del prototipo. En el producto real, el sistema determinará automáticamente el resultado del buró y el camino a seguir.':'This screen is for prototype purposes only. In the actual product, the system will automatically determine the bureau result and the path to follow.'}</span></div>
@@ -2006,7 +2125,7 @@ function pgPrequal(){
   }
   const totalSteps=titles.length;
   const isLast=step===totalSteps-1;
-  const allC=state.pqData.consentSig&&state.pqData.consentTC&&state.buroConsent;
+  const allC=state.buroConsent;
   const canP=step===consentStep?allC:isLast?(state.isHit!==undefined):true;
   return`<div class="card"><div class="card-header"><h2>${t('pqTitle')}</h2><p>${t('pqDesc')}</p></div>
   ${nav}
@@ -2116,13 +2235,14 @@ function pgLimits(){
   const acts=[{icon:icon('checkCircle',20),label:t('actPre'),value:'preapprove'},{icon:icon('banknote',20),label:t('actCash'),value:'cash'}];
   return`<div class="card"><div class="card-header"><h2>${t('limTitle')}</h2><p>${t('limDesc')}</p></div>
 
-  ${state.forkSociodemo==='preapproved_visit'?`<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--warning-light);border:1px solid var(--warning-border);margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+  ${state.forkSociodemo==='preapproved_visit'?`<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--warning-light);border:1px solid var(--warning-border);margin-bottom:12px;display:flex;align-items:center;gap:10px;">
     <span style="display:flex;color:var(--warning);">${icon('mapPin',18)}</span>
     <div style="font-size:13px;font-weight:700;color:var(--warning);">${es?'Oferta condicionada a visita de verificación':'Offer conditional on verification visit'}</div>
-  </div>`:`<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+  </div>`:`<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);margin-bottom:12px;display:flex;align-items:center;gap:10px;">
     <span style="display:flex;color:var(--success);">${icon('checkCircle',18)}</span>
     <div style="font-size:13px;font-weight:700;color:var(--success);">${es?'Oferta aprobada':'Offer approved'}</div>
   </div>`}
+  <div style="margin-bottom:16px;">${prequalExpiryChip(state.prequalDate)}</div>
   <div style="padding:18px 20px;border-radius:var(--radius-sm);background:var(--primary-light);border:1px solid #C5D0F0;margin-bottom:16px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
       <div>
@@ -2203,6 +2323,75 @@ function getCatalog(){
     {id:'moto_akt3',name:'AKT CR5 150',brand:'AKT',model:'CR5 150',category:'moto',sku:'AKT-CR5-150',code:'0500150003',price:11500.00,
      desc:es?'Moto crossover 150cc, doble propósito, suspensión reforzada':'150cc crossover, dual purpose, reinforced suspension'},
   ];
+}
+
+// ── Prequal expiry chip ──
+function prequalExpiryChip(prequalDateStr){
+  const es=state.lang==='es';
+  // prequalDateStr is ISO date string e.g. '2026-04-07'
+  const pDate=prequalDateStr?new Date(prequalDateStr+'T12:00:00'):new Date();
+  const expiry=new Date(pDate);expiry.setDate(expiry.getDate()+30);
+  const now=new Date();now.setHours(0,0,0,0);expiry.setHours(0,0,0,0);
+  const daysLeft=Math.ceil((expiry-now)/(1000*60*60*24));
+  let chipColor,chipBg,chipBorder,chipIcon,chipText;
+  if(daysLeft<=0){chipColor='var(--danger)';chipBg='#FEF0F0';chipBorder='#F5B4BA';chipIcon='alertTriangle';chipText=t('prequalExpired');}
+  else if(daysLeft<=7){chipColor='var(--warning)';chipBg='var(--warning-light)';chipBorder='var(--warning-border)';chipIcon='clock';chipText=t('prequalExpiresDays')+' '+daysLeft+' '+t('prequalDays');}
+  else{chipColor='var(--text-dim)';chipBg='var(--surface-alt)';chipBorder='var(--border)';chipIcon='calendar';chipText=t('prequalValidUntil')+' '+expiry.toLocaleDateString(es?'es-GT':'en-US',{day:'2-digit',month:'short',year:'numeric'});}
+  return`<div style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:12px;background:${chipBg};border:1px solid ${chipBorder};font-size:10px;font-weight:600;color:${chipColor};">${icon(chipIcon,11,chipColor)} ${chipText}</div>`;
+}
+
+// ── Warranty reminder modal ──
+function warrantyReminderModal(){
+  if(!state._warrantyReminder)return'';
+  const es=state.lang==='es';
+  const wr=state._warrantyReminder;
+  return`<div id="warrantyOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeUp .2s;">
+    <div style="background:white;border-radius:var(--radius-lg);max-width:400px;width:90%;padding:24px 20px;box-shadow:var(--shadow-lg);animation:fadeUp .25s;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--warning-light);border:1.5px solid var(--warning-border);display:flex;align-items:center;justify-content:center;">${icon('shield',20,'var(--warning)')}</div>
+        <div style="font-size:15px;font-weight:800;color:var(--text);">${t('warrantyReminderTitle')}</div>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:16px;">${t('warrantyReminderDesc')}</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+        ${wr.options.map((o,i)=>`<div data-warrantyopt="${i}" style="padding:12px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:all .2s;" class="card-interactive">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="display:flex;color:var(--success);">${icon('shield',16,'var(--success)')}</span>
+            <span style="font-size:13px;font-weight:600;color:var(--text);">${o.label}</span>
+          </div>
+          <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--success);">+Q${o.price.toFixed(2)}</span>
+        </div>`).join('')}
+      </div>
+      <button class="btn btn-secondary" id="btnWarrantySkip" style="width:100%;justify-content:center;font-size:12px;color:var(--text-dim);">${t('warrantySkip')}</button>
+    </div>
+  </div>`;
+}
+
+// ── Cancel confirmation modal ──
+function cancelConfirmModal(){
+  if(!state._cancelConfirm)return'';
+  const es=state.lang==='es';
+  const cc=state._cancelConfirm;
+  const title=cc.type==='sol'?t('cancelSolTitle'):t('cancelSaleTitle');
+  return`<div id="cancelOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;animation:fadeUp .2s;">
+    <div style="background:white;border-radius:var(--radius-lg);max-width:400px;width:90%;padding:24px;box-shadow:var(--shadow-lg);animation:fadeUp .25s;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:#FEF0F0;border:1.5px solid #F5B4BA;display:flex;align-items:center;justify-content:center;">${icon('x',20,'var(--danger)')}</div>
+        <div>
+          <div style="font-size:15px;font-weight:800;color:var(--text);">${title}</div>
+          <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);">${cc.ref}</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:16px;">${t('cancelConfirmMsg')}</div>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label class="form-label">${t('cancelReasonLabel')}</label>
+        <textarea class="form-input" id="cancelReason" rows="2" style="resize:none;" placeholder="${t('cancelReasonPh')}"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary" id="btnCancelBack" style="flex:1;justify-content:center;">${t('cancelBack')}</button>
+        <button class="btn" id="btnCancelConfirm" style="flex:1;justify-content:center;background:var(--danger);color:white;font-weight:700;">${icon('x',14)} ${t('cancelBtn')}</button>
+      </div>
+    </div>
+  </div>`;
 }
 
 // ── Shared VP limit calculator ──
@@ -2775,11 +2964,177 @@ function pgForkSociodemo(){
 }
 
 function pgAML(){
-  const qs=[t('aml1'),t('aml2'),t('aml3'),t('aml4')];
-  const ok=Object.keys(state.amlAnswers).length>=qs.length;
+  const es=state.lang==='es';
+  const fd=state.feicData;
+  const step=state.feicStep||0;
+  const stepTitles=[t('feicStep1'),t('feicStep2'),t('feicStep3')];
+  const pct=((step+1)/3*100).toFixed(0);
+
+  // ── Ensure pqData has dummy values for existing customers ──
+  const pq=state.pqData;
+  const cust=state.salesCustomer;
+  if(!pq.firstName&&cust){
+    const parts=(cust.name||'').split(' ');
+    pq.firstName=parts[0]||'';pq.secondName=parts[1]||'';pq.lastName1=parts[2]||'';pq.lastName2=parts[3]||'';
+    pq.gender=pq.gender||'M';pq.marital=pq.marital||'soltero';
+    pq.email=pq.email||((parts[0]||'cliente').toLowerCase()+'@email.com');
+    pq.phone=pq.phone||state.otpPhone||cust.phone||'+502 5555-1234';
+    pq.dob=pq.dob||'15/06/1990';
+    pq.dept=pq.dept||'guatemala';pq.muni=pq.muni||'Guatemala';pq.canton=pq.canton||'Zona 12';pq.street=pq.street||'3ra Calle 5-20';
+    pq.income=pq.income||'4500';pq.activity=pq.activity||'Comercio';pq.empName=pq.empName||'Independiente';
+  }
+  // Pre-fill profesion from activity if empty
+  if(!fd.profesion&&pq.activity){fd.profesion=pq.activity.toLowerCase();}
+  // Pre-fill feicData defaults
+  if(!fd.nit)fd.nit='';
+  if(!fd.birthCountry)fd.birthCountry='guatemala';
+  if(!fd.fundsOrigin)fd.fundsOrigin='own';
+  // Ensure DPI has dummy number
+  if(!state.idNumber||state.idNumber==='')state.idNumber='2901 27036 2101';
+
+  const clientName=[pq.firstName,pq.secondName,pq.lastName1,pq.lastName2].filter(Boolean).join(' ')||'—';
+  const clientDoc=(state.idType||'DPI')+' '+(state.idNumber||'—');
+  const genderLabel=pq.gender==='M'?t('male'):pq.gender==='F'?t('female'):'—';
+  const maritalMap={soltero:t('single'),casado:t('married'),union:t('union'),divorciado:t('divorced'),viudo:t('widowed')};
+  const maritalLabel=maritalMap[pq.marital]||'—';
+  const fullAddr=[pq.street,pq.canton,pq.muni,pq.dept].filter(Boolean).join(', ')||'—';
+
+  // ── GT Departments ──
+  const GT_DEPTS=[{v:'guatemala',l:'Guatemala'},{v:'sacatepequez',l:'Sacatepéquez'},{v:'quetzaltenango',l:'Quetzaltenango'},{v:'escuintla',l:'Escuintla'},{v:'alta_verapaz',l:'Alta Verapaz'},{v:'peten',l:'Petén'},{v:'huehuetenango',l:'Huehuetenango'},{v:'san_marcos',l:'San Marcos'},{v:'retalhuleu',l:'Retalhuleu'},{v:'izabal',l:'Izabal'},{v:'otro',l:es?'Otro':'Other'}];
+  const deptOpts=GT_DEPTS.map(d=>`<option value="${d.v}" ${fd.birthDept===d.v?'selected':''}>${d.l}</option>`).join('');
+
+  // ── Profesiones ──
+  const PROFS=es?['Cocinero','Comerciante','Agricultor','Albañil','Mecánico','Vendedor','Estudiante','Ama de casa','Operario','Chofer','Otro']
+    :['Cook','Merchant','Farmer','Mason','Mechanic','Salesperson','Student','Homemaker','Operator','Driver','Other'];
+  const profOpts=PROFS.map(p=>`<option value="${p.toLowerCase()}" ${fd.profesion===p.toLowerCase()?'selected':''}>${p}</option>`).join('');
+
+  // ── Locked field helper ──
+  const lf=(label,val)=>`<div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;"><span style="color:var(--text-dim);">${label}</span><strong style="max-width:60%;text-align:right;word-break:break-word;">${val}</strong></div>`;
+
+  // ── Step nav ──
+  let nav=`<div style="margin-bottom:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <div style="font-size:13px;font-weight:700;color:var(--text);">${stepTitles[step]||''}</div>
+      <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);">${step+1} / 3</div>
+    </div>
+    <div style="height:4px;background:var(--surface-alt);border-radius:2px;overflow:hidden;">
+      <div style="height:100%;width:${pct}%;background:var(--primary);border-radius:2px;transition:width .4s ease;"></div>
+    </div>
+  </div>`;
+
+  // ── Yes/No block helper ──
+  const ynBlock=(id,label)=>`<div style="padding:12px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:8px;background:var(--white);">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <div style="font-size:13px;font-weight:600;color:var(--text);flex:1;">${label}</div>
+      <div style="display:flex;gap:6px;flex-shrink:0;">
+        <button class="q-opt ${fd[id]==='si'?'sel-yes':''}" data-feic="${id}" data-val="si">${t('yes')}</button>
+        <button class="q-opt ${fd[id]==='no'?'sel-no':''}" data-feic="${id}" data-val="no">${t('no')}</button>
+      </div>
+    </div>
+  </div>`;
+
+  let c='';
+
+  // ═══ STEP 0: Datos Complementarios ═══
+  if(step===0){
+    const profDisplay=fd.profesion?fd.profesion.charAt(0).toUpperCase()+fd.profesion.slice(1):(pq.activity||'—');
+    c=`
+    <div style="padding:12px 14px;border-radius:var(--radius-sm);background:var(--surface-alt);border:1px solid var(--border);margin-bottom:16px;">
+      <div class="section-label" style="margin-bottom:10px;">${t('feicClientData')}</div>
+      <div style="font-size:12px;">
+        ${lf(es?'Nombre':'Name',clientName)}
+        ${lf(es?'Documento':'Document',`<span style="font-family:var(--mono);">${clientDoc}</span>`)}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 14px;">
+          ${lf(es?'Nacimiento':'DOB',pq.dob||'—')}
+          ${lf(es?'Sexo':'Sex',genderLabel)}
+          ${lf(es?'Estado civil':'Marital',maritalLabel)}
+          ${lf(es?'Email':'Email',pq.email||'—')}
+        </div>
+        ${lf(es?'Teléfono':'Phone',`<span style="font-family:var(--mono);">${pq.phone||state.otpPhone||'—'}</span>`)}
+        ${lf(es?'Dirección':'Address',fullAddr)}
+        ${lf(t('feicProfesion'),profDisplay)}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">${t('feicNit')}</label><input class="form-input" id="feicNit" placeholder="${t('feicNitPh')}" value="${fd.nit||''}"/></div>
+    <div class="section-label" style="margin-top:4px;">${t('feicBirthPlace')}</div>
+    <div class="form-group"><label class="form-label">${t('feicBirthCountry')}</label><select class="form-select" id="feicBirthCountry">
+      <option value="guatemala" ${fd.birthCountry==='guatemala'?'selected':''}>Guatemala</option>
+      <option value="mexico" ${fd.birthCountry==='mexico'?'selected':''}>México</option>
+      <option value="honduras" ${fd.birthCountry==='honduras'?'selected':''}>Honduras</option>
+      <option value="el_salvador" ${fd.birthCountry==='el_salvador'?'selected':''}>El Salvador</option>
+      <option value="otro" ${fd.birthCountry==='otro'?'selected':''}>${es?'Otro':'Other'}</option>
+    </select></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">${t('dept')}</label><select class="form-select" id="feicBirthDept"><option value="">${t('sel')}</option>${deptOpts}</select></div>
+      <div class="form-group"><label class="form-label">${t('muni')}</label><input class="form-input" id="feicBirthMuni" placeholder="${es?'Ej: Retalhuleu':'E.g.: Retalhuleu'}" value="${fd.birthMuni||''}"/></div>
+    </div>`;
+  }
+
+  // ═══ STEP 1: PEP y Cumplimiento ═══
+  else if(step===1){
+    c=`
+    <div style="padding:10px 14px;border-radius:var(--radius-sm);background:var(--warning-light);border:1px solid var(--warning-border);margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;">
+      ${icon('shield',16,'var(--warning)')}
+      <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">${t('feicSibWarning')}</div>
+    </div>
+    <div class="section-label">${t('feicPepTitle')}</div>
+    ${ynBlock('pep',t('feicPep1'))}
+    ${fd.pep==='si'?`<div style="padding-left:14px;border-left:2px solid var(--warning);margin-bottom:8px;animation:fadeUp .2s;">
+      ${ynBlock('pepFam',t('feicPep2'))}
+      ${ynBlock('pepAsoc',t('feicPep3'))}
+    </div>`:''}
+    <div class="section-label" style="margin-top:16px;">${t('feicCpeTitle')}</div>
+    <div style="padding:12px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:8px;background:var(--white);">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px;">${t('feicCpe')}</div>
+      <div style="display:flex;gap:6px;">
+        <button class="q-opt ${fd.cpe==='si'?'sel-yes':''}" data-feic="cpe" data-val="si">${t('yes')}</button>
+        <button class="q-opt ${fd.cpe==='no'?'sel-no':''}" data-feic="cpe" data-val="no">${t('no')}</button>
+        <button class="q-opt ${fd.cpe==='na'?'sel-yes':''}" data-feic="cpe" data-val="na" style="${fd.cpe==='na'?'background:var(--surface-alt);border-color:var(--text-dim);color:var(--text-dim);':''}">${t('feicCpeNa')}</button>
+      </div>
+    </div>`;
+  }
+
+  // ═══ STEP 2: Información Económica ═══
+  else if(step===2){
+    // Income classification label
+    const pqP1=pq.p1,pqP2=pq.p2;
+    const incSourceLabel=pqP1==='no'?(es?'Dependiente':'Dependent'):pqP2==='empresa'?(es?'Relación de dependencia':'Employment'):pqP2==='independiente'?(es?'Negocio propio':'Own business'):'—';
+
+    c=`
+    <div style="padding:12px 14px;border-radius:var(--radius-sm);background:var(--surface-alt);border:1px solid var(--border);margin-bottom:16px;">
+      <div class="section-label" style="margin-bottom:8px;">${t('feicEconData')}</div>
+      ${lf(t('feicIncome'),'<span style="font-family:var(--mono);color:var(--success);">Q'+(pq.income||'0')+'.00</span>')}
+      ${lf(t('feicCurrency'),'Quetzal (GTQ)')}
+      ${lf(t('feicIncSource'),incSourceLabel)}
+      ${pq.empName?lf(t('feicEmployer'),pq.empName):''}
+      ${pq.activity?lf(t('feicActivity'),pq.activity):''}
+      <div style="border-top:1px solid var(--border);margin-top:6px;padding-top:6px;">
+        ${lf(t('feicPurpose'),t('feicPurposeVal'))}
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label" style="color:var(--text-dim);">${t('feicCurrency')}</label><div style="padding:10px 14px;border-radius:var(--radius-sm);background:var(--surface-alt);border:1px solid var(--border);font-size:14px;color:var(--text-secondary);">QUETZAL (GTQ)</div></div>
+      <div class="form-group"><label class="form-label">${t('feicEgresos')}</label><input class="form-input" id="feicEgresos" type="number" inputmode="numeric" min="0" placeholder="${t('feicEgresosPh')}" value="${fd.egresos||''}"/></div>
+    </div>
+    <div style="margin-top:4px;">
+      <div class="section-label">${t('feicFundsOrigin')}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="q-opt ${fd.fundsOrigin==='own'?'sel-yes':''}" data-feic="fundsOrigin" data-val="own">${t('feicFundsOwn')}</button>
+        <button class="q-opt ${fd.fundsOrigin==='third'?'sel-yes':''}" data-feic="fundsOrigin" data-val="third">${t('feicFundsThird')}</button>
+        <button class="q-opt ${fd.fundsOrigin==='both'?'sel-yes':''}" data-feic="fundsOrigin" data-val="both">${t('feicFundsBoth')}</button>
+      </div>
+    </div>`;
+  }
+
+  // ── Validation per step ──
+  const canNext=true;
+
   return`<div class="card"><div class="card-header"><h2>${t('amlTitle')}</h2><p>${t('amlDesc')}</p></div>
-  ${qs.map((q,i)=>`<div class="q-block"><div class="q-text">${q}</div><div class="q-options"><button class="q-opt ${state.amlAnswers[i]==='si'?'sel-yes':''}" data-aml="${i}" data-val="si">${t('yes')}</button><button class="q-opt ${state.amlAnswers[i]==='no'?'sel-no':''}" data-aml="${i}" data-val="no">${t('no')}</button></div></div>`).join('')}
-  <div class="btn-row"><button class="btn btn-secondary" id="btnBack">${t('btnBack')}</button><button class="btn btn-primary" id="btnNext" ${!ok?'disabled':''}>${t('btnNext')}</button></div></div>`;
+  ${nav}${c}
+  <div class="btn-row" style="margin-top:20px;">
+    <button class="btn btn-secondary" id="${step===0?'btnBack':'btnFeicPrev'}">${t('btnBack')}</button>
+    <button class="btn btn-primary" id="${step===2?'btnNext':'btnFeicNext'}" ${!canNext?'disabled':''}>${step===2?(es?'Completar FEIC':'Complete FEIC'):t('btnNext')}</button>
+  </div></div>`;
 }
 
 function pgDocScan(){
@@ -3177,7 +3532,7 @@ function pgCustomerProfile(){
     const statusBg=isCurrent?'var(--success-light)':'#FEF0F0';
     const statusBorder=isCurrent?'var(--success-border)':'#F5B4BA';
     const statusColor=isCurrent?'var(--success)':'var(--danger)';
-    return`<div style="padding:14px;border:1px solid ${isCurrent?'var(--border)':statusBorder};border-radius:var(--radius-sm);margin-bottom:8px;background:var(--white);cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--primary)';this.style.boxShadow='var(--shadow)'" onmouseout="this.style.borderColor='${isCurrent?'var(--border)':statusBorder}';this.style.boxShadow='none'">
+    return`<div style="padding:14px;border:1px solid ${isCurrent?'var(--border)':statusBorder};border-radius:var(--radius-sm);margin-bottom:8px;background:var(--white);" class="card-interactive">
       <div style="display:flex;align-items:flex-start;gap:12px;">
         <div style="width:36px;height:36px;border-radius:10px;background:${isCurrent?'var(--success-light)':'#FEF0F0'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon(c.typeIcon,16,isCurrent?c.typeColor:'var(--danger)')}</div>
         <div style="flex:1;min-width:0;">
@@ -3250,7 +3605,7 @@ function pgCustomerProfile(){
     ${activeCreds.map(c=>renderCredCard(c)).join('')}
     <div style="margin-top:8px;padding:8px 12px;border-radius:var(--radius-sm);background:var(--surface-alt);font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:6px;">
       <span style="display:flex;">${icon('alertTriangle',12)}</span>
-      ${es?'Estas cuotas ya están incluidas en la CMM comprometida de $'+(cmmUsed||0).toFixed(2):'These installments are already included in the committed MMI of $'+(cmmUsed||0).toFixed(2)}
+      ${es?'Estas cuotas ya están incluidas en la CMM comprometida de Q'+(cmmUsed||0).toFixed(2):'These installments are already included in the committed MMI of Q'+(cmmUsed||0).toFixed(2)}
     </div>
   </div>
 
@@ -3330,7 +3685,8 @@ function pgSolicitudDetail(){
 
   // ── Resolve display state ──────────────────────────────────
   let displayState=s;
-  if(s==='approved'||s==='approved_pending_id'){
+  if(s==='cancelled'){displayState='cancelled';}
+  else if(s==='approved'||s==='approved_pending_id'){
     if(isLimitInc)                                               displayState='activated';
     // approved_pending_id = biometric verification for NEW line only (outcome !== 2)
     // outcome 2 = already has line → OTP done before this screen → go straight to pending_billing
@@ -3354,6 +3710,7 @@ function pgSolicitudDetail(){
     pending_billing:   {color:'var(--success)',  bg:'var(--success-light)',    border:'var(--success-border)', icon:'checkCircle',   label:es?'Pendiente facturar':'Pending billing'},
     activated:         {color:'var(--success)',  bg:'var(--success-light)',    border:'var(--success-border)', icon:'checkCircle',   label:es?'Línea activada':'Line activated'},
     billed:            {color:'#0D9B68',          bg:'#E6F7F1',                 border:'#A8DFC9',               icon:'receipt',       label:es?'Facturada':'Billed'},
+    cancelled:         {color:'var(--text-dim)',  bg:'var(--surface-alt)',       border:'var(--border)',          icon:'x',             label:t('dashStatusCancelled')},
   };
   const st=STATES[displayState]||STATES.analysis;
 
@@ -3367,6 +3724,7 @@ function pgSolicitudDetail(){
     pending_billing:    isPre?(es?'Listo para formalizar la línea':'Ready to formalize the line'):(es?'Listo para procesar en caja':'Ready to process at checkout'),
     activated:          isLimitInc?(es?'Incremento de línea aprobado':'Line increase approved'):(es?'Línea de crédito activada':'Credit line activated'),
     billed:             isCash?(es?'Préstamo procesado':'Loan processed'):(es?'Crédito formalizado':'Credit formalized'),
+    cancelled:          es?'Solicitud cancelada por el vendedor':'Application cancelled by the seller',
   };
   const opDescs={
     analysis:           isLimitInc?(es?'El equipo de crédito está evaluando la solicitud de incremento. Tiempo estimado: 24–48 horas hábiles.':'The credit team is reviewing the increase request. Estimated time: 24–48 business hours.'):(es?'El equipo de crédito está evaluando esta solicitud. Tiempo estimado: 24–48 horas hábiles.':'The credit team is reviewing this application. Estimated time: 24–48 business hours.'),
@@ -3377,11 +3735,34 @@ function pgSolicitudDetail(){
     pending_billing:    isPre?(es?'Línea de crédito aprobada. Imprimí el contrato y obtené la firma del cliente para activarla.':'Credit line approved. Print the contract and obtain the customer\'s signature to activate it.'):(es?'Crédito aprobado e identidad verificada. Llevá al cliente a caja para completar el proceso.':'Credit approved and identity verified. Take the customer to checkout to complete the process.'),
     activated:          es?'La línea de crédito está activa. El cliente puede usarla en tienda.':'The credit line is active. The customer can use it in store.',
     billed:             isCash?(es?'El préstamo fue procesado. No hay acciones pendientes.':'The loan was processed. No pending actions.'):(es?'Crédito aprobado, identidad verificada y venta facturada. No hay acciones pendientes.':'Credit approved, identity verified and sale billed. No pending actions.'),
+    cancelled:          es?'Esta solicitud fue cancelada. No se requieren acciones adicionales.':'This application was cancelled. No further actions required.',
   };
 
   // ── ZONA 1: Estado ─────────────────────────────────────────
-  const zona1=`
-    <div style="border-radius:var(--radius-sm);background:${st.bg};border:1px solid ${st.border};margin-bottom:16px;overflow:hidden;">
+  const canCancel=!['billed','activated','rejected','cancelled'].includes(displayState);
+  const inCancelMode=state._cancelMode&&canCancel;
+  const zona1=inCancelMode?`
+    <div style="border-radius:var(--radius-sm);background:#FEF0F0;border:1.5px solid #F5B4BA;margin-bottom:16px;overflow:hidden;animation:fadeUp .2s;">
+      <div style="padding:16px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:white;border:1.5px solid #F5B4BA;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon('x',18,'var(--danger)')}</div>
+          <div>
+            <div style="font-size:14px;font-weight:800;color:var(--text);">${t('cancelSolTitle')}</div>
+            <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);">${sol.ref}</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:14px;">${t('cancelConfirmMsg')}</div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="form-label">${t('cancelReasonLabel')}</label>
+          <textarea class="form-input" id="cancelReason" rows="2" style="resize:none;" placeholder="${t('cancelReasonPh')}"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-secondary" id="btnCancelModeBack" style="flex:1;justify-content:center;font-size:12px;">${t('cancelBack')}</button>
+          <button class="btn" id="btnCancelConfirm" style="flex:1;justify-content:center;background:var(--danger);color:white;font-size:12px;font-weight:700;">${icon('x',13)} ${t('cancelBtn')}</button>
+        </div>
+      </div>
+    </div>`
+  :`<div style="border-radius:var(--radius-sm);background:${st.bg};border:1px solid ${st.border};margin-bottom:16px;overflow:hidden;">
       <div style="padding:14px 16px;display:flex;align-items:flex-start;gap:12px;">
         <div style="width:36px;height:36px;border-radius:50%;background:white;border:1.5px solid ${st.border};display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon(st.icon,18,st.color)}</div>
         <div style="flex:1;min-width:0;">
@@ -3389,9 +3770,12 @@ function pgSolicitudDetail(){
           <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">${opDescs[displayState]||opDescs.analysis}</div>
         </div>
       </div>
-      <div style="padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid ${st.border};">
-        <div style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;background:white;border:1px solid ${st.border};font-size:10px;font-weight:700;color:${st.color};">${icon(st.icon,10,st.color)} ${st.label}</div>
-        <div style="font-size:10px;color:var(--text-dim);font-family:var(--mono);">${sol.ref} · ${sol.date}</div>
+      <div style="padding:10px 16px 12px;border-top:1px solid ${st.border};display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;">
+        <div style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;background:white;border:1px solid ${st.border};font-size:10px;font-weight:700;color:${st.color};white-space:nowrap;">${icon(st.icon,10,st.color)} ${st.label}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+          <span style="font-size:10px;color:var(--text-dim);font-family:var(--mono);white-space:nowrap;">${sol.ref} · ${sol.date}</span>
+          ${canCancel?`<span id="btnCancelSolInline" style="cursor:pointer;font-size:10px;color:var(--text-dim);display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:8px;transition:all .2s;white-space:nowrap;" onmouseover="this.style.color='var(--danger)';this.style.background='#FEF0F0';" onmouseout="this.style.color='var(--text-dim)';this.style.background='transparent';">${icon('x',9,'currentColor')} ${es?'Cancelar':'Cancel'}</span>`:''}
+        </div>
       </div>
     </div>`;
 
@@ -3581,7 +3965,7 @@ function pgSolicitudDetail(){
 
   // ── ZONA 3: Acción requerida (varía por estado) ────────────
   let zona3='';
-  let footerCTA='';
+  // footerCTA removed — back button is now in the unified header shell
 
   if(displayState==='analysis'||displayState==='analysis_visit'){
     const isVisit=displayState==='analysis_visit';
@@ -3605,7 +3989,6 @@ function pgSolicitudDetail(){
       </div>`;
     }
     zona3+=`<button class="btn btn-secondary" id="btnChangeSolStatus" style="width:100%;justify-content:center;font-size:12px;border-style:dashed;">${icon('settings',14)} ${es?'Simular cambio de estado':'Simulate status change'}</button>`;
-    footerCTA=`<div class="btn-row" style="justify-content:center;margin-top:20px;"><button class="btn btn-secondary" onclick="backFromDetail();">${t('btnBack')}</button></div>`;
   }
 
   else if(displayState==='observed'){
@@ -3637,7 +4020,6 @@ function pgSolicitudDetail(){
           ${uploads.income.length<5?`<div class="upload-area" id="obsUploadIncome" style="padding:10px;border-color:var(--orange);"><div class="upload-text">${uploads.income.length===0?t('docIncome'):t('docAddMore')}</div></div>`:''}
         </div>
       </div>`;
-    footerCTA=`<div class="btn-row" style="margin-top:20px;"><button class="btn btn-secondary" onclick="backFromDetail();">${t('obsBackDash')}</button><button class="btn btn-primary" id="btnObsResubmit" style="display:flex;align-items:center;gap:6px;">${icon('check',14,'white')} ${t('obsResubmit')}</button></div>`;
   }
 
   else if(displayState==='rejected'){
@@ -3646,10 +4028,6 @@ function pgSolicitudDetail(){
         <span style="flex-shrink:0;display:flex;color:var(--warning);margin-top:2px;">${icon('info',14)}</span>
         <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">${es?'El cliente podrá ser evaluado nuevamente en un período de 6 meses. Recomendamos mantener un buen historial de pagos.':'The customer may be evaluated again in 6 months. We recommend maintaining a good payment history.'}</div>
       </div>`;
-    footerCTA=`<div class="btn-row" style="justify-content:center;margin-top:20px;gap:10px;">
-      <button class="btn btn-primary" id="btnRestart">${es?'Nueva consulta':'New query'}</button>
-      <button class="btn btn-secondary" onclick="backFromDetail();">${t('btnBack')}</button>
-    </div>`;
   }
 
   else if(displayState==='approved_pending_id'){
@@ -3705,16 +4083,8 @@ function pgSolicitudDetail(){
     })();
 
     if(hasPurchase){
-      // Two-component layout: line + purchase independent
-      const isCashAction=sol.action==='cash';
-      const purchaseLabel=isCashAction?(es?'Préstamo Cash':'Cash Loan'):(es?'Compra':'Purchase');
-      const purchaseAmt=sol.amount||'—';
-      const purchaseNote=isCashAction
-        ?(es?'Desembolso y formalización en orPOS. Si el cliente no desea proceder, la línea puede activarse de forma independiente.':'Disbursement and formalization in orPOS. If the customer does not wish to proceed, the line can be activated independently.')
-        :(es?'Formalización, cobro de prima y facturación en orPOS. Si el cliente no desea la compra, la línea puede activarse de forma independiente.':'Formalization, down payment collection and billing in orPOS. If the customer does not want the purchase, the line can be activated independently.');
-
+      // Line component with limits + bio verification
       zona3=`
-      <!-- Componente 1: Línea -->
       <div style="border:1.5px solid #B5D4F4;border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden;">
         <div style="padding:8px 14px;background:#EBF0FD;border-bottom:1px solid #B5D4F4;display:flex;align-items:center;justify-content:space-between;">
           <div style="display:flex;align-items:center;gap:6px;">
@@ -3730,23 +4100,8 @@ function pgSolicitudDetail(){
           ${bioBlock}
         </div>
       </div>
-      <!-- Componente 2: Compra / Cash -->
-      <div style="border:0.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;">
-        <div style="padding:8px 14px;background:var(--surface-alt);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-          <div style="display:flex;align-items:center;gap:6px;">
-            <div style="width:8px;height:8px;border-radius:50%;background:var(--text-dim);"></div>
-            <span style="font-size:11px;font-weight:700;color:var(--text);">${purchaseLabel}${sol.cartItems&&sol.cartItems.length>0?' · '+sol.cartItems[0].name:''}</span>
-          </div>
-          <span style="font-family:var(--font-mono,monospace);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--surface-alt);color:var(--text-dim);border:1px solid var(--border);">${es?'PEND. ORPOS':'PEND. ORPOS'}</span>
-        </div>
-        <div style="padding:14px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span style="font-size:11px;color:var(--text-secondary);">${es?'Monto':'Amount'}</span><span style="font-family:var(--mono);font-size:13px;font-weight:700;">${purchaseAmt}</span></div>
-          ${sol.creditTerms?`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span style="font-size:11px;color:var(--text-secondary);">${es?'Cuota mensual':'Monthly payment'}</span><span style="font-family:var(--mono);font-size:13px;font-weight:700;">Q${sol.creditTerms.cuotaTotal?.toFixed(2)||'—'}</span></div>`:''}
-          <div style="margin-top:10px;padding:10px 12px;border-radius:var(--radius-sm);background:var(--surface-alt);border:1px solid var(--border);font-size:11px;color:var(--text-secondary);line-height:1.5;">${purchaseNote}</div>
-        </div>
-      </div>`;
-      footerCTA=`<div class="btn-row" style="justify-content:center;margin-top:20px;"><button class="btn btn-secondary" onclick="backFromDetail();">${t('btnBack')}</button></div>`;
-    } else {
+      `;
+      } else {
       // Line-only solicitud
       if(bioVerified){
         zona3=`<div style="border-radius:var(--radius-sm);border:1.5px solid var(--success);background:var(--success-light);padding:16px;text-align:center;">
@@ -3764,8 +4119,7 @@ function pgSolicitudDetail(){
         </div>
         ${bioBlock}`;
       }
-      footerCTA=`<div class="btn-row" style="justify-content:center;margin-top:20px;"><button class="btn btn-secondary" onclick="backFromDetail();">${t('btnBack')}</button></div>`;
-    }
+      }
   }
 
   else if(displayState==='pending_billing'){
@@ -3818,7 +4172,6 @@ function pgSolicitudDetail(){
     if(isNewLine){
       zona3=`<button class="btn btn-secondary" id="btnDownloadLineContract" style="width:100%;justify-content:center;display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;">${icon('download',16)} ${es?'Descargar contrato de línea':'Download line contract'}</button>`+zona3;
     }
-    footerCTA=`<div class="btn-row" style="justify-content:center;margin-top:20px;"><button class="btn btn-secondary" onclick="backFromDetail();">${t('btnBack')}</button></div>`;
   }
 
   else if(displayState==='activated'){
@@ -3840,7 +4193,6 @@ function pgSolicitudDetail(){
           </div>
         </div>`;
     }
-    footerCTA=`<div class="btn-row" style="justify-content:center;margin-top:20px;"><button class="btn btn-secondary" onclick="backFromDetail();">${t('btnBack')}</button></div>`;
   }
 
   else if(displayState==='billed'){
@@ -3848,15 +4200,11 @@ function pgSolicitudDetail(){
       <div style="width:36px;height:36px;border-radius:50%;background:white;border:2px solid var(--success);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon('check',18,'var(--success)')}</div>
       <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${isCash?(es?'El préstamo fue procesado. No hay acciones pendientes.':'The loan was processed. No pending actions.'):(es?'Crédito aprobado, identidad verificada y venta facturada. No hay acciones pendientes.':'Credit approved, identity verified and sale billed. No pending actions.')}</div>
     </div>`;
-    footerCTA=`<div class="btn-row" style="justify-content:center;margin-top:20px;"><button class="btn btn-secondary" onclick="backFromDetail();">${t('btnBack')}</button></div>`;
   }
 
   return`<div class="card" style="padding:16px;">
     ${zona1}
-    ${zonaTerms}
-    ${zona2}
-    ${zona3?`<div style="margin-top:4px;">${zona3}</div>`:''}
-    ${footerCTA}
+    ${inCancelMode?'':`${zonaTerms}${zona2}${zona3?'<div style="margin-top:4px;">'+zona3+'</div>':''}`}
   </div>`;
 }
 
@@ -3888,15 +4236,16 @@ function pgVentaDetail(){
   }
   if(!sale)return`<div class="card"><p>Error</p></div>`;
 
+  const isCancelled=sale.billingStatus==='cancelled';
   const isBilled=sale.billingStatus==='billed';
   const isImmediate=!!state._contadoSaleRef&&!state._viewingSale;
 
   // ── Hero ───────────────────────────────────────────────────
-  const heroTitle=isBilled?(es?'Venta Completada':'Sale Completed'):(es?'Venta Registrada':'Sale Registered');
-  const heroBg=isBilled?'var(--success-light)':'var(--primary-light)';
-  const heroBorder=isBilled?'var(--success)':'var(--primary)';
-  const heroIconName=isBilled?'receipt':'shoppingCart';
-  const heroIconColor=isBilled?'var(--success)':'var(--primary)';
+  const heroTitle=isCancelled?(es?'Venta Cancelada':'Sale Cancelled'):isBilled?(es?'Venta Completada':'Sale Completed'):(es?'Venta Registrada':'Sale Registered');
+  const heroBg=isCancelled?'var(--surface-alt)':isBilled?'var(--success-light)':'var(--primary-light)';
+  const heroBorder=isCancelled?'var(--border)':isBilled?'var(--success)':'var(--primary)';
+  const heroIconName=isCancelled?'x':isBilled?'receipt':'shoppingCart';
+  const heroIconColor=isCancelled?'var(--text-dim)':isBilled?'var(--success)':'var(--primary)';
 
   // ── Items detail ───────────────────────────────────────────
   let itemsSection='';
@@ -3929,12 +4278,14 @@ function pgVentaDetail(){
   }
 
   // ── Status badge ───────────────────────────────────────────
-  const bl=isBilled
+  const bl=isCancelled
+    ?{color:'var(--text-dim)',bg:'var(--surface-alt)',border:'var(--border)',icon:'x',label:t('dashStatusCancelled')}
+    :isBilled
     ?{color:'#0D9B68',bg:'#E6F7F1',border:'#A8DFC9',icon:'receipt',label:t('dashStatusBilled')}
     :{color:'var(--warning)',bg:'var(--warning-light)',border:'var(--warning-border)',icon:'clock',label:t('dashStatusPendingBill')};
 
   // ── Context section ────────────────────────────────────────
-  const contextSection=isBilled
+  const contextSection=isCancelled?'':isBilled
     ?`<div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);display:flex;align-items:center;gap:10px;">
         <span style="display:flex;color:var(--success);">${icon('checkCircle',18,'var(--success)')}</span>
         <div>
@@ -3950,32 +4301,63 @@ function pgVentaDetail(){
         </div>
       </div>`;
 
-  // ── Footer ─────────────────────────────────────────────────
-  const footer=isImmediate
-    ?`<div class="btn-row" style="justify-content:center;margin-top:16px;"><button class="btn btn-secondary" id="btnRestart">${t('btnNewQuery')}</button></div>`
-    :`<div class="btn-row" style="justify-content:center;margin-top:16px;"><button class="btn btn-secondary" id="btnSaleDetailBack">${es?'Regresar':'Go back'}</button></div>`;
+  // ── Inline cancel (zona1-style) ──────────────────────────────
+  const canCancelSale=!isBilled&&!isCancelled;
+  const inSaleCancelMode=state._cancelMode&&canCancelSale;
 
-  return`<div class="card"><div class="success-screen">
-    <div class="success-circle" style="background:${heroBg};border-color:${heroBorder};">${icon(heroIconName,28,heroIconColor)}</div>
-    <div class="success-title">${heroTitle}</div>
-    <div style="margin:20px auto 0;max-width:460px;text-align:left;">
-      <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--surface-alt);border:1px solid var(--border);margin-bottom:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-dim);">${es?'No. Referencia':'Reference No.'}</span>
-          <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--primary);">${sale.ref}</span>
+  const saleZona1=inSaleCancelMode?`
+    <div style="border-radius:var(--radius-sm);background:#FEF0F0;border:1.5px solid #F5B4BA;margin-bottom:16px;overflow:hidden;animation:fadeUp .2s;">
+      <div style="padding:16px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:white;border:1.5px solid #F5B4BA;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon('x',18,'var(--danger)')}</div>
+          <div>
+            <div style="font-size:14px;font-weight:800;color:var(--text);">${t('cancelSaleTitle')}</div>
+            <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);">${sale.ref}</div>
+          </div>
         </div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:14px;">${t('cancelConfirmMsg')}</div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="form-label">${t('cancelReasonLabel')}</label>
+          <textarea class="form-input" id="cancelReason" rows="2" style="resize:none;" placeholder="${t('cancelReasonPh')}"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-secondary" id="btnCancelModeBack" style="flex:1;justify-content:center;font-size:12px;">${t('cancelBack')}</button>
+          <button class="btn" id="btnCancelConfirmSale" style="flex:1;justify-content:center;background:var(--danger);color:white;font-size:12px;font-weight:700;">${icon('x',13)} ${t('cancelBtn')}</button>
+        </div>
+      </div>
+    </div>`
+  :`<div style="border-radius:var(--radius-sm);background:${bl.bg};border:1px solid ${bl.border};margin-bottom:16px;overflow:hidden;">
+      <div style="padding:14px 16px;display:flex;align-items:flex-start;gap:12px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:white;border:1.5px solid ${bl.border};display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon(bl.icon,18,bl.color)}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:4px;">${heroTitle}</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">${isCancelled?(sale._cancelReason||(es?'Cancelada por el vendedor.':'Cancelled by the seller.')):isBilled?(es?'No hay acciones pendientes para esta venta.':'No pending actions for this sale.'):(es?'Cobrar al cliente en caja para completar.':'Collect from customer at checkout to complete.')}</div>
+        </div>
+      </div>
+      <div style="padding:10px 16px 12px;border-top:1px solid ${bl.border};display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;">
+        <div style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;background:white;border:1px solid ${bl.border};font-size:10px;font-weight:700;color:${bl.color};white-space:nowrap;">${icon(bl.icon,10,bl.color)} ${bl.label}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+          <span style="font-size:10px;color:var(--text-dim);font-family:var(--mono);white-space:nowrap;">${sale.ref} · ${sale.date}</span>
+          ${canCancelSale?`<span id="btnCancelSaleInline" style="cursor:pointer;font-size:10px;color:var(--text-dim);display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:8px;transition:all .2s;white-space:nowrap;" onmouseover="this.style.color='var(--danger)';this.style.background='#FEF0F0';" onmouseout="this.style.color='var(--text-dim)';this.style.background='transparent';">${icon('x',9,'currentColor')} ${es?'Cancelar':'Cancel'}</span>`:''}
+        </div>
+      </div>
+    </div>`;
+
+  // ── Immediate flow footer (only for contadoDone from checkout) ──
+  const immediateFooter=isImmediate?`<div class="btn-row" style="justify-content:center;margin-top:16px;"><button class="btn btn-secondary" id="btnRestart">${t('btnNewQuery')}</button></div>`:'';
+
+  return`<div class="card" style="padding:16px;">
+    ${saleZona1}
+    ${inSaleCancelMode?'':`
+      <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--surface-alt);border:1px solid var(--border);margin-bottom:14px;">
         <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="color:var(--text-dim);">${es?'Cliente':'Customer'}</span><span style="font-weight:700;">${sale.client}</span></div>
         <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--text-dim);">${es?'Fecha':'Date'}</span><span style="font-weight:600;">${sale.date}</span></div>
         ${itemsSection}
       </div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:var(--radius-sm);background:${bl.bg};border:1px solid ${bl.border};margin-bottom:14px;">
-        <span style="display:flex;color:${bl.color};">${icon(bl.icon,14,bl.color)}</span>
-        <span style="font-size:12px;font-weight:700;color:${bl.color};">${bl.label}</span>
-      </div>
       ${contextSection}
-    </div>
-    ${footer}
-  </div></div>`;
+      ${immediateFooter}
+    `}
+  </div>`;
 }
 
 /* ═══════════════ LEGACY WRAPPERS (redirect to unified) ═══════════════ */
@@ -4739,9 +5121,7 @@ function pgSalesScenario(){
       card('rejected',t('salesRejected'),t('salesRejectedDesc'))+
       card('existingLegacyPastDue',t('salesExistingLegacyPastDue'),t('salesExistingLegacyPastDueDesc'))
     )}
-    <div style="padding-top:4px;padding-bottom:24px;">
-      <button class="btn btn-primary" id="btnSalesScenarioNext" style="width:100%;justify-content:center;padding:12px;font-size:14px;" ${!state.salesScenario?'disabled':''}>${t('btnNext')}</button>
-    </div>
+    <div style="padding-bottom:24px;"></div>
   </div>`;
 }
 
@@ -6212,13 +6592,14 @@ function pgSalesCart(){
       const cpP=[{icon:icon('shoppingCart',16),label:t('prodMerc'),limit:limitMerc,maxTerm:48,color:'var(--success)'},{icon:icon('bike',16),label:t('prodMoto'),limit:limitMoto,maxTerm:60,color:'var(--primary)'},{icon:icon('banknote',16),label:t('prodCash'),limit:limitCash,maxTerm:36,color:'#0D9B68'}];
       content=`
       <!-- Offer badge -->
-      ${state.forkSociodemo==='preapproved_visit'?`<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--warning-light);border:1px solid var(--warning-border);margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+      ${state.forkSociodemo==='preapproved_visit'?`<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--warning-light);border:1px solid var(--warning-border);margin-bottom:12px;display:flex;align-items:center;gap:10px;">
         <span style="display:flex;color:var(--warning);">${icon('mapPin',18)}</span>
         <div style="font-size:13px;font-weight:700;color:var(--warning);">${state.lang==='es'?'Oferta condicionada a visita de verificación':'Offer conditional on verification visit'}</div>
-      </div>`:`<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+      </div>`:`<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);margin-bottom:12px;display:flex;align-items:center;gap:10px;">
         <span style="display:flex;color:var(--success);">${icon('checkCircle',18)}</span>
         <div style="font-size:13px;font-weight:700;color:var(--success);">${state.lang==='es'?'Oferta comercial aprobada':'Commercial offer approved'}</div>
       </div>`}
+      <div style="margin-bottom:16px;">${prequalExpiryChip(state.prequalDate||customer.prequalDate)}</div>
       <!-- CMM -->
       <div style="padding:18px;border:1.5px solid #C5D0F0;border-radius:var(--radius-sm);background:var(--primary-light);margin-bottom:16px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;"><div><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--primary);">${t('cmm')}</div><div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">${t('cmmShared')}</div></div><div style="font-family:var(--mono);font-size:28px;font-weight:700;color:var(--primary);">Q${(maxCuota||0).toFixed(2)}</div></div>
@@ -6287,7 +6668,7 @@ function pgSalesCart(){
           const statusBg=isCurrent?'var(--success-light)':'#FEF0F0';
           const statusBorder=isCurrent?'var(--success-border)':'#F5B4BA';
           const statusColor=isCurrent?'var(--success)':'var(--danger)';
-          return`<div style="padding:14px;border:1px solid ${isCurrent?'var(--border)':statusBorder};border-radius:var(--radius-sm);margin-bottom:8px;background:var(--white);cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--primary)';this.style.boxShadow='var(--shadow)'" onmouseout="this.style.borderColor='${isCurrent?'var(--border)':statusBorder}';this.style.boxShadow='none'">
+          return`<div style="padding:14px;border:1px solid ${isCurrent?'var(--border)':statusBorder};border-radius:var(--radius-sm);margin-bottom:8px;background:var(--white);" class="card-interactive">
           <div style="display:flex;align-items:flex-start;gap:12px;">
             <div style="width:36px;height:36px;border-radius:10px;background:${isCurrent?'var(--success-light)':'#FEF0F0'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon(c.typeIcon,16,isCurrent?c.typeColor:'var(--danger)')}</div>
             <div style="flex:1;min-width:0;">
@@ -6310,7 +6691,7 @@ function pgSalesCart(){
         </div>`}).join('')}
         <div style="margin-top:4px;padding:8px 12px;border-radius:var(--radius-sm);background:var(--surface-alt);font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:6px;">
           <span style="display:flex;">${icon('alertTriangle',12)}</span>
-          ${es?'Estas cuotas ya están incluidas en la CMM comprometida de $'+(cmmUsed||0).toFixed(2):'These installments are already included in the committed MMI of $'+(cmmUsed||0).toFixed(2)}
+          ${es?'Estas cuotas ya están incluidas en la CMM comprometida de Q'+(cmmUsed||0).toFixed(2):'These installments are already included in the committed MMI of Q'+(cmmUsed||0).toFixed(2)}
         </div>
       </div>
       <!-- Limit Increase CTA -->
@@ -6370,7 +6751,7 @@ function pgSalesCart(){
       const visitInfo=a.hasVisit&&a.visitDate?`<div style="display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:3px 8px;border-radius:10px;background:var(--primary-light);border:1px solid #C5D0F0;font-size:10px;color:var(--primary);font-weight:600;">${icon('calendar',10,'var(--primary)')} ${new Date(a.visitDate+'T12:00:00').toLocaleDateString(es?'es-SV':'en-US',{month:'short',day:'numeric'})}</div>`:'';
       const obsInfo=a.status==='observed'?`<div style="display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:3px 8px;border-radius:10px;background:var(--orange-light);border:1px solid #F5C9A8;font-size:10px;color:var(--orange);font-weight:700;">${icon('alertTriangle',10,'#E07428')} ${es?'Requiere acción':'Action required'}</div>`:'';
       const obsGap=visitInfo||obsInfo?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;">${visitInfo}${obsInfo}</div>`:'';
-      return`<div style="padding:14px 16px;border:1px solid ${a.status==='observed'?'#F5C9A8':'var(--border)'};border-radius:var(--radius-sm);margin-bottom:${idx<total-1?'8':'0'}px;cursor:pointer;transition:all .2s;background:${a.status==='observed'?'#FFFBF7':'var(--white)'};" class="dash-app" data-solref="${a.ref}" onmouseover="this.style.borderColor='var(--primary)';this.style.boxShadow='var(--shadow)'" onmouseout="this.style.borderColor='${a.status==='observed'?'#F5C9A8':'var(--border)'}';this.style.boxShadow='none'">
+      return`<div style="padding:14px 16px;border:1px solid ${a.status==='observed'?'#F5C9A8':'var(--border)'};border-radius:var(--radius-sm);margin-bottom:${idx<total-1?'8':'0'}px;cursor:pointer;transition:all .2s;background:${a.status==='observed'?'#FFFBF7':'var(--white)'};" class="dash-app card-interactive ${a.status==='observed'?'observed-card':''}" data-solref="${a.ref}">
         <div style="display:flex;align-items:center;gap:10px;">
           <div style="flex:1;min-width:0;">
             <!-- Row 1: ref + badges -->
@@ -6395,7 +6776,7 @@ function pgSalesCart(){
 
     function actSaleCard(v,idx,total){
       const bl=billingMap[v.billingStatus]||billingMap.pending_billing;
-      return`<div data-saleref="${v.ref}" style="padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:${idx<total-1?'8':'0'}px;background:var(--white);cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--primary)';this.style.boxShadow='var(--shadow)'" onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+      return`<div data-saleref="${v.ref}" style="padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:${idx<total-1?'8':'0'}px;background:var(--white);" class="card-interactive">
         <div style="display:flex;align-items:center;gap:10px;">
           <div style="flex:1;min-width:0;">
             <!-- Row 1: ref + billing badge -->
@@ -6475,21 +6856,131 @@ function pgSalesCart(){
 /* ═══════════════ NAV ═══════════════ */
 function nav(d){const s=getFlowSteps(),i=s.indexOf(state.screen),n=i+d;if(n>=0&&n<s.length){state.screen=s[n];render();}}
 
+function navigateSalesScenario(){
+  state.salesSubScreen=null;
+  const fromOrigination=state._scenarioFromOrigination;
+  if(fromOrigination){
+    state._scenarioFromOrigination=false;
+    const scenarioToOutcome={'new':3,'existingNoCredit':1,'existingPrequal':0,'existing':2,'existingPastDue':5,'rejected':4};
+    if(state.salesScenario==='existingLegacy'){
+      if(!state.salesCustomer)state.salesCustomer={name:'ANA LUCÍA MORALES FUENTES',doc:(state.idType||'DPI')+' '+(state.idNumber||''),since:'2018'};
+      state.salesCustomer.isLegacy=true;state.salesCustomer.legacyRating='A';
+      state.salesCustomer.maxCuota=663;state.salesCustomer.limitMerc=vpLimit(663,25,48);state.salesCustomer.limitMoto=vpLimit(663,25,60);state.salesCustomer.limitCash=vpLimit(663,26,36);
+      state.outcome=1;state.salesTab='credit';state.salesSubScreen=null;
+      state.screen='salesCart';render();return;
+    }
+    if(state.salesScenario==='existingLegacyPastDue'){
+      if(!state.salesCustomer)state.salesCustomer={name:'MARIO ENRIQUE CASTILLO RUANO',doc:(state.idType||'DPI')+' '+(state.idNumber||''),since:'2017'};
+      state.salesCustomer.isLegacy=true;state.salesCustomer.isLegacyPastDue=true;state.salesCustomer.legacyRating='C';
+      state.salesCustomer.creditRejected=true;state.salesCustomer.pastDue=true;state.salesCustomer.pastDueAmount=2340.50;
+      state.outcome=4;state.salesTab='credit';state.salesSubScreen=null;
+      state.screen='salesCart';render();return;
+    }
+    if(state.salesScenario==='inAnalysis'||state.salesScenario==='inAnalysisVisit'||state.salesScenario==='pendingId'){
+      const solMap={'inAnalysis':'SOL-LC-001','inAnalysisVisit':'SOL-LC-002','pendingId':'SOL-LC-003'};
+      const custMap={
+        'inAnalysis':{name:'ROBERTO CARLOS MENDOZA LIMA',doc:'DPI 1122334455101',since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
+        'inAnalysisVisit':{name:'PATRICIA EUGENIA VÁSQUEZ GODOY',doc:'DPI 2233445566202',since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
+        'pendingId':{name:'DIEGO ALEJANDRO FUENTES MORALES',doc:'DPI 3344556677303',since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
+      };
+      state.salesCustomer=custMap[state.salesScenario];
+      const sol=state.solicitudes.find(s=>s.ref===solMap[state.salesScenario]);
+      if(sol)state.viewingSolicitud=sol;
+      state.outcome=0;state.salesTab='credit';state.salesSubScreen=null;
+      state.screen='salesCart';render();return;
+    }
+    state.outcome=scenarioToOutcome[state.salesScenario]??1;
+    if(state.salesScenario==='existing'){
+      state.salesCustomer={name:'ROSA ANGELICA MARTINEZ RUIZ',doc:(state.idType||'DPI')+': '+(state.idNumber||'2901270362101'),since:'2019',rating:'A',limitMerc:vpLimit(936-378.30, 25, 48),limitCash:vpLimit(936-378.30, 26, 36),maxCuota:936-378.30};
+      state.screen='salesCart';state.salesTab='cart';render();return;
+    }
+    if(state.salesScenario==='existingPrequal'){
+      state.salesCustomer={name:'MARIA ELENA GONZALEZ REYES',doc:(state.idType||'DPI')+': '+(state.idNumber||'3456789012303'),since:'2021',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),prequalDate:(()=>{const d=new Date();d.setDate(d.getDate()-20);return d.toISOString().slice(0,10);})()};
+      state.screen='salesCart';state.salesTab='credit';render();return;
+    }
+    if(state.salesScenario==='existingPastDue'){
+      state.salesCustomer={name:'JOSE ROBERTO MENDEZ LUNA',doc:(state.idType||'DPI')+': '+(state.idNumber||'04738291-8'),since:'2020',rating:'B',pastDue:true,pastDueDays:45,pastDueAccount:'CRD-2025-01204',pastDueAmount:1521.00,limitMerc:vpLimit(936-378.30, 25, 48),limitCash:vpLimit(936-378.30, 26, 36),maxCuota:936-378.30};
+      state.screen='salesCart';state.salesTab='credit';render();return;
+    }
+    if(state.salesScenario==='rejected'){
+      state.salesCustomer={name:'PEDRO ANTONIO HERNANDEZ CASTRO',doc:(state.idType||'DPI')+': '+(state.idNumber||'06284719-5'),creditRejected:true};
+      state.screen='salesCart';state.salesTab='credit';render();return;
+    }
+    if(state.salesScenario==='new'){
+      state.screen='salesCreate';render();return;
+    }
+    state.screen='prequal';render();return;
+  }
+  // Sales flow path
+  if(state.salesScenario==='existing'){
+    state.salesCustomer={name:'ROSA ANGELICA MARTINEZ RUIZ',doc:(state.salesIdType||'DPI')+': '+(state.salesIdNumber||'2901270362101'),since:'2019',rating:'A',limitMerc:vpLimit(936-378.30, 25, 48),limitCash:vpLimit(936-378.30, 26, 36),maxCuota:936-378.30};
+    state.screen='salesCart';state.salesTab='cart';
+  } else if(state.salesScenario==='existingPrequal'){
+    state.salesCustomer={name:'MARIA ELENA GONZALEZ REYES',doc:(state.salesIdType||'DPI')+': '+(state.salesIdNumber||'3456789012303'),since:'2021',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36)};
+    state.screen='salesCart';state.salesTab='credit';
+  } else if(state.salesScenario==='existingLegacy'){
+    state.salesCustomer={name:'ANA LUCIA MORALES FUENTES',doc:(state.salesIdType||'DPI')+': '+(state.salesIdNumber||'1854739201456'),since:'2018',isLegacy:true,legacyRating:'A',maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36)};
+    state.screen='salesCart';state.salesTab='credit';
+  } else if(state.salesScenario==='existingLegacyPastDue'){
+    state.salesCustomer={name:'MARIO ENRIQUE CASTILLO RUANO',doc:(state.salesIdType||'DPI')+': '+(state.salesIdNumber||'2047381950234'),since:'2017',isLegacy:true,isLegacyPastDue:true,legacyRating:'C',pastDue:true,pastDueDays:62,pastDueAccount:'CRD-2024-08834',pastDueAmount:2340.50,creditRejected:true};
+    state.screen='salesCart';state.salesTab='credit';
+  } else if(state.salesScenario==='existingNoCredit'){
+    state.salesCustomer={name:'CARLOS EDUARDO RAMIREZ FLORES',doc:(state.salesIdType||'DPI')+': '+(state.salesIdNumber||'04827391-2')};
+    state.screen='salesCart';state.salesTab='cart';
+  } else if(state.salesScenario==='new'){
+    state.screen='salesCreate';
+  } else if(state.salesScenario==='rejected'){
+    state.salesCustomer={name:'PEDRO ANTONIO HERNANDEZ CASTRO',doc:(state.salesIdType||'DPI')+': '+(state.salesIdNumber||'06284719-5'),creditRejected:true};
+    state.screen='salesCart';state.salesTab='credit';
+  } else if(state.salesScenario==='existingPastDue'){
+    state.salesCustomer={name:'JOSE ROBERTO MENDEZ LUNA',doc:(state.salesIdType||'DPI')+': '+(state.salesIdNumber||'04738291-8'),since:'2020',rating:'B',pastDue:true,pastDueDays:45,pastDueAccount:'CRD-2025-01204',pastDueAmount:1521.00,limitMerc:vpLimit(936-378.30, 25, 48),limitCash:vpLimit(936-378.30, 26, 36),maxCuota:936-378.30};
+    state.screen='salesCart';state.salesTab='credit';
+  } else if(state.salesScenario==='inAnalysis'||state.salesScenario==='inAnalysisVisit'||state.salesScenario==='pendingId'){
+    const solMap={'inAnalysis':'SOL-LC-001','inAnalysisVisit':'SOL-LC-002','pendingId':'SOL-LC-003'};
+    const custMap={
+      'inAnalysis':{name:'ROBERTO CARLOS MENDOZA LIMA',doc:'DPI 1122334455101',since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
+      'inAnalysisVisit':{name:'PATRICIA EUGENIA VÁSQUEZ GODOY',doc:'DPI 2233445566202',since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
+      'pendingId':{name:'DIEGO ALEJANDRO FUENTES MORALES',doc:'DPI 3344556677303',since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
+    };
+    state.salesCustomer=custMap[state.salesScenario];
+    const sol=state.solicitudes.find(s=>s.ref===solMap[state.salesScenario]);
+    if(sol)state.viewingSolicitud=sol;
+    state.screen='salesCart';state.salesTab='credit';
+  }
+  if(state._pendingCartItem&&state.salesCustomer){
+    const pendCatalog=getCatalog();
+    const pItem=pendCatalog.find(c=>c.id===state._pendingCartItem);
+    if(pItem){
+      const ci={id:pItem.id,name:pItem.name,brand:pItem.brand,model:pItem.model,category:pItem.category||null,sku:pItem.sku,price:pItem.price,creditPromo:false};
+      if(state._pendingCreditDiscount&&pItem.promoRate){ci.originalPrice=pItem.price;ci.price=parseFloat((pItem.price*(1-pItem.promoRate)).toFixed(2));ci.creditPromo=true;ci.promoRate=pItem.promoRate;}
+      if(state._pendingWarranty>0){ci.warranty={label:state._pendingWarrantyLabel,price:state._pendingWarranty};}
+      state.salesCartItems.push(ci);
+    }
+    state._pendingCartItem=null;state._pendingWarranty=0;state._pendingWarrantyLabel='';state._pendingCreditDiscount=false;
+    state.screen='salesCart';state.salesTab='cart';state.salesSubScreen=null;
+  }
+  render();
+}
+
 function selectResult(el){
   if(el.dataset.outcome!==undefined){
     state.outcome=parseInt(el.dataset.outcome);
     state.action=null;state.isHit=undefined;state.prequalStep=0;
     state.pqData={firstName:'',secondName:'',lastName1:'',lastName2:'',dob:'',gender:'',marital:'',email:'',phone:'',dept:'',muni:'',canton:'',street:'',p1:'',p2:'',p3:'',p4:'',income:'',activity:'',industry:'',income2:'',activity2:'',industry2:'',empName:'',depSource:'',p1_2:'',p2_2:'',p3_2:'',p4_2:'',empName2:'',depSource2:'',showSecondIncome:false,consentSig:false,consentTC:false};
     state.buroConsent=false;state.otpSent=false;state.otpVerified=false;state.otpEditPhone=false;state.otpPhone='';state.limitUpgraded=false;state.amlAnswers={};
+    // Direct navigation on click
+    nav(1);return;
   } else if(el.dataset.salesscenario!==undefined){
     state.salesScenario=el.dataset.salesscenario;
+    // Direct navigation on click
+    navigateSalesScenario();return;
   }
   render();
 }
 
 /* ═══════════════ BACK FROM DETAIL ═══════════════ */
 function backFromDetail(){
-  state.viewingSolicitud=null;state._newSolStatus=null;
+  state.viewingSolicitud=null;state._newSolStatus=null;state._cancelMode=false;
   if(state._detailOrigin==='salesCart'){
     state.screen='salesCart';state.salesTab='activity';state._detailOrigin=null;
   } else {
@@ -6506,7 +6997,8 @@ function goHome(){
     pqData:{firstName:'',secondName:'',lastName1:'',lastName2:'',dob:'',gender:'',marital:'',email:'',phone:'',dept:'',muni:'',canton:'',street:'',p1:'',p2:'',p3:'',p4:'',income:'',activity:'',industry:'',income2:'',activity2:'',industry2:'',empName:'',depSource:'',p1_2:'',p2_2:'',p3_2:'',p4_2:'',empName2:'',depSource2:'',showSecondIncome:false,consentSig:false,consentTC:false},
     buroConsent:false,otpPhone:'',otpSent:false,otpVerified:false,otpEditPhone:false,
     simPlazo:undefined,simPrima:undefined,simCPI:true,simCartTotal:9360,limitUpgraded:false,
-    amlAnswers:{},uploads:{address:[],income:[],idFront:false,idBack:false},
+    amlAnswers:{},feicStep:0,feicData:{nit:'',profesion:'',birthCountry:'guatemala',birthDept:'',birthMuni:'',pep:'',pepFam:'',pepAsoc:'',cpe:'',egresos:'',fundsOrigin:''},
+    uploads:{address:[],income:[],idFront:false,idBack:false},
     solicitudes:sols,sales:salesData,viewingSolicitud:null,
     salesFlow:false,salesScenario:null,salesCustomer:null,salesTab:'cart',
     salesNewData:{firstName:'',secondName:'',lastName1:'',lastName2:'',dob:''},
@@ -6647,119 +7139,9 @@ function bind(){
     else if(state.screen==='salesIdentify'){state.salesFlow=false;state.screen='home';}
     render();
   };
-  document.querySelectorAll('[data-sales-scenario]').forEach(el=>{el.onclick=()=>{state.salesScenario=el.dataset.salesScenario;render();};});
-  document.querySelectorAll('[data-salesscenario]').forEach(el=>{el.onclick=()=>{state.salesScenario=el.dataset.salesscenario;render();};});
-  const snx=$('btnSalesScenarioNext');if(snx)snx.onclick=()=>{
-    state.salesSubScreen=null;
-    const fromOrigination=state._scenarioFromOrigination;
-
-    if(fromOrigination){
-      // Map salesScenario string → outcome numeric + proceed to origination flow
-      state._scenarioFromOrigination=false;
-      const scenarioToOutcome={
-        'new':3,'existingNoCredit':1,'existingPrequal':0,
-        'existing':2,'existingPastDue':5,'rejected':4,
-      };
-      // existingLegacy: skip prequal, land directly on salesCart credit tab with legacy offer
-      if(state.salesScenario==='existingLegacy'){
-        if(!state.salesCustomer)state.salesCustomer={name:'ANA LUCÍA MORALES FUENTES',doc:(state.idType||'DPI')+' '+(state.idNumber||''),since:'2018'};
-        state.salesCustomer.isLegacy=true;state.salesCustomer.legacyRating='A';
-        state.salesCustomer.maxCuota=663;state.salesCustomer.limitMerc=vpLimit(663,25,48);state.salesCustomer.limitMoto=vpLimit(663,25,60);state.salesCustomer.limitCash=vpLimit(663,26,36);
-        state.outcome=1;state.salesTab='credit';state.salesSubScreen=null;
-        state.screen='salesCart';render();return;
-      }
-      // existingLegacyPastDue: no origination possible, land on salesCart credit tab (blocked)
-      if(state.salesScenario==='existingLegacyPastDue'){
-        if(!state.salesCustomer)state.salesCustomer={name:'MARIO ENRIQUE CASTILLO RUANO',doc:(state.idType||'DPI')+' '+(state.idNumber||''),since:'2017'};
-        state.salesCustomer.isLegacy=true;state.salesCustomer.isLegacyPastDue=true;state.salesCustomer.legacyRating='C';
-        state.salesCustomer.creditRejected=true;state.salesCustomer.pastDue=true;state.salesCustomer.pastDueAmount=2340.50;
-        state.outcome=4;state.salesTab='credit';state.salesSubScreen=null;
-        state.screen='salesCart';render();return;
-      }
-      // En-curso scenarios: land on salesCart credit tab with in-flight state
-      if(state.salesScenario==='inAnalysis'||state.salesScenario==='inAnalysisVisit'||state.salesScenario==='pendingId'){
-        const solMap={
-          'inAnalysis':'SOL-LC-001',
-          'inAnalysisVisit':'SOL-LC-002',
-          'pendingId':'SOL-LC-003',
-        };
-        const custMap={
-          'inAnalysis':{name:'ROBERTO CARLOS MENDOZA LIMA',doc:'DPI 1122334455101',since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
-          'inAnalysisVisit':{name:'PATRICIA EUGENIA VÁSQUEZ GODOY',doc:'DPI 2233445566202',since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
-          'pendingId':{name:'DIEGO ALEJANDRO FUENTES MORALES',doc:'DPI 3344556677303',since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
-        };
-        state.salesCustomer=custMap[state.salesScenario];
-        // Link to existing sol in seed data
-        const sol=state.solicitudes.find(s=>s.ref===solMap[state.salesScenario]);
-        if(sol)state.viewingSolicitud=sol;
-        state.outcome=0;state.salesTab='credit';state.salesSubScreen=null;
-        state.screen='salesCart';render();return;
-      }
-      state.outcome=scenarioToOutcome[state.salesScenario]??1;
-      // Set legacy flags on customer if applicable
-      if(state.salesScenario==='existingLegacy'){
-        if(!state.salesCustomer)state.salesCustomer={name:'ANA LUCÍA MORALES FUENTES',doc:(state.idType||'DPI')+' '+(state.idNumber||''),since:'2018'};
-        state.salesCustomer.isLegacy=true;state.salesCustomer.legacyRating='A';state.salesCustomer.isNewCredit=true;
-        state.salesCustomer.maxCuota=663;state.salesCustomer.limitMerc=vpLimit(663,25,48);state.salesCustomer.limitMoto=vpLimit(663,25,60);state.salesCustomer.limitCash=vpLimit(663,26,36);
-      } else if(state.salesScenario==='existingLegacyPastDue'){
-        if(!state.salesCustomer)state.salesCustomer={name:'MARIO ENRIQUE CASTILLO RUANO',doc:(state.idType||'DPI')+' '+(state.idNumber||''),since:'2017'};
-        state.salesCustomer.isLegacy=true;state.salesCustomer.isLegacyPastDue=true;state.salesCustomer.legacyRating='C';
-        state.salesCustomer.creditRejected=true;state.salesCustomer.pastDue=true;state.salesCustomer.pastDueAmount=2340.50;
-      }
-      state.screen='prequal';render();return;
-    }
-
-    // Sales flow path
-    if(state.salesScenario==='existing'){
-      state.salesCustomer={name:'ROSA ANGELICA MARTINEZ RUIZ',doc:(state.salesIdType||'DPI')+': '+(state.salesIdNumber||'2901270362101'),since:'2019',rating:'A',limitMerc:vpLimit(936-378.30, 25, 48),limitCash:vpLimit(936-378.30, 26, 36),maxCuota:936-378.30};
-      state.screen='salesCart';state.salesTab='cart';
-    } else if(state.salesScenario==='existingPrequal'){
-      state.salesCustomer={name:'MARIA ELENA GONZALEZ REYES',doc:(state.salesIdType||'DPI')+': '+(state.salesIdNumber||'3456789012303'),since:'2021',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36)};
-      state.screen='salesCart';state.salesTab='credit';
-    } else if(state.salesScenario==='existingLegacy'){
-      state.salesCustomer={name:'ANA LUCIA MORALES FUENTES',doc:(state.salesIdType||'DPI')+': '+(state.salesIdNumber||'1854739201456'),since:'2018',isLegacy:true,legacyRating:'A',maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36)};
-      state.screen='salesCart';state.salesTab='credit';
-    } else if(state.salesScenario==='existingLegacyPastDue'){
-      state.salesCustomer={name:'MARIO ENRIQUE CASTILLO RUANO',doc:(state.salesIdType||'DPI')+': '+(state.salesIdNumber||'2047381950234'),since:'2017',isLegacy:true,isLegacyPastDue:true,legacyRating:'C',pastDue:true,pastDueDays:62,pastDueAccount:'CRD-2024-08834',pastDueAmount:2340.50,creditRejected:true};
-      state.screen='salesCart';state.salesTab='credit';
-    } else if(state.salesScenario==='existingNoCredit'){
-      state.salesCustomer={name:'CARLOS EDUARDO RAMIREZ FLORES',doc:(state.salesIdType||'DPI')+': '+(state.salesIdNumber||'04827391-2')};
-      state.screen='salesCart';state.salesTab='cart';
-    } else if(state.salesScenario==='new'){
-      state.screen='salesCreate';
-    } else if(state.salesScenario==='rejected'){
-      state.salesCustomer={name:'PEDRO ANTONIO HERNANDEZ CASTRO',doc:(state.salesIdType||'DPI')+': '+(state.salesIdNumber||'06284719-5'),creditRejected:true};
-      state.screen='salesCart';state.salesTab='credit';
-    } else if(state.salesScenario==='existingPastDue'){
-      state.salesCustomer={name:'JOSE ROBERTO MENDEZ LUNA',doc:(state.salesIdType||'DPI')+': '+(state.salesIdNumber||'04738291-8'),since:'2020',rating:'B',pastDue:true,pastDueDays:45,pastDueAccount:'CRD-2025-01204',pastDueAmount:1521.00,limitMerc:vpLimit(936-378.30, 25, 48),limitCash:vpLimit(936-378.30, 26, 36),maxCuota:936-378.30};
-      state.screen='salesCart';state.salesTab='credit';
-    } else if(state.salesScenario==='inAnalysis'||state.salesScenario==='inAnalysisVisit'||state.salesScenario==='pendingId'){
-      const solMap={'inAnalysis':'SOL-LC-001','inAnalysisVisit':'SOL-LC-002','pendingId':'SOL-LC-003'};
-      const custMap={
-        'inAnalysis':{name:'ROBERTO CARLOS MENDOZA LIMA',doc:'DPI 1122334455101',since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
-        'inAnalysisVisit':{name:'PATRICIA EUGENIA VÁSQUEZ GODOY',doc:'DPI 2233445566202',since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
-        'pendingId':{name:'DIEGO ALEJANDRO FUENTES MORALES',doc:'DPI 3344556677303',since:'2023',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),_inFlight:state.salesScenario},
-      };
-      state.salesCustomer=custMap[state.salesScenario];
-      const sol=state.solicitudes.find(s=>s.ref===solMap[state.salesScenario]);
-      if(sol)state.viewingSolicitud=sol;
-      state.screen='salesCart';state.salesTab='credit';
-    }
-    // Auto-add pending product if coming from add-to-cart without customer
-    if(state._pendingCartItem&&state.salesCustomer){
-      const pendCatalog=getCatalog();
-      const pItem=pendCatalog.find(c=>c.id===state._pendingCartItem);
-      if(pItem){
-        const ci={id:pItem.id,name:pItem.name,brand:pItem.brand,model:pItem.model,category:pItem.category||null,sku:pItem.sku,price:pItem.price,creditPromo:false};
-        if(state._pendingCreditDiscount&&pItem.promoRate){ci.originalPrice=pItem.price;ci.price=parseFloat((pItem.price*(1-pItem.promoRate)).toFixed(2));ci.creditPromo=true;ci.promoRate=pItem.promoRate;}
-        if(state._pendingWarranty>0){ci.warranty={label:state._pendingWarrantyLabel,price:state._pendingWarranty};}
-        state.salesCartItems.push(ci);
-      }
-      state._pendingCartItem=null;state._pendingWarranty=0;state._pendingWarrantyLabel='';state._pendingCreditDiscount=false;
-      state.screen='salesCart';state.salesTab='cart';state.salesSubScreen=null;
-    }
-    render();
-  };
+  document.querySelectorAll('[data-sales-scenario]').forEach(el=>{el.onclick=()=>{state.salesScenario=el.dataset.salesScenario;navigateSalesScenario();};});
+  document.querySelectorAll('[data-salesscenario]').forEach(el=>{el.onclick=()=>{state.salesScenario=el.dataset.salesscenario;navigateSalesScenario();};});
+  const snx=$('btnSalesScenarioNext');if(snx)snx.onclick=()=>{navigateSalesScenario();};
   // Sales create customer
   const scf=$('scFirstName');if(scf)scf.oninput=e=>{state.salesNewData.firstName=e.target.value;};
   const scs=$('scSecondName');if(scs)scs.oninput=e=>{state.salesNewData.secondName=e.target.value;};
@@ -6929,13 +7311,24 @@ function bind(){
     if(item){
       const sc=$('serviceContract');
       const warrantyPrice=sc&&sc.value?parseFloat(sc.value):0;
+      // If no warranty selected, show reminder modal
+      if(warrantyPrice===0&&item.category!=='moto'){
+        const discountedPrice=state.salesCreditDiscount&&item.promoRate?parseFloat((item.price*(1-item.promoRate)).toFixed(2)):item.price;
+        const es2=state.lang==='es';
+        const wOpts=[
+          {label:'24 '+(es2?'meses':'months'),price:parseFloat((discountedPrice*0.25).toFixed(2))},
+          {label:'12 '+(es2?'meses':'months'),price:parseFloat((discountedPrice*0.15).toFixed(2))}
+        ];
+        state._warrantyReminder={item,options:wOpts,creditDiscount:state.salesCreditDiscount};
+        render();return;
+      }
       // Build cart item — promoRate stays in catalog only, not in cart
       const cartItem={id:item.id,name:item.name,brand:item.brand,model:item.model,
         category:item.category||null,sku:item.sku,price:item.price,creditPromo:false};
       if(state.salesCreditDiscount&&item.promoRate){
         cartItem.originalPrice=item.price;
         cartItem.price=parseFloat((item.price*(1-item.promoRate)).toFixed(2));
-        cartItem.creditPromo=true;cartItem.promoRate=item.promoRate;  // boolean: already discounted
+        cartItem.creditPromo=true;cartItem.promoRate=item.promoRate;
       }
       if(warrantyPrice>0){
         cartItem.warranty={label:sc.options[sc.selectedIndex].text,price:warrantyPrice};
@@ -6946,6 +7339,28 @@ function bind(){
   };
   document.querySelectorAll('[data-salestab]').forEach(el=>{el.onclick=()=>{state.salesTab=el.dataset.salestab;state.salesSubScreen=null;render();};});
   document.querySelectorAll('[data-removecart]').forEach(el=>{el.onclick=()=>{state.salesCartItems.splice(parseInt(el.dataset.removecart),1);render();};});
+  // ── Warranty reminder modal handlers ──
+  if(state._warrantyReminder){
+    const wr=state._warrantyReminder;
+    const _addItem=(warrantyOpt)=>{
+      const catalog=getCatalog();
+      const item=catalog.find(c=>c.id===wr.item.id);
+      if(!item)return;
+      const cartItem={id:item.id,name:item.name,brand:item.brand,model:item.model,
+        category:item.category||null,sku:item.sku,price:item.price,creditPromo:false};
+      if(wr.creditDiscount&&item.promoRate){
+        cartItem.originalPrice=item.price;
+        cartItem.price=parseFloat((item.price*(1-item.promoRate)).toFixed(2));
+        cartItem.creditPromo=true;cartItem.promoRate=item.promoRate;
+      }
+      if(warrantyOpt){cartItem.warranty={label:warrantyOpt.label,price:warrantyOpt.price};}
+      state.salesCartItems.push(cartItem);
+      state._warrantyReminder=null;state.salesSubScreen=null;state.salesTab='cart';state.salesCreditDiscount=false;render();
+    };
+    document.querySelectorAll('[data-warrantyopt]').forEach(el=>{el.onclick=()=>{_addItem(wr.options[parseInt(el.dataset.warrantyopt)]);};});
+    const wsk=$('btnWarrantySkip');if(wsk)wsk.onclick=()=>{_addItem(null);};
+    const wo=$('warrantyOverlay');if(wo)wo.onclick=(e)=>{if(e.target===wo){state._warrantyReminder=null;render();}};
+  }
   const spr=$('btnSalesProceed');if(spr)spr.onclick=()=>{state.salesSubScreen='checkout';render();};
   // Checkout flow bindings
   const bcb=$('btnCheckoutBack');if(bcb)bcb.onclick=()=>{state.salesSubScreen=null;render();};
@@ -7092,7 +7507,7 @@ function bind(){
   // Pre-approve from credit tab
   const bpft=$('btnPreapproveFromTab');if(bpft)bpft.onclick=()=>{
     state.action='preapprove';
-    state.forkAml=null;state.amlAnswers={};
+    state.forkAml=null;state.amlAnswers={};state.feicStep=0;
     state._preapproveShortFlow=true; // flag: forkAml → [aml] → approved_pending_id, no docScan/application
     state.screen='forkAml';
     render();
@@ -7341,7 +7756,7 @@ function bind(){
     state.action=action;
     state.outcome=state.outcome||1; // keep existing outcome if set, else treat as existingLegacy
     state._legacyFlow=true; // flag: skip prequal + application + visit
-    state.forkAml=null;state.amlAnswers={};
+    state.forkAml=null;state.amlAnswers={};state.feicStep=0;
     state.docScanStep=0;state.docScanPhase='select';state.docScanDocType=null;
     state.uploads={address:[],income:[],idFront:false,idBack:false};
     state.screen='forkAml';render();
@@ -7485,8 +7900,8 @@ function bind(){
   // Language toggle
   const lt=$('langToggle');if(lt)lt.onclick=()=>{state.lang=state.lang==='es'?'en':'es';render();};
   const les=$('langES'),len=$('langEN'),tt=$('topbarTitle');
-  if(les)les.style.cssText=state.lang==='es'?'padding:2px 8px;border-radius:12px;background:var(--primary);color:white;':'padding:2px 8px;border-radius:12px;';
-  if(len)len.style.cssText=state.lang==='en'?'padding:2px 8px;border-radius:12px;background:var(--primary);color:white;':'padding:2px 8px;border-radius:12px;';
+  if(les){les.className='lang-pill'+(state.lang==='es'?' active':'');}
+  if(len){len.className='lang-pill'+(state.lang==='en'?' active':'');}
   if(tt)tt.textContent=t('topbar');
   // Home button
   const bh=$('btnHome');if(bh)bh.onclick=()=>{
@@ -7575,30 +7990,29 @@ function bind(){
   // Consent toggles
   document.querySelectorAll('[data-consent-toggle]').forEach(el=>{el.onclick=()=>{
     const id=el.dataset.consentToggle;
-    if((id==='sig'&&state.pqData.consentSig)||(id==='tc'&&state.pqData.consentTC)||(id==='buro'&&state.buroConsent))return;
+    if(id==='buro'&&state.buroConsent)return;
     state.expandedConsent=state.expandedConsent===id?'':id;render();
   };});
-  // Signature pads
-  ['sig','tc','buro'].forEach(id=>{
-    const cv=document.getElementById('sigPad_'+id);
-    if(!cv)return;
-    const ctx=cv.getContext('2d');
-    cv.width=cv.offsetWidth*2;cv.height=160;ctx.scale(2,2);ctx.lineWidth=2;ctx.lineCap='round';ctx.strokeStyle='#1A1D26';
-    let drawing=false;
-    const getPos=e=>{const r=cv.getBoundingClientRect();const touch=e.touches?e.touches[0]:e;return{x:touch.clientX-r.left,y:touch.clientY-r.top};};
-    cv.onpointerdown=e=>{drawing=true;const p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);cv.setPointerCapture(e.pointerId);};
-    cv.onpointermove=e=>{if(!drawing)return;const p=getPos(e);ctx.lineTo(p.x,p.y);ctx.stroke();};
-    cv.onpointerup=()=>{drawing=false;};
-    const clearBtn=document.getElementById('btnClearSig_'+id);
-    if(clearBtn)clearBtn.onclick=()=>{ctx.clearRect(0,0,cv.width,cv.height);};
-    const acceptBtn=document.getElementById('btnAcceptConsent_'+id);
-    if(acceptBtn)acceptBtn.onclick=()=>{
-      if(id==='sig')state.pqData.consentSig=true;
-      else if(id==='tc')state.pqData.consentTC=true;
-      else if(id==='buro')state.buroConsent=true;
-      state.expandedConsent='';render();
-    };
-  });
+  // Signature pad (buro only)
+  {
+    const cv=document.getElementById('sigPad_buro');
+    if(cv){
+      const ctx=cv.getContext('2d');
+      cv.width=cv.offsetWidth*2;cv.height=240;ctx.scale(2,2);ctx.lineWidth=2;ctx.lineCap='round';ctx.strokeStyle='#1A1D26';
+      let drawing=false;
+      const getPos=e=>{const r=cv.getBoundingClientRect();const touch=e.touches?e.touches[0]:e;return{x:touch.clientX-r.left,y:touch.clientY-r.top};};
+      cv.onpointerdown=e=>{drawing=true;const p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);cv.setPointerCapture(e.pointerId);};
+      cv.onpointermove=e=>{if(!drawing)return;const p=getPos(e);ctx.lineTo(p.x,p.y);ctx.stroke();};
+      cv.onpointerup=()=>{drawing=false;};
+      const clearBtn=document.getElementById('btnClearSig_buro');
+      if(clearBtn)clearBtn.onclick=()=>{ctx.clearRect(0,0,cv.width,cv.height);};
+      const acceptBtn=document.getElementById('btnAcceptConsent_buro');
+      if(acceptBtn)acceptBtn.onclick=()=>{
+        state.buroConsent=true;
+        state.expandedConsent='';render();
+      };
+    }
+  }
   // 2nd income
   const ai=$('btnAddIncome2');if(ai)ai.onclick=()=>{state.pqData.showSecondIncome=true;render();};
   const ri=$('btnRemoveIncome2');if(ri)ri.onclick=()=>{state.pqData.showSecondIncome=false;state.pqData.income2='';state.pqData.activity2='';state.pqData.industry2='';state.pqData.empName2='';state.pqData.depSource2='';state.pqData.p1_2='';state.pqData.p2_2='';state.pqData.p3_2='';state.pqData.p4_2='';render();};
@@ -7738,8 +8152,18 @@ function bind(){
   const mcc=$('btnMgrCancelCash');if(mcc)mcc.onclick=()=>{const m=$('mgrModalCash');if(m)m.style.display='none';};
   // Action
   document.querySelectorAll('.action-option').forEach(el=>{if(el.dataset.action)el.onclick=()=>{state.action=el.dataset.action;render();};});
-  // AML
+  // AML (legacy)
   document.querySelectorAll('[data-aml]').forEach(el=>{el.onclick=()=>{state.amlAnswers[el.dataset.aml]=el.dataset.val;render();};});
+  // FEIC form
+  document.querySelectorAll('[data-feic]').forEach(el=>{el.onclick=()=>{state.feicData[el.dataset.feic]=el.dataset.val;render();};});
+  const _fn=$('feicNit');if(_fn)_fn.oninput=e=>{state.feicData.nit=e.target.value;};
+  const _fp=$('feicProfesion');if(_fp)_fp.onchange=e=>{state.feicData.profesion=e.target.value;render();};
+  const _fbc=$('feicBirthCountry');if(_fbc)_fbc.onchange=e=>{state.feicData.birthCountry=e.target.value;};
+  const _fbd=$('feicBirthDept');if(_fbd)_fbd.onchange=e=>{state.feicData.birthDept=e.target.value;};
+  const _fbm=$('feicBirthMuni');if(_fbm)_fbm.oninput=e=>{state.feicData.birthMuni=e.target.value;};
+  const _fe=$('feicEgresos');if(_fe)_fe.oninput=e=>{state.feicData.egresos=e.target.value;};
+  const _fnx=$('btnFeicNext');if(_fnx)_fnx.onclick=()=>{state.feicStep=Math.min((state.feicStep||0)+1,2);render();};
+  const _fpv=$('btnFeicPrev');if(_fpv)_fpv.onclick=()=>{state.feicStep=Math.max((state.feicStep||0)-1,0);render();};
   // Uploads
   const ua=$('uploadAddress');if(ua)ua.onclick=()=>{const n=state.uploads.address.length+1;state.uploads.address.push('documento_domicilio_'+n+'.pdf');render();};
   const ui=$('uploadIncome');if(ui)ui.onclick=()=>{const n=state.uploads.income.length+1;state.uploads.income.push('comprobante_ingreso_'+n+'.pdf');render();};
@@ -7842,7 +8266,7 @@ function bind(){
           if(s==='simulation'){
             if(state.salesCustomer&&state.salesCustomer.isLegacy){
               // Activate legacy short flow after simulation
-              state.forkAml=null;state.amlAnswers={};
+              state.forkAml=null;state.amlAnswers={};state.feicStep=0;
               state.docScanStep=0;state.docScanPhase='select';state.docScanDocType=null;
               state.uploads={address:[],income:[],idFront:false,idBack:false};
               state._legacyFlow=true;
@@ -7944,6 +8368,63 @@ function bind(){
     state.screen='salesCart';state.salesSubScreen=null;state.salesTab='cart';
     render();
   };
+  // ── Unified detail header back buttons ──
+  const _bfd=$('btn_backFromDetail');if(_bfd)_bfd.onclick=()=>{backFromDetail();};
+  const _bsdb2=$('btn_saleDetailBack');if(_bsdb2)_bsdb2.onclick=()=>{
+    state._viewingSale=null;state._cancelMode=false;
+    if(state._contadoSaleRef){
+      // Immediate flow — go home
+      if(state._detailOrigin==='salesCart'){backFromDetail();}else{goHome();}
+    } else if(state._detailOrigin==='salesCart'){
+      state.screen='salesCart';state.salesTab='activity';state._detailOrigin=null;render();
+    } else {state.screen='home';render();}
+  };
+  const _bsfb=$('btn_salesFlowBack');if(_bsfb)_bsfb.onclick=()=>{
+    const sc=state.screen;
+    const isPreApproved=state.outcome===2;
+    if(state._legacyFlow||state._preapproveShortFlow){
+      if(sc==='forkAml'){state._legacyFlow=false;state._preapproveShortFlow=false;state.action=null;state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';}
+      else if(sc==='aml'){state.screen='forkAml';}
+      else{state._legacyFlow=false;state._preapproveShortFlow=false;state.action=null;state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';}
+      render();return;
+    }
+    if(sc==='simulation'){state.action=null;state._simOrigin=null;state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';}
+    else if(sc==='forkAml'){state.screen='simulation';}
+    else if(sc==='aml'){if(state.action==='preapprove'){state.action=null;state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';}else{state.screen='forkAml';}}
+    else if(sc==='otp'&&isPreApproved){state.screen=state.forkAml==='yes'?'aml':'forkAml';}
+    else if(sc==='application'){state.screen='docScan';}
+    else if(sc==='forkApproval'){state.screen='application';}
+    else if(sc==='done'||sc==='rejected'||sc==='approved'){backFromDetail();}
+    else{state.action=null;state.screen='salesCart';state.salesSubScreen=null;state.salesTab='credit';}
+    render();
+  };
+  // ── Inline cancel for solicitudes (zona1) ──
+  const _bcsi=$('btnCancelSolInline');if(_bcsi)_bcsi.onclick=()=>{state._cancelMode=true;render();};
+  const _bcmb=$('btnCancelModeBack');if(_bcmb)_bcmb.onclick=()=>{state._cancelMode=false;render();};
+  const _bccf=$('btnCancelConfirm');if(_bccf)_bccf.onclick=()=>{
+    const sol=state.viewingSolicitud;
+    if(sol){
+      sol.status='cancelled';sol.billingStatus=null;
+      if($('cancelReason'))sol._cancelReason=$('cancelReason').value;
+    }
+    state._cancelMode=false;render();
+  };
+  // ── Inline cancel for sales (zona1) ──
+  const _bcsal=$('btnCancelSaleInline');if(_bcsal)_bcsal.onclick=()=>{state._cancelMode=true;render();};
+  const _bccfs=$('btnCancelConfirmSale');if(_bccfs)_bccfs.onclick=()=>{
+    const sale=state._viewingSale||{ref:state._contadoSaleRef};
+    const reason=$('cancelReason')?$('cancelReason').value:'';
+    const s=(state.sales||[]).find(sl=>sl.ref===sale.ref);
+    if(s){s.billingStatus='cancelled';s._cancelReason=reason;}
+    if(state._viewingSale){state._viewingSale.billingStatus='cancelled';state._viewingSale._cancelReason=reason;}
+    state._cancelMode=false;render();
+  };
+  // Legacy cancel confirmation modal handlers (if still used)
+  if(state._cancelConfirm){
+    const bccf=$('btnCancelConfirm');if(bccf)bccf.onclick=()=>{if(state._cancelConfirm&&state._cancelConfirm.onConfirm)state._cancelConfirm.onConfirm();};
+    const bccb=$('btnCancelBack');if(bccb)bccb.onclick=()=>{state._cancelConfirm=null;render();};
+    const co=$('cancelOverlay');if(co)co.onclick=(e)=>{if(e.target===co){state._cancelConfirm=null;render();}};
+  }
 }
 render();
 </script>
