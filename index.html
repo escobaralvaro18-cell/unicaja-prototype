@@ -25,6 +25,14 @@
   --warning: #D97B0D;
   --warning-light: #FEF4E6;
   --warning-border: #F5D9A8;
+  /* Info-amber: tono más suave que --warning. Para "conditional sin acción inmediata" / informativos no críticos. */
+  --info-amber: #B47700;
+  --info-amber-light: #FFF8E6;
+  --info-amber-border: #F2E4B0;
+  /* Proto: gris neutro para labels meta de prototipo (no son warnings). */
+  --proto-bg: #EEF0F4;
+  --proto-text: #5A6178;
+  --proto-border: #D8DCE3;
   --danger: #D63B4A;
   --danger-light: #FDECEE;
   --orange: #E07428;
@@ -355,12 +363,22 @@ function actAutoHTML(id,val,placeholder){
   return`<div style="position:relative;" class="act-autocomplete"><input class="form-input" id="${id}" placeholder="${placeholder}" value="${val}" autocomplete="off"/><div id="${id}_list" style="display:none;position:absolute;top:100%;left:0;right:0;max-height:180px;overflow-y:auto;background:var(--white);border:1.5px solid var(--primary);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);box-shadow:var(--shadow-lg);z-index:50;"></div></div>`;
 }
 
+// Routes activity value to the right state slot based on input id prefix.
+// Supports prefixes: pq_, pq2_, pq3_ (precalification) and li_, li2_, li3_ (limit increase).
+function _writeActivityValue(inputId,v){
+  if(inputId.startsWith('li3_')){if(state._limitIncreaseData)state._limitIncreaseData.activity3=v;}
+  else if(inputId.startsWith('li2_')){if(state._limitIncreaseData)state._limitIncreaseData.activity2=v;}
+  else if(inputId.startsWith('li_')){if(state._limitIncreaseData)state._limitIncreaseData.activity=v;}
+  else if(inputId.startsWith('pq3_')){state.pqData.activity3=v;}
+  else if(inputId.startsWith('pq2_')){state.pqData.activity2=v;}
+  else /* pq_ or legacy pqActivity */ {state.pqData.activity=v;}
+}
 function bindAutocomplete(inputId,stateKey){
   const inp=document.getElementById(inputId);
   const list=document.getElementById(inputId+'_list');
   if(!inp||!list)return;
   inp.onfocus=()=>showSuggestions(inp,list);
-  inp.oninput=()=>{state.pqData[stateKey]=inp.value;showSuggestions(inp,list);};
+  inp.oninput=()=>{_writeActivityValue(inputId,inp.value);showSuggestions(inp,list);};
   document.addEventListener('click',e=>{if(!e.target.closest('.act-autocomplete'))list.style.display='none';});
 }
 function showSuggestions(inp,list){
@@ -369,7 +387,7 @@ function showSuggestions(inp,list){
   if(filtered.length===0){list.style.display='none';return;}
   list.innerHTML=filtered.map(o=>`<div style="padding:8px 12px;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s;" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='var(--white)'" data-actval="${o}">${o}</div>`).join('');
   list.style.display='block';
-  list.querySelectorAll('[data-actval]').forEach(el=>{el.onclick=()=>{inp.value=el.dataset.actval;state.pqData[inp.id==='pqActivity'?'activity':'activity2']=el.dataset.actval;list.style.display='none';};});
+  list.querySelectorAll('[data-actval]').forEach(el=>{el.onclick=()=>{inp.value=el.dataset.actval;_writeActivityValue(inp.id,el.dataset.actval);list.style.display='none';};});
 }
 
 /* ═══════════════ i18n ═══════════════ */
@@ -394,6 +412,9 @@ es:{
   salesExisting:'Línea activa — al día',salesExistingDesc:'Puede comprar a crédito con la disponibilidad de su CMM.',salesExistingPath:'Cotización directa',
   salesExistingPastDue:'Línea activa — saldo vencido',salesExistingPastDueDesc:'No puede acceder a nuevos créditos hasta ponerse al día.',salesExistingPastDuePath:'Solo pago de contado o tarjeta',
   salesExistingPrequal:'Pre-calificado',salesExistingPrequalDesc:'Tiene límites y oferta comercial vigente. Puede formalizar su línea de crédito, solicitar un crédito de mercadería o un préstamo cash — en los dos últimos casos la línea se aprueba en conjunto con la compra.',salesExistingPrequalPath:'Ver oferta → Solicitar línea o Cash',
+  salesExistingPrequalExpress:'Pre-calificado Express',salesExistingPrequalExpressDesc:'Oferta express vigente, sin condicionantes. Aprobación inmediata al formalizar la línea o solicitar mercadería/cash.',
+  salesExistingPrequalConditional:'Pre-calificado Condicionado',salesExistingPrequalConditionalDesc:'Oferta vigente sujeta a revisión por área de crédito. La solicitud se enviará a análisis posterior a la cotización.',
+  salesExistingPrequalConditionalVisit:'Pre-calificado Condicionado con Visita',salesExistingPrequalConditionalVisitDesc:'Oferta vigente sujeta a revisión y visita domiciliar. La visita se agenda al completar la solicitud.',
   salesExistingNoCredit:'Sin evaluación crediticia',salesExistingNoCreditDesc:'Existe en la base de clientes pero no ha sido pre-calificado. Se puede iniciar la evaluación hoy para determinar su capacidad de crédito.',salesExistingNoCreditPath:'Puede pre-calificarse',
   salesExistingLegacy:'Cliente activo sin línea',salesExistingLegacyDesc:'Tiene créditos previos en Unicomer. Puede abrir su línea hoy con verificación de identidad.',salesExistingLegacyPath:'Biometría + contrato de línea',
   salesExistingLegacyPastDue:'Cliente activo sin línea — mora',salesExistingLegacyPastDueDesc:'Tiene créditos previos en Unicomer con saldo vencido pendiente.',salesExistingLegacyPastDuePath:'Solo pago de contado o tarjeta',
@@ -495,7 +516,7 @@ es:{
   empName:'Nombre de la empresa',bizName:'Nombre del negocio / comercio',
   incPrimary:'Ingreso Principal',incDeclared:'Ingreso Mensual Declarado',actEcon:'Actividad Económica / Ocupación',actPh:'Escriba para buscar...',
   industry:'Industria',indCom:'Comercio',indServ:'Servicios',indMfg:'Manufactura',indGov:'Gobierno',indOther:'Otro',
-  addInc2:'+ Agregar Segundo Ingreso',secIncome:'Segundo Ingreso',removeBtn:'Quitar',
+  addInc2:'+ Agregar otro ingreso',secIncome:'Segundo Ingreso',thirdIncome:'Tercer Ingreso',removeBtn:'Quitar',
   consentSig:'<strong>Firma de consentimiento</strong> — Autoriza el tratamiento de datos personales.',
   consentTC:'<strong>Términos y Condiciones</strong> — Acepta los T&C del proceso de crédito.',
   consentBuro:'<strong>Consulta de Buró</strong> — Autoriza la consulta de historial crediticio.',
@@ -650,6 +671,9 @@ en:{
   salesExisting:'Active line — current',salesExistingDesc:'Can purchase on credit using available MMI.',salesExistingPath:'Direct quote',
   salesExistingPastDue:'Active line — past due',salesExistingPastDueDesc:'Cannot access new credit until payments are current.',salesExistingPastDuePath:'Cash or card payment only',
   salesExistingPrequal:'Pre-qualified',salesExistingPrequalDesc:'Has active limits and a commercial offer. Can formalize their credit line, request a merchandise credit, or a cash loan — in the latter two cases the line is approved together with the purchase.',salesExistingPrequalPath:'View offer → Request line or Cash',
+  salesExistingPrequalExpress:'Pre-qualified Express',salesExistingPrequalExpressDesc:'Active express offer, no conditions. Immediate approval upon line formalization or merchandise/cash request.',
+  salesExistingPrequalConditional:'Pre-qualified Conditional',salesExistingPrequalConditionalDesc:'Active offer subject to credit area review. The application will be sent to analysis after quotation.',
+  salesExistingPrequalConditionalVisit:'Pre-qualified Conditional with Visit',salesExistingPrequalConditionalVisitDesc:'Active offer subject to review and home verification visit. Visit is scheduled when completing the application.',
   salesExistingNoCredit:'No credit evaluation',salesExistingNoCreditDesc:'Exists in the customer database but has not been pre-qualified. The evaluation can be started today to determine their credit capacity.',salesExistingNoCreditPath:'Can be pre-qualified',
   salesExistingLegacy:'Active customer without line',salesExistingLegacyDesc:'Has previous credits at Unicomer. Can open their line today with identity verification.',salesExistingLegacyPath:'Biometrics + line contract',
   salesExistingLegacyPastDue:'Active customer without line — past due',salesExistingLegacyPastDueDesc:'Has previous credits at Unicomer with an outstanding past due balance.',salesExistingLegacyPastDuePath:'Cash or card payment only',
@@ -743,7 +767,7 @@ en:{
   empName:'Company name',bizName:'Business / Trade name',
   incPrimary:'Primary Income',incDeclared:'Declared Monthly Income',actEcon:'Economic Activity / Occupation',actPh:'Type to search...',
   industry:'Industry',indCom:'Commerce',indServ:'Services',indMfg:'Manufacturing',indGov:'Government',indOther:'Other',
-  addInc2:'+ Add Second Income',secIncome:'Second Income',removeBtn:'Remove',
+  addInc2:'+ Add another income',secIncome:'Second Income',thirdIncome:'Third Income',removeBtn:'Remove',
   consentSig:'<strong>Consent signature</strong> — Authorizes processing of personal data.',
   consentTC:'<strong>Terms & Conditions</strong> — Accepts the T&C of the credit process.',
   consentBuro:'<strong>Credit Bureau</strong> — Authorizes credit history inquiry.',
@@ -918,6 +942,7 @@ function icon(name,size=16,color='currentColor'){
     chevronRight:`<svg ${s}><path d="m9 18 6-6-6-6"/></svg>`,
     chevronDown:`<svg ${s}><path d="m6 9 6 6 6-6"/></svg>`,
     chevronUp:`<svg ${s}><path d="m18 15-6-6-6 6"/></svg>`,
+    edit:`<svg ${s}><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
     x:`<svg ${s}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`,
     check:`<svg ${s}><path d="M20 6 9 17l-5-5"/></svg>`,
     upload:`<svg ${s}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>`,
@@ -948,7 +973,8 @@ let state = {
   screen:'login', loginUser:'', loginPass:'', showPass:false, selectedStore:'',
   idType:'DPI', idNumber:'', outcome:null, action:null,
   prequalStep:0,
-  pqData:{firstName:'',secondName:'',lastName1:'',lastName2:'',dob:'',gender:'',marital:'',email:'',phone:'',dept:'',muni:'',canton:'',street:'',p1:'',p2:'',p3:'',p4:'',income:'',activity:'',industry:'',income2:'',activity2:'',industry2:'',empName:'',depSource:'',p1_2:'',p2_2:'',p3_2:'',p4_2:'',empName2:'',depSource2:'',showSecondIncome:false,consentSig:false,consentTC:false},
+  pqData:{firstName:'',secondName:'',lastName1:'',lastName2:'',dob:'',gender:'',marital:'',email:'',phone:'',dept:'',muni:'',canton:'',street:'',p1:'',p2:'',p3:'',p4:'',income:'',activity:'',industry:'',income2:'',activity2:'',industry2:'',income3:'',activity3:'',industry3:'',empName:'',depSource:'',p1_2:'',p2_2:'',p3_2:'',p4_2:'',empName2:'',depSource2:'',p1_3:'',p2_3:'',p3_3:'',p4_3:'',empName3:'',depSource3:'',showSecondIncome:false,showThirdIncome:false,consentSig:false,consentTC:false},
+  pqCollapsed:{1:false,2:false,3:false},
   buroConsent:false,
   otpPhone:'',otpSent:false,otpVerified:false,otpEditPhone:false,
   simPlazo:undefined,simPrima:undefined,simCPI:true,simCartTotal:9360,
@@ -1204,7 +1230,7 @@ function render(){
           const pq=state.pqData;
           const clientName=[pq.firstName,pq.secondName,pq.lastName1,pq.lastName2].filter(Boolean).join(' ')||'Cliente';
           state.salesCustomer={name:clientName.toUpperCase(),doc:(state.idType||'DPI')+' '+(state.idNumber||''),since:new Date().getFullYear().toString()};
-          if(!state.salesScenario)state.salesScenario=state.outcome===0?'existingPrequal':state.outcome===1?'existingNoCredit':state.outcome===2?'existing':state.outcome===5?'existingPastDue':'new';
+          if(!state.salesScenario)state.salesScenario=state.outcome===0?'existingPrequalExpress':state.outcome===1?'existingNoCredit':state.outcome===2?'existing':state.outcome===5?'existingPastDue':'new';
         } else {
           // No customer, no credit flow — redirect to identification
           state.screen='salesIdentify';render();return;
@@ -1980,6 +2006,58 @@ function buildIncomeBlock(prefix,data,label){
   return h;
 }
 
+// Returns true if income block N (1, 2, 3) has minimum required data: classification + income > 0 (+ depSource if dependent)
+function _pqBlockComplete(n){
+  const pq=state.pqData;
+  const sx=n===1?'':('_'+n);
+  const inSx=n===1?'':String(n);
+  const p1=pq['p1'+sx]||'',p2=pq['p2'+sx]||'',p3=pq['p3'+sx]||'',p4=pq['p4'+sx]||'';
+  const inc=parseFloat(pq['income'+inSx])||0;
+  const dep=pq['depSource'+inSx]||'';
+  let cls='';
+  if(p1==='no')cls='cls1';
+  else if(p1==='si'&&p2==='empresa'&&p3==='si')cls='cls2';
+  else if(p1==='si'&&p2==='empresa'&&p3==='no')cls='cls3';
+  else if(p1==='si'&&p2==='independiente'&&p4==='si')cls='cls4';
+  else if(p1==='si'&&p2==='independiente'&&p4==='no')cls='cls5';
+  if(!cls)return false;
+  if(inc<=0)return false;
+  if(p1==='no'&&!dep)return false; // dependent requires source
+  return true;
+}
+// Return short classification label (one of cls1..cls5) for a given block
+function _pqBlockClsLabel(n){
+  const pq=state.pqData;
+  const sx=n===1?'':('_'+n);
+  const p1=pq['p1'+sx]||'',p2=pq['p2'+sx]||'',p3=pq['p3'+sx]||'',p4=pq['p4'+sx]||'';
+  if(p1==='no')return t('cls1');
+  if(p1==='si'&&p2==='empresa'&&p3==='si')return t('cls2');
+  if(p1==='si'&&p2==='empresa'&&p3==='no')return t('cls3');
+  if(p1==='si'&&p2==='independiente'&&p4==='si')return t('cls4');
+  if(p1==='si'&&p2==='independiente'&&p4==='no')return t('cls5');
+  return '';
+}
+// Render collapsed summary header for a completed income block
+function _pqBlockSummary(n,label){
+  const pq=state.pqData;
+  const inSx=n===1?'':String(n);
+  const inc=parseFloat(pq['income'+inSx])||0;
+  const cls=_pqBlockClsLabel(n);
+  const es=state.lang==='es';
+  return`<div data-pq-toggle="${n}" style="padding:14px 16px;border-radius:var(--radius-sm);border:1px solid var(--success-border);background:var(--success-light);cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .15s;margin-bottom:8px;">
+    <span style="display:flex;color:var(--success);flex-shrink:0;">${icon('checkCircle',18)}</span>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-dim);margin-bottom:2px;">${label}</div>
+      <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+        <span style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--text);">Q${inc.toLocaleString('en',{minimumFractionDigits:2})}</span>
+        <span style="font-size:11px;color:var(--success);font-weight:600;">${cls}</span>
+      </div>
+    </div>
+    <span style="font-size:10px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.3px;flex-shrink:0;">${es?'Editar':'Edit'}</span>
+    <span style="display:flex;color:var(--text-dim);flex-shrink:0;">${icon('chevronRight',14)}</span>
+  </div>`;
+}
+
 function pgPrequal(){
   const step=state.prequalStep||0;
   const es=state.lang==='es';
@@ -2038,31 +2116,66 @@ function pgPrequal(){
     <div class="form-row"><div class="form-group"><label class="form-label">${es?'Zona / Colonia':'Zone / Colony'}</label><input class="form-input" id="pqCanton" placeholder="${es?'Ej: Zona 10':'E.g.: Zone 10'}" value="${state.pqData.canton||''}"/></div><div class="form-group"><label class="form-label">${t('street')}</label><input class="form-input" id="pqStreet" placeholder="${t('street')}" value="${state.pqData.street||''}"/></div></div>
     <div style="margin-top:16px;padding:12px 14px;border-radius:var(--radius-sm);background:var(--primary-light);border:1px solid #C5D0F0;display:flex;align-items:flex-start;gap:10px;"><span style="flex-shrink:0;color:var(--primary);">${icon('lightbulb',18)}</span><div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">${t('addrWarn')}</div></div>`;
   }else if(step===2){
-    // Step 2: Ingresos
-    const inc1Data={p1:state.pqData.p1||'',p2:state.pqData.p2||'',p3:state.pqData.p3||'',p4:state.pqData.p4||'',income:state.pqData.income||'',activity:state.pqData.activity||'',industry:state.pqData.industry||'',empName:state.pqData.empName||'',depSource:state.pqData.depSource||''};
-    let q=buildIncomeBlock('pq_',inc1Data,t('incPrimary'));
-    if(!state.pqData.showSecondIncome){
-      q+=`<div style="margin-top:16px;"><button class="btn btn-secondary" id="btnAddIncome2" style="width:100%;justify-content:center;border-style:dashed;">${t('addInc2')}</button></div>`;
+    // Step 2: Ingresos (hasta 3) — bloques colapsables cuando están completos
+    if(!state.pqCollapsed)state.pqCollapsed={1:false,2:false,3:false};
+    const collapseToggleHtml=(n)=>`<button data-pq-collapse="${n}" class="btn btn-secondary" style="padding:6px 12px;font-size:11px;min-height:30px;display:inline-flex;align-items:center;gap:5px;">${icon('chevronUp',12)} ${es?'Colapsar':'Collapse'}</button>`;
+    let q='';
+    // Bloque 1
+    if(state.pqCollapsed[1]&&_pqBlockComplete(1)){
+      q+=_pqBlockSummary(1,t('incPrimary'));
     } else {
-      const inc2Data={p1:state.pqData.p1_2||'',p2:state.pqData.p2_2||'',p3:state.pqData.p3_2||'',p4:state.pqData.p4_2||'',income:state.pqData.income2||'',activity:state.pqData.activity2||'',industry:state.pqData.industry2||'',empName:state.pqData.empName2||'',depSource:state.pqData.depSource2||''};
-      q+=`<div style="margin-top:20px;padding-top:16px;border-top:2px solid var(--border);animation:fadeUp .3s">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;"><div></div><button class="btn btn-secondary" id="btnRemoveIncome2" style="padding:3px 10px;font-size:10px;">${t('removeBtn')}</button></div>
-        ${buildIncomeBlock('pq2_',inc2Data,t('secIncome'))}
-      </div>`;
+      const inc1Data={p1:state.pqData.p1||'',p2:state.pqData.p2||'',p3:state.pqData.p3||'',p4:state.pqData.p4||'',income:state.pqData.income||'',activity:state.pqData.activity||'',industry:state.pqData.industry||'',empName:state.pqData.empName||'',depSource:state.pqData.depSource||''};
+      q+=buildIncomeBlock('pq_',inc1Data,t('incPrimary'));
+      if(_pqBlockComplete(1))q+=`<div style="margin-top:8px;text-align:right;">${collapseToggleHtml(1)}</div>`;
+    }
+    // Bloque 2 (si visible)
+    if(state.pqData.showSecondIncome){
+      if(state.pqCollapsed[2]&&_pqBlockComplete(2)){
+        q+=`<div style="margin-top:12px;">${_pqBlockSummary(2,t('secIncome'))}</div>`;
+      } else {
+        const inc2Data={p1:state.pqData.p1_2||'',p2:state.pqData.p2_2||'',p3:state.pqData.p3_2||'',p4:state.pqData.p4_2||'',income:state.pqData.income2||'',activity:state.pqData.activity2||'',industry:state.pqData.industry2||'',empName:state.pqData.empName2||'',depSource:state.pqData.depSource2||''};
+        q+=`<div style="margin-top:20px;padding-top:16px;border-top:2px solid var(--border);animation:fadeUp .3s">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;"><div></div><button class="btn btn-secondary" id="btnRemoveIncome2" style="padding:8px 14px;font-size:11px;min-height:32px;">${icon('x',12)} ${t('removeBtn')}</button></div>
+          ${buildIncomeBlock('pq2_',inc2Data,t('secIncome'))}
+          ${_pqBlockComplete(2)?`<div style="margin-top:8px;text-align:right;">${collapseToggleHtml(2)}</div>`:''}
+        </div>`;
+      }
+    }
+    // Bloque 3 (si visible)
+    if(state.pqData.showThirdIncome){
+      if(state.pqCollapsed[3]&&_pqBlockComplete(3)){
+        q+=`<div style="margin-top:12px;">${_pqBlockSummary(3,t('thirdIncome'))}</div>`;
+      } else {
+        const inc3Data={p1:state.pqData.p1_3||'',p2:state.pqData.p2_3||'',p3:state.pqData.p3_3||'',p4:state.pqData.p4_3||'',income:state.pqData.income3||'',activity:state.pqData.activity3||'',industry:state.pqData.industry3||'',empName:state.pqData.empName3||'',depSource:state.pqData.depSource3||''};
+        q+=`<div style="margin-top:20px;padding-top:16px;border-top:2px solid var(--border);animation:fadeUp .3s">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;"><div></div><button class="btn btn-secondary" id="btnRemoveIncome3" style="padding:8px 14px;font-size:11px;min-height:32px;">${icon('x',12)} ${t('removeBtn')}</button></div>
+          ${buildIncomeBlock('pq3_',inc3Data,t('thirdIncome'))}
+          ${_pqBlockComplete(3)?`<div style="margin-top:8px;text-align:right;">${collapseToggleHtml(3)}</div>`:''}
+        </div>`;
+      }
+    }
+    // Botón "Agregar otro ingreso" — visible mientras haya menos de 3
+    if(!state.pqData.showSecondIncome||!state.pqData.showThirdIncome){
+      q+=`<div style="margin-top:16px;"><button class="btn btn-secondary" id="btnAddIncome" style="width:100%;justify-content:center;border-style:dashed;">${t('addInc2')}</button></div>`;
     }
     // Income total summary
     const total1=parseFloat(state.pqData.income)||0;
     const total2=parseFloat(state.pqData.income2)||0;
-    const totalInc=total1+total2;
+    const total3=parseFloat(state.pqData.income3)||0;
+    const totalInc=total1+total2+total3;
+    const hasBreakdown=(state.pqData.showSecondIncome&&total2>0)||(state.pqData.showThirdIncome&&total3>0);
     if(total1>0){
+      const breakdownItems=[];
+      breakdownItems.push(`<span>${es?'Ingreso 1':'Income 1'}: <strong style="font-family:var(--mono);color:var(--text);">Q${total1.toLocaleString('en',{minimumFractionDigits:2})}</strong></span>`);
+      if(state.pqData.showSecondIncome)breakdownItems.push(`<span>${es?'Ingreso 2':'Income 2'}: <strong style="font-family:var(--mono);color:var(--text);">Q${total2.toLocaleString('en',{minimumFractionDigits:2})}</strong></span>`);
+      if(state.pqData.showThirdIncome)breakdownItems.push(`<span>${es?'Ingreso 3':'Income 3'}: <strong style="font-family:var(--mono);color:var(--text);">Q${total3.toLocaleString('en',{minimumFractionDigits:2})}</strong></span>`);
       q+=`<div style="margin-top:16px;padding:12px 16px;border-radius:var(--radius-sm);background:var(--primary-light);border:1px solid #C5D0F0;">
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--primary);">${es?'Ingreso total declarado':'Total declared income'}</div>
           <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--primary);">Q${totalInc.toLocaleString('en',{minimumFractionDigits:2})}</div>
         </div>
-        ${total2>0?`<div style="padding-top:6px;border-top:1px solid #C5D0F0;margin-top:6px;display:flex;gap:16px;font-size:11px;color:var(--text-secondary);">
-          <span>${es?'Ingreso 1':'Income 1'}: <strong style="font-family:var(--mono);color:var(--text);">Q${total1.toLocaleString('en',{minimumFractionDigits:2})}</strong></span>
-          <span>${es?'Ingreso 2':'Income 2'}: <strong style="font-family:var(--mono);color:var(--text);">Q${total2.toLocaleString('en',{minimumFractionDigits:2})}</strong></span>
+        ${hasBreakdown?`<div style="padding-top:6px;border-top:1px solid #C5D0F0;margin-top:6px;display:flex;flex-wrap:wrap;gap:12px 16px;font-size:11px;color:var(--text-secondary);">
+          ${breakdownItems.join('')}
         </div>`:''}
       </div>`;
     }
@@ -2238,13 +2351,22 @@ function pgLimits(){
   const acts=[{icon:icon('checkCircle',20),label:t('actPre'),value:'preapprove'},{icon:icon('banknote',20),label:t('actCash'),value:'cash'}];
   return`<div class="card"><div class="card-header"><h2>${t('limTitle')}</h2><p>${t('limDesc')}</p></div>
 
-  ${state.forkSociodemo==='preapproved_visit'?`<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--warning-light);border:1px solid var(--warning-border);margin-bottom:12px;display:flex;align-items:center;gap:10px;">
-    <span style="display:flex;color:var(--warning);">${icon('mapPin',18)}</span>
-    <div style="font-size:13px;font-weight:700;color:var(--warning);">${es?'Oferta condicionada a visita de verificación':'Offer conditional on verification visit'}</div>
-  </div>`:`<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);margin-bottom:12px;display:flex;align-items:center;gap:10px;">
-    <span style="display:flex;color:var(--success);">${icon('checkCircle',18)}</span>
-    <div style="font-size:13px;font-weight:700;color:var(--success);">${es?'Oferta aprobada':'Offer approved'}</div>
-  </div>`}
+  ${(function(){
+    const r=getPqResult();
+    if(r==='conditional_visit')return `<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--warning-light);border:1px solid var(--warning-border);margin-bottom:12px;display:flex;align-items:center;gap:10px;">
+      <span style="display:flex;color:var(--warning);">${icon('mapPin',18)}</span>
+      <div style="font-size:13px;font-weight:700;color:var(--warning);">${es?'Oferta Condicionada — Visita de verificación requerida':'Conditional Offer — Verification visit required'}</div>
+    </div>`;
+    if(r==='conditional')return `<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--info-amber-light);border:1px solid var(--info-amber-border);margin-bottom:12px;display:flex;align-items:center;gap:10px;">
+      <span style="display:flex;color:var(--info-amber);">${icon('clipboardList',18)}</span>
+      <div style="font-size:13px;font-weight:700;color:var(--info-amber);">${es?'Oferta Condicionada — Sujeta a revisión por área de crédito':'Conditional Offer — Subject to credit area review'}</div>
+    </div>`;
+    // express (default)
+    return `<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);margin-bottom:12px;display:flex;align-items:center;gap:10px;">
+      <span style="display:flex;color:var(--success);">${icon('checkCircle',18)}</span>
+      <div style="font-size:13px;font-weight:700;color:var(--success);">${es?'Pre-aprobado Express':'Express Pre-approval'}</div>
+    </div>`;
+  })()}
   <div style="margin-bottom:16px;">${prequalExpiryChip(state.prequalDate)}</div>
   <div style="padding:18px 20px;border-radius:var(--radius-sm);background:var(--primary-light);border:1px solid #C5D0F0;margin-bottom:16px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
@@ -2409,6 +2531,27 @@ function vpLimit(cmm,rateAnnual,months){
   return Math.floor(cmm*((1-Math.pow(1+r,-months))/r));
 }
 
+// ── PQ result helpers ──────────────────────────────────────────────
+// Possible values: 'express' | 'conditional' | 'conditional_visit' | 'rejected'
+// Backwards-compat with legacy values: 'approved' (treated as express) and 'preapproved_visit' (treated as conditional_visit)
+function getPqResult(){
+  const v=state.forkSociodemo;
+  if(v==='approved')return 'express';
+  if(v==='preapproved_visit')return 'conditional_visit';
+  if(v==='express'||v==='conditional'||v==='conditional_visit'||v==='rejected')return v;
+  // Unset: HIT path defaults to express (the fork only appears in No-HIT)
+  if(state.isHit===true)return 'express';
+  return null;
+}
+// Heuristic: suggest a default PQ result based on declared income + employment (P1)
+function suggestPqResult(){
+  const inc=(parseFloat(state.pqData.income)||0)+(parseFloat(state.pqData.income2)||0)+(parseFloat(state.pqData.income3)||0);
+  const employed=state.pqData.p1==='si';
+  if(inc>=5000&&employed)return 'express';
+  if(inc>=3000)return 'conditional';
+  return 'conditional_visit';
+}
+
 // ── Product type label — single source of truth ──
 // isNewLine: outcome !== 2 (client is opening a new line, not already has one)
 // hasMoto: cartItems contain a moto item
@@ -2420,6 +2563,108 @@ function getProductLabel(action, outcome, hasMoto){
   if(action==='cash')  return isNewLine ? 'Línea + Cash' : 'Cash';
   if(action==='limitIncrease') return 'Incremento de Línea';
   return action;
+}
+
+// Consolidated simulation status banner — picks ONE banner based on priority/severity
+// to replace the previous stack of up to 6 separate banners.
+// Returns empty string if no status applies (cuota fits, no special state).
+function _simStatusBanner(cuotaT, maxC){
+  const es = state.lang==='es';
+  const cust = state.salesCustomer;
+  const isExceeded = cuotaT > maxC;
+  // 1) HIGHEST PRIORITY — cuota excedida sin autorización ni upgrade (action required)
+  if(isExceeded && !state.mgrAuthorized && !state.limitUpgraded && !(cust && cust._incrementInAnalysis)){
+    const pct = ((cuotaT-maxC)/maxC*100).toFixed(0);
+    const expanded = !!state.warningExpanded;
+    return `<div style="margin-top:12px;border-radius:var(--radius-sm);background:var(--warning-light);border:1px solid var(--warning-border);overflow:hidden;">
+      <div style="padding:12px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:10px;" id="btnExpandWarning">
+        <span style="font-size:12px;color:var(--warning);font-weight:600;display:flex;align-items:center;gap:6px;flex:1;">${icon('alertTriangle',14)} ${es?'Cuota':'Payment'} (Q${cuotaT.toFixed(2)}) ${es?'supera CMM aprobada':'exceeds approved CMM'} (Q${(maxC||0).toFixed(2)}) — ${pct}%</span>
+        <span style="font-size:11px;color:var(--primary);font-weight:700;flex-shrink:0;">${expanded?(es?'Ocultar ▲':'Hide ▲'):(es?'Ver opciones ▼':'Options ▼')}</span>
+      </div>
+      ${expanded?`<div style="padding:0 14px 14px;animation:fadeUp .3s;border-top:1px solid var(--warning-border);padding-top:12px;">
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">${es?'La cuota excede el límite aprobado en un':'Payment exceeds approved limit by'} <strong style="color:var(--danger);">${pct}%</strong>. ${es?'Opciones disponibles:':'Available options:'}</div>
+        <div style="padding:12px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface-alt);margin-bottom:8px;">
+          <div style="display:flex;align-items:center;gap:8px;"><span style="display:flex;">${icon('trendingDown',16)}</span><div><div style="font-size:13px;font-weight:700;color:var(--text-dim);">${es?'Ajustar plazo o prima':'Adjust term or down payment'}</div><div style="font-size:11px;color:var(--text-dim);margin-top:1px;">${es?'Optar por un plazo mayor o prima más alta.':'Choose a longer term or higher down payment.'}</div></div></div>
+        </div>
+        <div style="padding:12px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--white);margin-bottom:8px;cursor:pointer;transition:all .2s;" data-woption="excepcion">
+          <div style="display:flex;align-items:center;gap:8px;"><span style="display:flex;">${icon('userCheck',16)}</span><div style="flex:1;"><div style="font-size:13px;font-weight:700;">${es?'Excepción por Gerente':'Store Manager Exception'}</div><div style="font-size:11px;color:var(--text-secondary);margin-top:1px;">${es?`Sobrepasa ${pct}% la CMM. El gerente puede autorizar.`:`Exceeds CMM by ${pct}%. Manager can authorize.`}</div></div><span style="color:var(--primary);display:flex;">${icon('chevronRight',16)}</span></div>
+        </div>
+        <div style="padding:12px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--white);cursor:pointer;transition:all .2s;" data-woption="incremento">
+          <div style="display:flex;align-items:center;gap:8px;"><span style="display:flex;">${icon('trendingUp',16)}</span><div style="flex:1;"><div style="font-size:13px;font-weight:700;">${es?'Solicitar límite superior':'Request higher limit'}</div><div style="font-size:11px;color:var(--text-secondary);margin-top:1px;">${es?'Presentar comprobantes de ingreso.':'Submit income documents.'}</div></div><span style="color:var(--primary);display:flex;">${icon('chevronRight',16)}</span></div>
+        </div>
+      </div>`:''}
+    </div>`;
+  }
+  // 2) Manager authorized
+  if(state.mgrAuthorized && !state.limitUpgraded){
+    return `<div style="margin-top:12px;padding:14px 16px;border-radius:var(--radius-sm);background:var(--success-light);border:1.5px solid var(--success-border);display:flex;align-items:center;gap:10px;">
+      <span style="color:var(--success);display:flex;flex-shrink:0;">${icon('checkCircle',20)}</span>
+      <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--success);">${es?'CMM Sobregirado con Autorización de Gerente':'CMM Override — Manager Authorized'}</div>
+      <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">${es?'Cuota aprobada':'Approved payment'}: <strong>Q${cuotaT.toFixed(2)}</strong> (${es?'excede CMM en':'exceeds CMM by'} ${((cuotaT-maxC)/maxC*100).toFixed(0)}%)</div></div>
+    </div>`;
+  }
+  // 3) Increment applied (existing customer w/ approved increase) — success
+  if(state.outcome===2 && cust && cust._incrementApplied){
+    return `<div style="margin-top:12px;padding:12px 16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);display:flex;align-items:center;gap:10px;">
+      <span style="color:var(--success);display:flex;flex-shrink:0;">${icon('checkCircle',18)}</span>
+      <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--success);">${es?'Incremento aprobado':'Increase approved'}</div>
+      <div style="font-size:11px;color:var(--text-secondary);margin-top:1px;">${es?`Nueva CMM disponible: <strong>Q${(cust.maxCuota||0).toFixed(2)}</strong>. Puede confirmar la cotización.`:`New available MMI: <strong>Q${(cust.maxCuota||0).toFixed(2)}</strong>. You can confirm the quote.`}</div></div>
+    </div>`;
+  }
+  // 4) Limit upgraded (new customer w/ in-flow upgrade) — success with undo
+  if(state.limitUpgraded){
+    return `<div style="margin-top:12px;padding:12px 14px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);display:flex;align-items:center;gap:10px;">
+      <span style="color:var(--success);display:flex;flex-shrink:0;">${icon('checkCircle',18)}</span>
+      <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--success);">${es?'Límite incrementado':'Limit upgraded'}</div>
+      <div style="font-size:11px;color:var(--text-secondary);margin-top:1px;">${es?'Mercadería: <strong>Q23,400</strong> · CMM: <strong>Q780.00</strong>':'Merchandise: <strong>Q23,400</strong> · MMI: <strong>Q780.00</strong>'}</div></div>
+      <button class="btn btn-secondary" id="btnUndoLimit" style="padding:6px 12px;font-size:11px;flex-shrink:0;">${es?'Deshacer':'Undo'}</button>
+    </div>`;
+  }
+  // 5) Increment in analysis + cuota excedida — blocking warning
+  if(state.outcome===2 && cust && cust._incrementInAnalysis && isExceeded){
+    return `<div style="margin-top:12px;padding:12px 16px;border-radius:var(--radius-sm);background:var(--warning-light);border:1.5px solid var(--warning-border);display:flex;align-items:flex-start;gap:10px;">
+      <span style="display:flex;color:var(--warning);flex-shrink:0;margin-top:1px;">${icon('alertTriangle',16)}</span>
+      <div><div style="font-size:13px;font-weight:700;color:var(--warning);margin-bottom:2px;">${es?'Incremento en análisis':'Increase under review'}</div>
+      <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;">${es?'La solicitud de incremento fue enviada a análisis. La cotización no puede confirmarse hasta que sea aprobada.':'The increase request was sent for review. The quote cannot be confirmed until approved.'}</div></div>
+    </div>`;
+  }
+  // 6) Increment in analysis + cuota ok — info non-blocking
+  if(state.outcome===2 && cust && cust._incrementInAnalysis && !isExceeded){
+    return `<div style="margin-top:12px;padding:10px 14px;border-radius:var(--radius-sm);background:var(--info-amber-light);border:1px solid var(--info-amber-border);font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;">
+      <span style="display:flex;color:var(--info-amber);flex-shrink:0;">${icon('clipboardList',14)}</span>
+      ${es?'Solicitud de incremento en análisis. Puede confirmar la cotización con la CMM actual.':'Increase request under review. You can confirm the quote with the current MMI.'}
+    </div>`;
+  }
+  return '';
+}
+
+// "¿Necesita más límite?" CTA — separate from status banners (it's an action, not a state)
+function _simNeedMoreCTA(cuotaT, maxC){
+  const r = getPqResult();
+  if(r==='conditional' || r==='conditional_visit') return '';
+  if(state.limitUpgraded || state.mgrAuthorized) return '';
+  if(cuotaT > maxC) return '';
+  if(state.salesCustomer && (state.salesCustomer._incrementApplied || state.salesCustomer._incrementInAnalysis)) return '';
+  return `<div style="margin-top:12px;padding:12px 16px;border-radius:var(--radius-sm);border:1.5px dashed var(--primary);background:var(--primary-light);cursor:pointer;" id="btnRequestLimit"><div style="display:flex;align-items:center;gap:10px;"><span style="display:flex;color:var(--primary);">${icon('trendingUp',18)}</span><div><div style="font-size:13px;font-weight:700;color:var(--primary);">${state.lang==='es'?'¿Necesita más límite?':'Need a higher limit?'}</div><div style="font-size:11px;color:var(--text-secondary);">${state.lang==='es'?'Solicitar incremento con comprobantes de ingreso':'Request increase with income documents'}</div></div></div></div>`;
+}
+
+// PQ result banner for the simulation screen — top-of-card badge or warning
+function _pqSimBanner(){
+  const r=getPqResult();
+  const es=state.lang==='es';
+  if(r==='express')return`<div style="padding:10px 14px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+    <span style="display:flex;color:var(--success);">${icon('checkCircle',16)}</span>
+    <div style="font-size:12px;font-weight:700;color:var(--success);">${es?'Pre-aprobado Express':'Express Pre-approval'}</div>
+  </div>`;
+  if(r==='conditional')return`<div style="padding:12px 14px;border-radius:var(--radius-sm);background:var(--info-amber-light);border:1px solid var(--info-amber-border);margin-bottom:12px;display:flex;align-items:flex-start;gap:8px;">
+    <span style="flex-shrink:0;display:flex;color:var(--info-amber);margin-top:1px;">${icon('clipboardList',14)}</span>
+    <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;"><strong style="color:var(--info-amber);">${es?'Solicitud condicionada':'Conditional application'}</strong><br>${es?'Su solicitud de crédito requerirá revisión por nuestra área de crédito posterior a la cotización.':'Your credit application will require review by our credit area after quotation.'}</div>
+  </div>`;
+  if(r==='conditional_visit')return`<div style="padding:12px 14px;border-radius:var(--radius-sm);background:var(--warning-light);border:1px solid var(--warning-border);margin-bottom:12px;display:flex;align-items:flex-start;gap:8px;">
+    <span style="flex-shrink:0;display:flex;color:var(--warning);margin-top:1px;">${icon('mapPin',14)}</span>
+    <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;"><strong style="color:var(--warning);">${es?'Solicitud condicionada con visita':'Conditional application with visit'}</strong><br>${es?'Su solicitud de crédito requerirá revisión por nuestra área de crédito y visita domiciliar que se agendará posterior a la cotización.':'Your credit application will require review by our credit area and a home verification visit that will be scheduled after quotation.'}</div>
+  </div>`;
+  return '';
 }
 
 function pgSimulation(){
@@ -2486,11 +2731,12 @@ function pgSimulation(){
     return`<div class="card"><div class="card-header">
     ${isMotoFlow?`<div style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;background:var(--primary-light);border:1px solid #C5D0F0;font-size:10px;font-weight:700;color:var(--primary);margin-bottom:8px;">${icon('bike',12,'var(--primary)')} ${state.lang==='es'?'FINANCIAMIENTO MOTO':'MOTORCYCLE FINANCING'}</div>`:''}
     <h2>${simTitle}</h2><p>${state.lang==='es'?'Simule las condiciones de financiamiento.':'Simulate the financing conditions.'}</p></div>
+    ${_pqSimBanner()}
 
     <div style="padding:14px 16px;background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:16px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
       <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-dim);display:flex;align-items:center;gap:4px;"><span style="display:flex;">${icon(isMotoFlow?'bike':'shoppingCart',12)}</span> ${t('cartTotal')}</div>
-      <span id="btnEditCart" style="font-size:11px;font-weight:700;color:var(--primary);cursor:pointer;">${state.lang==='es'?'Editar':'Edit'} →</span>
+      <button id="btnEditCart" class="btn btn-secondary" style="padding:6px 12px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:5px;min-height:30px;">${icon('edit',12)} ${state.lang==='es'?'Editar carrito':'Edit cart'}</button>
     </div>
     <div style="font-family:var(--mono);font-size:22px;font-weight:700;margin-bottom:6px;">Q${cart.toLocaleString('en',{minimumFractionDigits:2})}</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;">${(state.salesCartItems&&state.salesCartItems.length>0?state.salesCartItems:([{name:'AKT NKD 125',price:9360}])).map(it=>`<span style="font-size:10px;color:var(--text-dim);padding:2px 8px;background:var(--white);border:1px solid var(--border);border-radius:3px;">${it.name} — Q${it.price.toFixed?it.price.toFixed(0):it.price}${it.warranty?' + Q'+(it.warranty.price||0).toFixed(0)+' '+(state.lang==='es'?'garantía':'warranty'):''}</span>`).join('')}${state.simDeliveryCost?`<span style="font-size:10px;color:var(--text-dim);padding:2px 8px;background:var(--white);border:1px solid var(--border);border-radius:3px;">${state.lang==='es'?'Envío':'Shipping'} — Q${state.simDeliveryCost.toFixed(2)}</span>`:''}</div>
@@ -2558,46 +2804,8 @@ function pgSimulation(){
     <div style="margin-top:16px;padding:12px 16px;border-radius:var(--radius-sm);border:1.5px solid ${cpi?'var(--success-border)':'var(--border)'};background:${cpi?'var(--success-light)':'var(--surface-alt)'};cursor:pointer;" id="toggleCPI">
     <div style="display:flex;align-items:center;gap:12px;"><div style="width:36px;height:20px;border-radius:10px;background:${cpi?'var(--success)':'var(--border)'};position:relative;transition:background .3s;flex-shrink:0;"><div style="width:16px;height:16px;border-radius:50%;background:white;position:absolute;top:2px;${cpi?'left:18px':'left:2px'};transition:left .3s;box-shadow:0 1px 2px rgba(0,0,0,.2);"></div></div>
     <div><div style="font-size:13px;font-weight:700;color:${cpi?'var(--success)':'var(--text)'};">${state.lang==='es'?'Agregar Seguro CPI':'Add CPI Insurance'}</div><div style="font-size:11px;color:var(--text-dim);">Q${cpiM.toFixed(2)}/${state.lang==='es'?'mes':'mo'} ${state.lang==='es'?'adicional':'additional'}</div></div></div></div>
-    ${cuotaT>maxC&&!state.mgrAuthorized?`<div style="margin-top:12px;border-radius:var(--radius-sm);background:var(--warning-light);border:1px solid var(--warning-border);overflow:hidden;">
-    <div style="padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;" id="btnExpandWarning">
-      <span style="font-size:12px;color:var(--warning);font-weight:600;display:flex;align-items:center;gap:4px;">${icon('alertTriangle',12)} ${state.lang==='es'?'Cuota':'Payment'} (Q${cuotaT.toFixed(2)}) ${state.lang==='es'?'supera máx. aprobada':'exceeds approved max'} (Q${(maxC||0).toFixed(2)})</span>
-      <span style="font-size:11px;color:var(--primary);font-weight:700;">${state.warningExpanded?(state.lang==='es'?'Ocultar ▲':'Hide ▲'):(state.lang==='es'?'Ver opciones ▼':'Options ▼')}</span>
-    </div>
-    ${state.warningExpanded?`<div style="padding:0 14px 14px;animation:fadeUp .3s;">
-      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">${state.lang==='es'?'La cuota excede el límite aprobado en un':'Payment exceeds approved limit by'} <strong style="color:var(--danger);">${((cuotaT-maxC)/maxC*100).toFixed(0)}%</strong>.</div>
-      <div style="padding:12px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface-alt);margin-bottom:8px;">
-        <div style="display:flex;align-items:center;gap:8px;"><span style="display:flex;">${icon('trendingDown',16)}</span><div><div style="font-size:13px;font-weight:700;color:var(--text-dim);">${state.lang==='es'?'Ajustar plazo o prima':'Adjust term or down payment'}</div><div style="font-size:11px;color:var(--text-dim);margin-top:1px;">${state.lang==='es'?'Optar por un plazo mayor o prima más alta.':'Choose a longer term or higher down payment.'}</div></div></div>
-      </div>
-      <div style="padding:12px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--white);margin-bottom:8px;cursor:pointer;transition:all .2s;" data-woption="excepcion">
-        <div style="display:flex;align-items:center;gap:8px;"><span style="display:flex;">${icon('userCheck',16)}</span><div style="flex:1;"><div style="font-size:13px;font-weight:700;">${state.lang==='es'?'Excepción por Gerente':'Store Manager Exception'}</div><div style="font-size:11px;color:var(--text-secondary);margin-top:1px;">${state.lang==='es'?`Sobrepasa ${((cuotaT-maxC)/maxC*100).toFixed(0)}% la CMM. El gerente puede autorizar.`:`Exceeds CMM by ${((cuotaT-maxC)/maxC*100).toFixed(0)}%. Manager can authorize.`}</div></div><span style="color:var(--primary);display:flex;">${icon('chevronRight',16)}</span></div>
-      </div>
-      <div style="padding:12px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--white);cursor:pointer;transition:all .2s;" data-woption="incremento">
-        <div style="display:flex;align-items:center;gap:8px;"><span style="display:flex;">${icon('trendingUp',16)}</span><div style="flex:1;"><div style="font-size:13px;font-weight:700;">${state.lang==='es'?'Solicitar límite superior':'Request higher limit'}</div><div style="font-size:11px;color:var(--text-secondary);margin-top:1px;">${state.lang==='es'?'Presentar comprobantes de ingreso.':'Submit income documents.'}</div></div><span style="color:var(--primary);display:flex;">${icon('chevronRight',16)}</span></div>
-      </div>
-    </div>`:''}</div>`:''}
-    ${state.mgrAuthorized&&!state.limitUpgraded?`<div style="margin-top:12px;padding:14px 16px;border-radius:var(--radius-sm);background:#EEF7EE;border:1.5px solid var(--success-border);display:flex;align-items:center;gap:10px;">
-      <span style="color:var(--success);display:flex;">${icon('checkCircle',20)}</span>
-      <div><div style="font-size:13px;font-weight:700;color:var(--success);">${state.lang==='es'?'CMM Sobregirado con Autorización de Gerente':'CMM Override — Manager Authorized'}</div>
-      <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">${state.lang==='es'?'Cuota aprobada':'Approved payment'}: <strong>Q${cuotaT.toFixed(2)}</strong> (${state.lang==='es'?'excede CMM de':'exceeds CMM of'} Q${(maxC||0).toFixed(2)} ${state.lang==='es'?'en':'by'} ${((cuotaT-maxC)/maxC*100).toFixed(0)}%)</div></div>
-    </div>`:''}
-    ${!state.limitUpgraded&&!state.mgrAuthorized&&!(cuotaT>maxC)?`<div style="margin-top:12px;padding:12px 16px;border-radius:var(--radius-sm);border:1.5px dashed var(--primary);background:var(--primary-light);cursor:pointer;" id="btnRequestLimit"><div style="display:flex;align-items:center;gap:10px;"><span style="display:flex;color:var(--primary);">${icon('trendingUp',18)}</span><div><div style="font-size:13px;font-weight:700;color:var(--primary);">${state.lang==='es'?'¿Necesita más límite?':'Need a higher limit?'}</div><div style="font-size:11px;color:var(--text-secondary);">${state.lang==='es'?'Solicitar incremento con comprobantes de ingreso':'Request increase with income documents'}</div></div></div></div>`:''}
-    ${state.outcome===2&&state.salesCustomer&&state.salesCustomer._incrementApplied?`<div style="margin-top:12px;padding:12px 16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);display:flex;align-items:center;gap:10px;">
-      <span style="color:var(--success);display:flex;">${icon('checkCircle',18,'var(--success)')}</span>
-      <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--success);">${state.lang==='es'?'Incremento aprobado':'Increase approved'}</div>
-      <div style="font-size:11px;color:var(--text-secondary);margin-top:1px;">${state.lang==='es'?`Nueva CMM disponible: <strong>Q${(state.salesCustomer.maxCuota||0).toFixed(2)}</strong>. Puede confirmar la cotización.`:`New available MMI: <strong>Q${(state.salesCustomer.maxCuota||0).toFixed(2)}</strong>. You can confirm the quote.`}</div></div>
-    </div>`:''}
-    ${state.limitUpgraded?`<div style="margin-top:12px;padding:10px 14px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);font-size:12px;display:flex;align-items:center;justify-content:space-between;">
-      <span style="font-weight:600;color:var(--success);">✓ Límite incrementado — Mercadería: Q23,400 · CMM: Q780.00</span>
-      <button class="btn btn-secondary" id="btnUndoLimit" style="padding:4px 12px;font-size:10px;flex-shrink:0;margin-left:10px;">Deshacer</button>
-    </div>`:''}
-    ${state.outcome===2&&state.salesCustomer&&state.salesCustomer._incrementInAnalysis&&cuotaT>maxC?`<div style="margin-top:12px;padding:12px 16px;border-radius:var(--radius-sm);background:var(--warning-light);border:1.5px solid var(--warning-border);">
-      <div style="font-size:13px;font-weight:700;color:var(--warning);margin-bottom:4px;display:flex;align-items:center;gap:6px;">${icon('alertTriangle',14,'var(--warning)')} ${state.lang==='es'?'Incremento en análisis':'Increase under review'}</div>
-      <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;">${state.lang==='es'?'La solicitud de incremento fue enviada a análisis. La cotización no puede confirmarse hasta que sea aprobada.':'The increase request was sent for review. The quote cannot be confirmed until approved.'}</div>
-    </div>`:''}
-    ${state.outcome===2&&state.salesCustomer&&state.salesCustomer._incrementInAnalysis&&!(cuotaT>maxC)?`<div style="margin-top:12px;padding:10px 14px;border-radius:var(--radius-sm);background:var(--surface-alt);border:1px solid var(--border);font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;">
-      <span style="display:flex;color:var(--text-dim);">${icon('info',14)}</span>
-      ${state.lang==='es'?'Solicitud de incremento en análisis. Puede confirmar la cotización con la CMM actual.':'Increase request under review. You can confirm the quote with the current MMI.'}
-    </div>`:''}
+    ${_simStatusBanner(cuotaT, maxC)}
+    ${_simNeedMoreCTA(cuotaT, maxC)}
     <!-- Manager Auth Modal -->
     <div id="mgrModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center;">
     <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:28px;max-width:440px;width:90%;animation:fadeUp .3s;box-shadow:var(--shadow-lg);">
@@ -2618,10 +2826,10 @@ function pgSimulation(){
     <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:28px;max-width:480px;width:90%;animation:fadeUp .3s;box-shadow:var(--shadow-lg);">
     <h3 style="font-size:18px;font-weight:800;margin-bottom:4px;">Incremento de Límite</h3><p style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;">Basado en los ingresos declarados del cliente.</p>
     <div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--primary-light);border:1px solid #C5D0F0;margin-bottom:16px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;${state.pqData.income2?'margin-bottom:8px;':''}">
+    <div style="display:flex;align-items:center;justify-content:space-between;${(state.pqData.income2||state.pqData.income3)?'margin-bottom:8px;':''}">
     <div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--primary);">Ingreso Mensual Total</div><div style="font-size:11px;color:var(--text-secondary);margin-top:1px;">Registrado en pre-calificación</div></div>
-    <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--primary);">Q${((parseFloat(state.pqData.income)||0)+(parseFloat(state.pqData.income2)||0)).toLocaleString('en',{minimumFractionDigits:2})}</div></div>
-    ${state.pqData.income2?`<div style="padding-top:8px;border-top:1px solid #C5D0F0;display:flex;gap:16px;font-size:11px;color:var(--text-secondary);"><span>Ingreso 1: <strong style="font-family:var(--mono);color:var(--text);">Q${state.pqData.income||'0'}</strong></span><span>Ingreso 2: <strong style="font-family:var(--mono);color:var(--text);">Q${state.pqData.income2}</strong></span></div>`:''}</div>
+    <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--primary);">Q${((parseFloat(state.pqData.income)||0)+(parseFloat(state.pqData.income2)||0)+(parseFloat(state.pqData.income3)||0)).toLocaleString('en',{minimumFractionDigits:2})}</div></div>
+    ${(state.pqData.income2||state.pqData.income3)?`<div style="padding-top:8px;border-top:1px solid #C5D0F0;display:flex;flex-wrap:wrap;gap:8px 16px;font-size:11px;color:var(--text-secondary);"><span>Ingreso 1: <strong style="font-family:var(--mono);color:var(--text);">Q${state.pqData.income||'0'}</strong></span>${state.pqData.income2?`<span>Ingreso 2: <strong style="font-family:var(--mono);color:var(--text);">Q${state.pqData.income2}</strong></span>`:''}${state.pqData.income3?`<span>Ingreso 3: <strong style="font-family:var(--mono);color:var(--text);">Q${state.pqData.income3}</strong></span>`:''}</div>`:''}</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
     <div style="padding:12px;border-radius:var(--radius-sm);background:var(--surface-alt);text-align:center;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--text-dim);">Límite Actual</div><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text-dim);text-decoration:line-through;">Q19,500</div></div>
     <div style="padding:12px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);text-align:center;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--success);">Nuevo Límite</div><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--success);">Q23,400</div></div></div>
@@ -2653,6 +2861,7 @@ function pgSimulation(){
     const totalC=cuotaTC*nC;
 
     return`<div class="card"><div class="card-header"><h2>Cotización — Préstamo Cash</h2><p>Simule las condiciones del préstamo.</p></div>
+    ${_pqSimBanner()}
 
     <div style="padding:12px 16px;border:1px solid var(--primary);border-radius:var(--radius-sm);background:var(--primary-light);margin-bottom:16px;">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
@@ -2766,10 +2975,10 @@ function pgSimulation(){
     <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:28px;max-width:480px;width:90%;animation:fadeUp .3s;box-shadow:var(--shadow-lg);">
     <h3 style="font-size:18px;font-weight:800;margin-bottom:4px;">Incremento de Límite</h3><p style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;">Basado en los ingresos declarados del cliente.</p>
     <div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--primary-light);border:1px solid #C5D0F0;margin-bottom:16px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;${state.pqData.income2?'margin-bottom:8px;':''}">
+    <div style="display:flex;align-items:center;justify-content:space-between;${(state.pqData.income2||state.pqData.income3)?'margin-bottom:8px;':''}">
     <div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--primary);">Ingreso Mensual Total</div><div style="font-size:11px;color:var(--text-secondary);margin-top:1px;">Registrado en pre-calificación</div></div>
-    <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--primary);">Q${((parseFloat(state.pqData.income)||0)+(parseFloat(state.pqData.income2)||0)).toLocaleString('en',{minimumFractionDigits:2})}</div></div>
-    ${state.pqData.income2?`<div style="padding-top:8px;border-top:1px solid #C5D0F0;display:flex;gap:16px;font-size:11px;color:var(--text-secondary);"><span>Ingreso 1: <strong style="font-family:var(--mono);color:var(--text);">Q${state.pqData.income||'0'}</strong></span><span>Ingreso 2: <strong style="font-family:var(--mono);color:var(--text);">Q${state.pqData.income2}</strong></span></div>`:''}</div>
+    <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--primary);">Q${((parseFloat(state.pqData.income)||0)+(parseFloat(state.pqData.income2)||0)+(parseFloat(state.pqData.income3)||0)).toLocaleString('en',{minimumFractionDigits:2})}</div></div>
+    ${(state.pqData.income2||state.pqData.income3)?`<div style="padding-top:8px;border-top:1px solid #C5D0F0;display:flex;flex-wrap:wrap;gap:8px 16px;font-size:11px;color:var(--text-secondary);"><span>Ingreso 1: <strong style="font-family:var(--mono);color:var(--text);">Q${state.pqData.income||'0'}</strong></span>${state.pqData.income2?`<span>Ingreso 2: <strong style="font-family:var(--mono);color:var(--text);">Q${state.pqData.income2}</strong></span>`:''}${state.pqData.income3?`<span>Ingreso 3: <strong style="font-family:var(--mono);color:var(--text);">Q${state.pqData.income3}</strong></span>`:''}</div>`:''}</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
     <div style="padding:12px;border-radius:var(--radius-sm);background:var(--surface-alt);text-align:center;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--text-dim);">Límite Actual</div><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text-dim);text-decoration:line-through;">Q1,500</div></div>
     <div style="padding:12px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);text-align:center;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--success);">Nuevo Límite</div><div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--success);">Q2,000</div></div></div>
@@ -2787,7 +2996,7 @@ function pgSimulation(){
 
 function pgForkAml(){
   return`<div class="card"><div class="card-header">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="padding:4px 10px;border-radius:12px;background:var(--warning-light);border:1px solid var(--warning-border);font-size:10px;font-weight:700;color:var(--warning);">PROTOTIPO</span></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="padding:3px 9px;border-radius:10px;background:var(--proto-bg);border:1px solid var(--proto-border);font-size:9px;font-weight:700;color:var(--proto-text);letter-spacing:0.4px;">PROTOTIPO</span></div>
     <h2>${state.lang==='es'?'Verificación AML':'AML Verification'}</h2>
     <p>${state.lang==='es'?'Para propósitos del prototipo, determine si este cliente requiere verificación AML (Anti-Lavado de Dinero).':'For prototype purposes, determine if this customer requires AML (Anti-Money Laundering) verification.'}</p></div>
     <div style="display:grid;gap:12px;margin-top:20px;">
@@ -2811,7 +3020,7 @@ function pgForkAml(){
 
 function pgForkApproval(){
   return`<div class="card"><div class="card-header">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="padding:4px 10px;border-radius:12px;background:var(--warning-light);border:1px solid var(--warning-border);font-size:10px;font-weight:700;color:var(--warning);">PROTOTIPO</span></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="padding:3px 9px;border-radius:10px;background:var(--proto-bg);border:1px solid var(--proto-border);font-size:9px;font-weight:700;color:var(--proto-text);letter-spacing:0.4px;">PROTOTIPO</span></div>
     <h2>${state.lang==='es'?'Resultado de Análisis':'Analysis Result'}</h2>
     <p>${state.lang==='es'?'Para propósitos del prototipo, determine el resultado del análisis de la solicitud de crédito.':'For prototype purposes, determine the result of the credit application analysis.'}</p></div>
     <div style="display:grid;gap:12px;margin-top:20px;">
@@ -2919,7 +3128,7 @@ function pgRejected(){
 
 function pgForkVisit(){
   return`<div class="card"><div class="card-header">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="padding:4px 10px;border-radius:12px;background:var(--warning-light);border:1px solid var(--warning-border);font-size:10px;font-weight:700;color:var(--warning);">PROTOTIPO</span></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="padding:3px 9px;border-radius:10px;background:var(--proto-bg);border:1px solid var(--proto-border);font-size:9px;font-weight:700;color:var(--proto-text);letter-spacing:0.4px;">PROTOTIPO</span></div>
     <h2>${state.lang==='es'?'Verificación Física':'Physical Verification'}</h2>
     <p>${state.lang==='es'?'Para propósitos del prototipo, determine si este cliente requiere una visita de verificación física en domicilio o lugar de trabajo.':'For prototype purposes, determine if this customer requires a physical verification visit at home or workplace.'}</p></div>
     <div style="display:grid;gap:12px;margin-top:20px;">
@@ -2942,32 +3151,70 @@ function pgForkVisit(){
 }
 
 function pgForkSociodemo(){
+  const es=state.lang==='es';
+  const suggested=suggestPqResult();
+  // Compute suggestion rationale to surface in the UI
+  const inc=(parseFloat(state.pqData.income)||0)+(parseFloat(state.pqData.income2)||0)+(parseFloat(state.pqData.income3)||0);
+  const employed=state.pqData.p1==='si';
+  const rationale=es
+    ?`Sugerencia basada en ingreso total declarado (Q${inc.toLocaleString('en',{minimumFractionDigits:2})}) y situación laboral (${employed?'con ingreso':'sin ingreso'}).`
+    :`Suggestion based on total declared income (Q${inc.toLocaleString('en',{minimumFractionDigits:2})}) and employment status (${employed?'with income':'no income'}).`;
+  // Card definitions
+  const opts=[
+    {id:'express',
+      title:es?'Pre-aprobado Express':'Pre-approved Express',
+      desc:es?'Resultado favorable. Activación inmediata del crédito sin condicionamientos.':'Favorable result. Immediate credit activation without conditions.',
+      iconName:'checkCircle',iconColor:'#0D9B68',bg:'var(--success-light)',border:'var(--success)',selBg:'var(--success-light)'},
+    {id:'conditional',
+      title:es?'Condicionado':'Conditional',
+      desc:es?'Crédito sujeto a revisión por área de crédito. Sin visita de verificación física necesaria.':'Credit subject to review by credit area. No physical verification visit required.',
+      iconName:'clipboardList',iconColor:'#B47700',bg:'var(--info-amber-light)',border:'var(--info-amber)',selBg:'var(--info-amber-light)'},
+    {id:'conditional_visit',
+      title:es?'Condicionado con Visita':'Conditional with Visit',
+      desc:es?'Crédito sujeto a revisión por área de crédito y visita domiciliar de verificación.':'Credit subject to review by credit area and physical verification visit.',
+      iconName:'mapPin',iconColor:'#D97B0D',bg:'var(--warning-light)',border:'var(--warning)',selBg:'var(--warning-light)'},
+    {id:'rejected',
+      title:es?'No Apto':'Not Eligible',
+      desc:es?'El perfil del cliente no permite otorgar crédito en este momento.':'Customer profile does not allow credit at this time.',
+      iconName:'x',iconColor:'#D63B4A',bg:'#FEF0F0',border:'var(--danger)',selBg:'#FEF0F0'},
+  ];
+  const suggestedOpt=opts.find(o=>o.id===suggested);
+  const cards=opts.map(o=>{
+    const sel=state.forkSociodemo===o.id;
+    const isSugg=suggested===o.id;
+    // Sugerido: borde primary completo, fondo primary-light tenue, ribbon prominente arriba-izq
+    const baseBorder=sel?o.border:(isSugg?'var(--primary)':'var(--border)');
+    const baseBg=sel?o.selBg:(isSugg?'var(--primary-light)':'var(--white)');
+    const ribbon=isSugg&&!sel?`<div style="position:absolute;top:-1px;left:-1px;right:-1px;padding:6px 14px;background:var(--primary);color:white;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;border-top-left-radius:var(--radius-sm);border-top-right-radius:var(--radius-sm);display:flex;align-items:center;gap:6px;">${icon('lightbulb',12,'white')} ${es?'Sugerido por el sistema':'Suggested by system'}</div>`:'';
+    return`<div class="outcome-card ${sel?'selected':''}" onclick="state.forkSociodemo='${o.id}';render();" style="padding:${isSugg&&!sel?'34px 18px 18px':'18px'};border-radius:var(--radius-sm);border:${isSugg&&!sel?'2px':'1.5px'} solid ${baseBorder};cursor:pointer;background:${baseBg};position:relative;transition:all .2s;">
+      ${ribbon}
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:${o.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon(o.iconName,18,o.iconColor)}</div>
+        <div><div style="font-size:15px;font-weight:700;">${o.title}</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:2px;">${o.desc}</div></div>
+      </div>
+    </div>`;
+  }).join('');
+  // CTA banner para aplicar sugerencia rápido (solo si hay sugerencia y no está ya seleccionada)
+  const showApplyCTA=suggestedOpt&&state.forkSociodemo!==suggested;
+  const applyBanner=showApplyCTA?`<div style="margin-top:14px;padding:14px 16px;border-radius:var(--radius-sm);background:var(--primary-light);border:1.5px solid var(--primary);display:flex;align-items:center;gap:12px;">
+    <span style="flex-shrink:0;display:flex;color:var(--primary);">${icon('lightbulb',20)}</span>
+    <div style="flex:1;font-size:12px;color:var(--text-secondary);line-height:1.5;">
+      <div style="font-weight:700;color:var(--primary);margin-bottom:2px;">${es?'Recomendación del sistema:':'System recommendation:'} ${suggestedOpt.title}</div>
+      <div>${rationale}</div>
+    </div>
+    <button class="btn btn-primary" id="btnApplySuggestion" style="flex-shrink:0;padding:8px 14px;font-size:12px;font-weight:600;">${es?'Aplicar':'Apply'}</button>
+  </div>`:`<div style="margin-top:14px;padding:10px 14px;border-radius:var(--radius-sm);background:var(--surface-alt);border:1px solid var(--border);font-size:11px;color:var(--text-secondary);line-height:1.5;display:flex;align-items:flex-start;gap:8px;">
+    <span style="flex-shrink:0;display:flex;color:var(--primary);margin-top:1px;">${icon('lightbulb',12)}</span>
+    <span>${rationale}</span>
+  </div>`;
   return`<div class="card"><div class="card-header">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="padding:4px 10px;border-radius:12px;background:var(--warning-light);border:1px solid var(--warning-border);font-size:10px;font-weight:700;color:var(--warning);">PROTOTIPO</span></div>
-    <h2>${state.lang==='es'?'Resultado Sociodemográfico':'Sociodemographic Result'}</h2>
-    <p>${state.lang==='es'?'Para propósitos del prototipo, determine el resultado del análisis sociodemográfico del cliente.':'For prototype purposes, determine the result of the customer\'s sociodemographic analysis.'}</p></div>
-    <div style="display:grid;gap:12px;margin-top:20px;">
-      <div class="outcome-card ${state.forkSociodemo==='approved'?'selected':''}" onclick="state.forkSociodemo='approved';render();" style="padding:18px;border-radius:var(--radius-sm);border:1.5px solid ${state.forkSociodemo==='approved'?'var(--success)':'var(--border)'};cursor:pointer;background:${state.forkSociodemo==='approved'?'var(--success-light)':'var(--white)'};">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div style="width:36px;height:36px;border-radius:50%;background:var(--success-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon('checkCircle',18,'#0D9B68')}</div>
-          <div><div style="font-size:15px;font-weight:700;">${state.lang==='es'?'Aprobado':'Approved'}</div>
-          <div style="font-size:12px;color:var(--text-dim);margin-top:2px;">${state.lang==='es'?'El análisis sociodemográfico es favorable. Crédito aprobado sin necesidad de verificación física.':'Sociodemographic analysis is favorable. Credit approved without physical verification.'}</div></div>
-        </div>
-      </div>
-      <div class="outcome-card ${state.forkSociodemo==='preapproved_visit'?'selected':''}" onclick="state.forkSociodemo='preapproved_visit';render();" style="padding:18px;border-radius:var(--radius-sm);border:1.5px solid ${state.forkSociodemo==='preapproved_visit'?'var(--warning)':'var(--border)'};cursor:pointer;background:${state.forkSociodemo==='preapproved_visit'?'var(--warning-light)':'var(--white)'};">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div style="width:36px;height:36px;border-radius:50%;background:var(--warning-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon('mapPin',18,'#D97B0D')}</div>
-          <div><div style="font-size:15px;font-weight:700;">${state.lang==='es'?'Pre-aprobado — Visita Requerida':'Pre-approved — Visit Required'}</div>
-          <div style="font-size:12px;color:var(--text-dim);margin-top:2px;">${state.lang==='es'?'El crédito queda condicionado a una visita de verificación física en domicilio o lugar de trabajo.':'Credit is conditional on a physical verification visit at home or workplace.'}</div></div>
-        </div>
-      </div>
-      <div class="outcome-card ${state.forkSociodemo==='rejected'?'selected':''}" onclick="state.forkSociodemo='rejected';render();" style="padding:18px;border-radius:var(--radius-sm);border:1.5px solid ${state.forkSociodemo==='rejected'?'var(--danger)':'var(--border)'};cursor:pointer;background:${state.forkSociodemo==='rejected'?'#FEF0F0':'var(--white)'};">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div style="width:36px;height:36px;border-radius:50%;background:#FEF0F0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon('x',18,'#D63B4A')}</div>
-          <div><div style="font-size:15px;font-weight:700;">${state.lang==='es'?'Rechazado':'Rejected'}</div>
-          <div style="font-size:12px;color:var(--text-dim);margin-top:2px;">${state.lang==='es'?'El perfil del cliente no permite otorgar crédito en este momento.':'Customer profile does not allow credit at this time.'}</div></div>
-        </div>
-      </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="padding:3px 9px;border-radius:10px;background:var(--proto-bg);border:1px solid var(--proto-border);font-size:9px;font-weight:700;color:var(--proto-text);letter-spacing:0.4px;">PROTOTIPO</span></div>
+    <h2>${es?'Resultado de Pre-calificación':'Pre-qualification Result'}</h2>
+    <p>${es?'Determine el resultado de la pre-calificación. La opción sugerida se calcula según el perfil declarado del cliente.':'Determine the pre-qualification result. The suggested option is computed from the customer\'s declared profile.'}</p></div>
+    ${applyBanner}
+    <div style="display:grid;gap:12px;margin-top:16px;">
+      ${cards}
     </div>
     <div class="btn-row"><button class="btn btn-secondary" id="btnBack">${t('btnBack')}</button><button class="btn btn-primary" id="btnNext" ${!state.forkSociodemo?'disabled':''}>${t('btnNext')}</button></div></div>`;
 }
@@ -3475,7 +3722,7 @@ function pgApplication(){
     ${state.uploads.income.length<5?`<div class="upload-area" id="uploadIncome" style="padding:14px;border-color:var(--warning);"><div class="upload-text">${state.uploads.income.length===0?t('docIncome'):t('docAddMore')} <span style="color:var(--text-dim);font-size:10px;">(${state.uploads.income.length}/5)</span></div></div>`:`<div style="font-size:10px;color:var(--text-dim);margin-top:4px;">${t('docMax')}</div>`}
     ${state.uploads.income.length===0?`<div style="font-size:10px;color:var(--warning);font-weight:600;margin-top:4px;">${t('docIncomeMandatory')}</div>`:''}
   </div>`:''}
-  ${!isLegacy&&state.forkSociodemo==='preapproved_visit'?`
+  ${!isLegacy&&getPqResult()==='conditional_visit'?`
   <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border);">
   <div class="section-label" style="display:flex;align-items:center;gap:6px;"><span style="display:flex;">${icon('mapPin',14)}</span> ${t('visitTitle')}</div>
   <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:16px;">${t('visitDesc')}</div>
@@ -4743,8 +4990,8 @@ function pgDone(){
     const today=new Date();const dd=String(today.getDate()).padStart(2,'0'),mm=String(today.getMonth()+1).padStart(2,'0'),yy=today.getFullYear();
     const clientName=[state.pqData.firstName,state.pqData.secondName,state.pqData.lastName1,state.pqData.lastName2].filter(Boolean).join(' ')||'Juan Carlos Martínez López';
     state.solicitudes.unshift({ref:refNum,client:clientName,doc:(state.idType||'DPI')+' '+(state.idNumber||'04827391-2'),product:actionLabel,amount:amt,date:dd+'/'+mm+'/'+yy,action:state.action,outcome:state.outcome,isNew:state.outcome===3,phone:state.pqData.phone||'+502 5890-1234',prima:state.simPrima||0,
-      status:state.forkSociodemo==='preapproved_visit'?'analysis_visit':'analysis',
-      hasVisit:state.forkSociodemo==='preapproved_visit',
+      status:getPqResult()==='conditional_visit'?'analysis_visit':'analysis',
+      hasVisit:getPqResult()==='conditional_visit',
       visitAddr:state.visitAddr,visitDate:state.visitDate,visitTime:state.visitTime,
       visitAddrDetail:state.visitAddr==='work'?(state.pqData.workStreet||'')+', '+(state.pqData.workMuni||''):(state.pqData.street||'')+', '+(state.pqData.canton||'')+', '+(state.pqData.muni||''),
       refs:[{name:'',phone:'',rel:''},{name:'',phone:'',rel:''}],
@@ -4773,7 +5020,7 @@ function pgDone(){
         <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">${t('doneAnalysis')}</div>
       </div>
 
-      ${state.forkSociodemo==='preapproved_visit'?`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--white);margin-bottom:14px;">
+      ${getPqResult()==='conditional_visit'?`<div style="padding:16px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--white);margin-bottom:14px;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
           <span style="display:flex;color:var(--primary);">${icon('mapPin',18)}</span>
           <div style="font-size:13px;font-weight:700;color:var(--primary);">${t('doneVisitLabel')}</div>
@@ -4793,7 +5040,7 @@ function pgDone(){
           <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-dim);">${t('doneStatus')}</div>
         </div>
         <div style="display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:20px;background:var(--white);border:1px solid var(--warning-border);font-size:12px;font-weight:700;color:var(--warning);margin-bottom:8px;">${icon('clock',14)} ${t('doneStatusAnalysis')}</div>
-        <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">${state.forkSociodemo==='preapproved_visit'?t('doneResolution'):state.action==='preapprove'?(state.lang==='es'?'La solicitud de activación de línea de crédito está siendo procesada. Tiempo estimado: 24–48 horas hábiles.':'Credit line activation is being processed. Estimated time: 24–48 business hours.'):state.action==='cash'?(state.lang==='es'?'La solicitud de préstamo en efectivo está siendo procesada. Tiempo estimado: 24–48 horas hábiles.':'The cash loan application is being processed. Estimated time: 24–48 business hours.'):(state.lang==='es'?'La solicitud de crédito para mercadería está siendo procesada. Tiempo estimado: 24–48 horas hábiles.':'The merchandise credit application is being processed. Estimated time: 24–48 business hours.')}</div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">${getPqResult()==='conditional_visit'?t('doneResolution'):state.action==='preapprove'?(state.lang==='es'?'La solicitud de activación de línea de crédito está siendo procesada. Tiempo estimado: 24–48 horas hábiles.':'Credit line activation is being processed. Estimated time: 24–48 business hours.'):state.action==='cash'?(state.lang==='es'?'La solicitud de préstamo en efectivo está siendo procesada. Tiempo estimado: 24–48 horas hábiles.':'The cash loan application is being processed. Estimated time: 24–48 business hours.'):(state.lang==='es'?'La solicitud de crédito para mercadería está siendo procesada. Tiempo estimado: 24–48 horas hábiles.':'The merchandise credit application is being processed. Estimated time: 24–48 business hours.')}</div>
       </div>
 
       <div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);">
@@ -4812,7 +5059,7 @@ function pgForkDashStatus(){
   if(!sol)return`<div class="card"><p>Error</p></div>`;
   const es=state.lang==='es';
   return`<div class="card"><div class="card-header">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="padding:4px 10px;border-radius:12px;background:var(--warning-light);border:1px solid var(--warning-border);font-size:10px;font-weight:700;color:var(--warning);">PROTOTIPO</span></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="padding:3px 9px;border-radius:10px;background:var(--proto-bg);border:1px solid var(--proto-border);font-size:9px;font-weight:700;color:var(--proto-text);letter-spacing:0.4px;">PROTOTIPO</span></div>
     <h2>${es?'Cambiar Estado de Solicitud':'Change Application Status'}</h2>
     <p>${es?'Para propósitos del prototipo, seleccione el nuevo estado de la solicitud.':'For prototype purposes, select the new application status.'}</p></div>
     <div style="padding:14px;background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:16px;">
@@ -5040,6 +5287,9 @@ function pgSalesScenario(){
     new:          {label:es?'NUEVO':'NEW',                                              bg:'#F1EFE8',color:'#444441'},
     existingNoCredit:{label:es?'SIN EVALUAR':'NOT EVALUATED',                          bg:'#F1EFE8',color:'#444441'},
     existingPrequal: {label:es?'PRE-CALIFICADO':'PRE-QUALIFIED',                       bg:'#E8F7F1',color:'#0A6B48'},
+    existingPrequalExpress:        {label:es?'PRE-CALIFICADO · EXPRESS':'PRE-QUALIFIED · EXPRESS',                  bg:'#E8F7F1',color:'#0A6B48'},
+    existingPrequalConditional:    {label:es?'PRE-CALIFICADO · CONDICIONADO':'PRE-QUALIFIED · CONDITIONAL',        bg:'#FFF8E6',color:'#B47700'},
+    existingPrequalConditionalVisit:{label:es?'PRE-CALIFICADO · CONDIC. + VISITA':'PRE-QUALIFIED · CONDIT. + VISIT',bg:'#FAEEDA',color:'#7A4A0A'},
     existingLegacy:  {label:es?'CLIENTE ACTIVO · SIN LÍNEA':'ACTIVE CUSTOMER · NO LINE', bg:'#EEEDFE',color:'#3C3489'},
     inAnalysis:      {label:es?'EN ANÁLISIS':'IN ANALYSIS',                            bg:'#FAEEDA',color:'#7A4A0A'},
     inAnalysisVisit: {label:es?'EN ANÁLISIS · VISITA':'IN ANALYSIS · VISIT',           bg:'#FAEEDA',color:'#7A4A0A'},
@@ -5053,10 +5303,20 @@ function pgSalesScenario(){
 
   function badgeHtml(key){
     const b=badges[key]||{label:key,bg:'#F1EFE8',color:'#444441'};
-    return`<span style="font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;background:${b.bg};color:${b.color};display:inline-block;margin-bottom:6px;letter-spacing:0.3px;">${b.label}</span>`;
+    return`<span style="font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;background:${b.bg};color:${b.color};display:inline-block;margin-bottom:6px;letter-spacing:0.3px;">${b.label}</span>`;
   }
 
+  // Search filter — normalize query and check title+desc+badge
+  const rawQuery=(state._scenarioSearch||'').trim();
+  const norm=(s)=>(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const q=norm(rawQuery);
+  let matchCount=0;
   function card(val,title,desc){
+    if(q){
+      const hay=norm(title)+' '+norm(desc)+' '+norm((badges[val]||{}).label||'');
+      if(!hay.includes(q))return '';
+    }
+    matchCount++;
     const sel=state.salesScenario===val;
     return`<div data-salesscenario="${val}" onclick="selectResult(this)" style="padding:14px 16px;border-radius:var(--radius-sm);border:${sel?'1.5px solid var(--primary)':'1px solid var(--border)'};cursor:pointer;background:${sel?'var(--primary-light)':'var(--white)'};transition:all .15s;margin-bottom:8px;">
       ${badgeHtml(val)}
@@ -5071,6 +5331,8 @@ function pgSalesScenario(){
   }
 
   function group(label,desc,cards){
+    // Hide empty groups when filtering
+    if(!cards||!cards.trim())return '';
     return`<div style="margin-bottom:24px;">
       <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--text-dim);margin-bottom:4px;">${label}</div>
       <div style="font-size:11px;color:var(--text-secondary);line-height:1.4;margin-bottom:10px;">${desc}</div>
@@ -5078,57 +5340,76 @@ function pgSalesScenario(){
     </div>`;
   }
 
-  const warn=`<div style="padding:10px 14px;border-radius:var(--radius-sm);background:var(--warning-light);border:1px solid var(--warning-border);margin-bottom:20px;font-size:11px;color:var(--warning);line-height:1.5;display:flex;align-items:flex-start;gap:8px;">
-    <span style="flex-shrink:0;display:flex;margin-top:1px;">${icon('alertTriangle',12)}</span><span>${t('salesScenarioWarn')}</span>
-  </div>`;
+  // Compact prototype chip (replaces the full warning banner that ate real estate at the top)
+  const protoChip=`<span style="padding:3px 9px;border-radius:10px;background:var(--proto-bg);border:1px solid var(--proto-border);font-size:9px;font-weight:700;color:var(--proto-text);letter-spacing:0.4px;">${es?'PROTOTIPO':'PROTOTYPE'}</span>`;
 
-  return`<div style="padding:16px;max-width:600px;margin:0 auto;">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
-      <button class="btn btn-secondary" onclick="${backAction}" style="padding:6px 12px;font-size:12px;">${icon('chevronRight',12)} ${t('btnBack')}</button>
-      <div style="font-size:16px;font-weight:800;color:var(--text);">${t('salesScenarioTitle')}</div>
-    </div>
-    ${warn}
-    ${group(
+  // Build groups (with filtering applied inside card())
+  const groups=[
+    group(
       es?'Cliente nuevo':'New customer',
       t('grpNewDesc'),
       card('new',t('salesNew'),t('salesNewDesc'))
-    )}
-    <div style="height:1px;background:var(--border);margin-bottom:20px;"></div>
-    ${group(
+    ),
+    group(
       es?'Cliente existente sin evaluación':'Existing customer without evaluation',
       t('grpNoCreditDesc'),
       card('existingNoCredit',t('salesExistingNoCredit'),t('salesExistingNoCreditDesc'))
-    )}
-    <div style="height:1px;background:var(--border);margin-bottom:20px;"></div>
-    ${group(
+    ),
+    group(
       es?'Cliente con oferta aprobada':'Customer with approved offer',
       t('grpWithOfferDesc'),
-      card('existingPrequal',t('salesExistingPrequal'),t('salesExistingPrequalDesc'))+
+      card('existingPrequalExpress',t('salesExistingPrequalExpress'),t('salesExistingPrequalExpressDesc'))+
+      card('existingPrequalConditional',t('salesExistingPrequalConditional'),t('salesExistingPrequalConditionalDesc'))+
+      card('existingPrequalConditionalVisit',t('salesExistingPrequalConditionalVisit'),t('salesExistingPrequalConditionalVisitDesc'))+
       card('existingLegacy',t('salesExistingLegacy'),t('salesExistingLegacyDesc'))
-    )}
-    <div style="height:1px;background:var(--border);margin-bottom:20px;"></div>
-    ${group(
+    ),
+    group(
       es?'Solicitud de línea en curso':'Line application in progress',
       t('grpInFlightDesc'),
       card('inAnalysis',t('salesInAnalysis'),t('salesInAnalysisDesc'))+
       card('inAnalysisVisit',t('salesInAnalysisVisit'),t('salesInAnalysisVisitDesc'))+
       card('pendingId',t('salesPendingId'),t('salesPendingIdDesc'))
-    )}
-    <div style="height:1px;background:var(--border);margin-bottom:20px;"></div>
-    ${group(
+    ),
+    group(
       es?'Cliente con línea activa':'Customer with active line',
       t('grpActiveDesc'),
       card('existing',t('salesExisting'),t('salesExistingDesc'))+
       card('existingPastDue',t('salesExistingPastDue'),t('salesExistingPastDueDesc'))
-    )}
-    <div style="height:1px;background:var(--border);margin-bottom:20px;"></div>
-    ${group(
+    ),
+    group(
       es?'Sin acceso a crédito':'No credit access',
       t('grpBlockedDesc'),
       card('rejected',t('salesRejected'),t('salesRejectedDesc'))+
       card('creditCard',es?'Tarjeta de Crédito La Curacao':'La Curacao Credit Card',es?'El cliente tiene tarjeta de crédito vigente. No es elegible para línea de crédito POS.':'Customer has active credit card. Not eligible for POS credit line.')+
       card('existingLegacyPastDue',t('salesExistingLegacyPastDue'),t('salesExistingLegacyPastDueDesc'))
-    )}
+    ),
+  ].filter(Boolean);
+  // Insert separators between visible groups (only between, not at the ends)
+  const groupsHtml=groups.join(`<div style="height:1px;background:var(--border);margin-bottom:20px;"></div>`);
+  // Empty state if search has no matches
+  const emptyState=q&&matchCount===0?`<div style="padding:32px 16px;text-align:center;color:var(--text-secondary);">
+    <div style="display:flex;justify-content:center;color:var(--text-dim);margin-bottom:10px;">${icon('search',28)}</div>
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">${es?'Sin resultados':'No results'}</div>
+    <div style="font-size:12px;color:var(--text-dim);">${es?'No hay escenarios que coincidan con':'No scenarios match'} "${rawQuery}"</div>
+    <button class="btn btn-secondary" id="btnClearScenarioSearch" style="margin-top:14px;padding:8px 16px;font-size:12px;">${es?'Limpiar búsqueda':'Clear search'}</button>
+  </div>`:'';
+
+  // Search input
+  const searchBar=`<div style="position:relative;margin-bottom:20px;">
+    <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-dim);display:flex;pointer-events:none;">${icon('search',14)}</span>
+    <input class="form-input" id="scenarioSearch" placeholder="${es?'Buscar escenario, badge o palabra clave…':'Search scenario, badge or keyword…'}" value="${rawQuery.replace(/"/g,'&quot;')}" style="padding:10px 36px 10px 36px;font-size:12px;" autocomplete="off"/>
+    ${rawQuery?`<span id="btnClearScenarioSearchInline" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text-dim);cursor:pointer;display:flex;padding:4px;border-radius:50%;background:var(--surface-alt);">${icon('x',12)}</span>`:''}
+  </div>`;
+
+  return`<div style="padding:16px;max-width:600px;margin:0 auto;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <button class="btn btn-secondary" onclick="${backAction}" style="padding:6px 12px;font-size:12px;">${icon('chevronRight',12)} ${t('btnBack')}</button>
+      <div style="font-size:16px;font-weight:800;color:var(--text);flex:1;">${t('salesScenarioTitle')}</div>
+      ${protoChip}
+    </div>
+    ${searchBar}
+    ${groupsHtml}
+    ${emptyState}
     <div style="padding-bottom:24px;"></div>
   </div>`;
 }
@@ -5650,7 +5931,7 @@ function pgSalesCart(){
   // ─── SUB: Limit Increase ───────────────────────────────────────────
   if(sub==='limitIncrease'){
     const es=state.lang==='es';
-    const li=state._limitIncreaseData||{income:'',docs1:[],income2:'',docs2:[],showSecondIncome:false};
+    const li=state._limitIncreaseData||{income:'',docs1:[],income2:'',docs2:[],income3:'',docs3:[],showSecondIncome:false,showThirdIncome:false};
     const currentCMM=936.00,currentUsed=378.30,currentAvail=currentCMM-currentUsed;
     const currentLimitMerc=vpLimit(currentAvail,25,48);
     const currentLimitMoto=vpLimit(currentAvail,25,60);
@@ -5670,11 +5951,14 @@ function pgSalesCart(){
     if(step===0){
       const inc1=parseFloat(li.income||0);
       const inc2=parseFloat(li.income2||0);
+      const inc3=parseFloat(li.income3||0);
       const docs1=li.docs1||[];
       const docs2=li.docs2||[];
+      const docs3=li.docs3||[];
       const inc1ok=inc1>0&&docs1.length>0;
       const inc2ok=!li.showSecondIncome||(inc2>0&&docs2.length>0);
-      const canSubmit=inc1ok&&inc2ok;
+      const inc3ok=!li.showThirdIncome||(inc3>0&&docs3.length>0);
+      const canSubmit=inc1ok&&inc2ok&&inc3ok;
 
       return`<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);">
         ${liHeader(es?'Incremento de Línea':'Line Increase')}
@@ -5715,32 +5999,56 @@ function pgSalesCart(){
               </div>
             </div>
 
-            <!-- Add second income -->
-            ${!li.showSecondIncome
-              ?`<button class="btn btn-secondary" id="liAddIncome2" style="width:100%;justify-content:center;border-style:dashed;margin-bottom:12px;">${icon('plus',14)} ${es?'Agregar segundo ingreso':'Add second income'}</button>`
-              :`<div style="border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:12px;overflow:hidden;">
-                <div style="padding:10px 14px;background:var(--surface-alt);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-                  <span style="font-size:12px;font-weight:700;">${es?'Ingreso secundario':'Secondary income'}</span>
-                  <div style="display:flex;align-items:center;gap:8px;">
-                    ${inc2ok&&li.showSecondIncome?`<span style="font-size:10px;font-weight:700;color:var(--success);display:flex;align-items:center;gap:3px;">${icon('check',12,'var(--success)')} ${es?'Completo':'Complete'}</span>`:''}
-                    <button class="btn btn-secondary" id="liRemoveIncome2" style="padding:2px 8px;font-size:10px;">${es?'Quitar':'Remove'}</button>
-                  </div>
+            <!-- Income 2 (visible if showSecondIncome) -->
+            ${li.showSecondIncome?`<div style="border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:12px;overflow:hidden;">
+              <div style="padding:10px 14px;background:var(--surface-alt);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:12px;font-weight:700;">${es?'Ingreso secundario':'Secondary income'}</span>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  ${inc2ok&&li.showSecondIncome?`<span style="font-size:10px;font-weight:700;color:var(--success);display:flex;align-items:center;gap:3px;">${icon('check',12,'var(--success)')} ${es?'Completo':'Complete'}</span>`:''}
+                  <button class="btn btn-secondary" id="liRemoveIncome2" style="padding:8px 14px;font-size:11px;min-height:32px;">${icon('x',12)} ${es?'Quitar':'Remove'}</button>
                 </div>
-                <div style="padding:14px;">
-                  ${buildIncomeBlock('li2_',{p1:li.p1_2||'',p2:li.p2_2||'',p3:li.p3_2||'',p4:li.p4_2||'',income:li.income2||'',activity:li.activity2||'',industry:li.industry2||'',empName:li.empName2||'',depSource:li.depSource2||''},'')}
-                  <!-- Doc for income 2 -->
-                  <div style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);">
-                    <div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:flex;align-items:center;gap:4px;">${icon('paperclip',11,'#8D93A5')} ${es?'Comprobante de ingreso 2':'Income proof 2'} <span style="color:var(--danger);">*</span></div>
-                    ${docs2.map((f,i)=>`<div class="upload-file" style="justify-content:space-between;margin-bottom:4px;">
-                      <span style="color:var(--success);display:flex;align-items:center;gap:6px;">${icon('check',10,'var(--success)')} ${f}</span>
-                      <span style="cursor:pointer;color:var(--text-dim);font-size:11px;" data-li-rmdoc2="${i}">✕</span>
-                    </div>`).join('')}
-                    ${docs2.length<2?`<div class="upload-area" id="liUploadDoc2" style="padding:8px;margin-top:4px;"><div class="upload-text" style="font-size:11px;">${docs2.length===0?(es?'📎 Adjuntar comprobante':'📎 Attach proof'):(es?'+ Agregar otro':'+ Add another')}</div></div>`:''}
-                    ${!inc2ok&&inc2>0&&docs2.length===0?`<div style="font-size:10px;color:var(--danger);font-weight:600;margin-top:4px;">${es?'Requerido para continuar':'Required to continue'}</div>`:''}
-                  </div>
+              </div>
+              <div style="padding:14px;">
+                ${buildIncomeBlock('li2_',{p1:li.p1_2||'',p2:li.p2_2||'',p3:li.p3_2||'',p4:li.p4_2||'',income:li.income2||'',activity:li.activity2||'',industry:li.industry2||'',empName:li.empName2||'',depSource:li.depSource2||''},'')}
+                <!-- Doc for income 2 -->
+                <div style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);">
+                  <div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:flex;align-items:center;gap:4px;">${icon('paperclip',11,'#8D93A5')} ${es?'Comprobante de ingreso 2':'Income proof 2'} <span style="color:var(--danger);">*</span></div>
+                  ${docs2.map((f,i)=>`<div class="upload-file" style="justify-content:space-between;margin-bottom:4px;">
+                    <span style="color:var(--success);display:flex;align-items:center;gap:6px;">${icon('check',10,'var(--success)')} ${f}</span>
+                    <span style="cursor:pointer;color:var(--text-dim);font-size:11px;" data-li-rmdoc2="${i}">✕</span>
+                  </div>`).join('')}
+                  ${docs2.length<2?`<div class="upload-area" id="liUploadDoc2" style="padding:8px;margin-top:4px;"><div class="upload-text" style="font-size:11px;">${docs2.length===0?(es?'📎 Adjuntar comprobante':'📎 Attach proof'):(es?'+ Agregar otro':'+ Add another')}</div></div>`:''}
+                  ${!inc2ok&&inc2>0&&docs2.length===0?`<div style="font-size:10px;color:var(--danger);font-weight:600;margin-top:4px;">${es?'Requerido para continuar':'Required to continue'}</div>`:''}
                 </div>
-              </div>`
-            }
+              </div>
+            </div>`:''}
+
+            <!-- Income 3 (visible if showThirdIncome) -->
+            ${li.showThirdIncome?`<div style="border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:12px;overflow:hidden;">
+              <div style="padding:10px 14px;background:var(--surface-alt);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:12px;font-weight:700;">${es?'Tercer ingreso':'Third income'}</span>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  ${inc3ok&&li.showThirdIncome?`<span style="font-size:10px;font-weight:700;color:var(--success);display:flex;align-items:center;gap:3px;">${icon('check',12,'var(--success)')} ${es?'Completo':'Complete'}</span>`:''}
+                  <button class="btn btn-secondary" id="liRemoveIncome3" style="padding:8px 14px;font-size:11px;min-height:32px;">${icon('x',12)} ${es?'Quitar':'Remove'}</button>
+                </div>
+              </div>
+              <div style="padding:14px;">
+                ${buildIncomeBlock('li3_',{p1:li.p1_3||'',p2:li.p2_3||'',p3:li.p3_3||'',p4:li.p4_3||'',income:li.income3||'',activity:li.activity3||'',industry:li.industry3||'',empName:li.empName3||'',depSource:li.depSource3||''},'')}
+                <!-- Doc for income 3 -->
+                <div style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);">
+                  <div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:flex;align-items:center;gap:4px;">${icon('paperclip',11,'#8D93A5')} ${es?'Comprobante de ingreso 3':'Income proof 3'} <span style="color:var(--danger);">*</span></div>
+                  ${docs3.map((f,i)=>`<div class="upload-file" style="justify-content:space-between;margin-bottom:4px;">
+                    <span style="color:var(--success);display:flex;align-items:center;gap:6px;">${icon('check',10,'var(--success)')} ${f}</span>
+                    <span style="cursor:pointer;color:var(--text-dim);font-size:11px;" data-li-rmdoc3="${i}">✕</span>
+                  </div>`).join('')}
+                  ${docs3.length<2?`<div class="upload-area" id="liUploadDoc3" style="padding:8px;margin-top:4px;"><div class="upload-text" style="font-size:11px;">${docs3.length===0?(es?'📎 Adjuntar comprobante':'📎 Attach proof'):(es?'+ Agregar otro':'+ Add another')}</div></div>`:''}
+                  ${!inc3ok&&inc3>0&&docs3.length===0?`<div style="font-size:10px;color:var(--danger);font-weight:600;margin-top:4px;">${es?'Requerido para continuar':'Required to continue'}</div>`:''}
+                </div>
+              </div>
+            </div>`:''}
+
+            <!-- Add another income (single button, visible while < 3) -->
+            ${(!li.showSecondIncome||!li.showThirdIncome)?`<button class="btn btn-secondary" id="liAddIncome" style="width:100%;justify-content:center;border-style:dashed;margin-bottom:12px;">${icon('plus',14)} ${es?'Agregar otro ingreso':'Add another income'}</button>`:''}
 
           </div>
         </div>
@@ -6629,13 +6937,21 @@ function pgSalesCart(){
       const cpP=[{icon:icon('shoppingCart',16),label:t('prodMerc'),limit:limitMerc,maxTerm:48,color:'var(--success)'},{icon:icon('bike',16),label:t('prodMoto'),limit:limitMoto,maxTerm:60,color:'var(--primary)'},{icon:icon('banknote',16),label:t('prodCash'),limit:limitCash,maxTerm:36,color:'#0D9B68'}];
       content=`
       <!-- Offer badge -->
-      ${state.forkSociodemo==='preapproved_visit'?`<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--warning-light);border:1px solid var(--warning-border);margin-bottom:12px;display:flex;align-items:center;gap:10px;">
-        <span style="display:flex;color:var(--warning);">${icon('mapPin',18)}</span>
-        <div style="font-size:13px;font-weight:700;color:var(--warning);">${state.lang==='es'?'Oferta condicionada a visita de verificación':'Offer conditional on verification visit'}</div>
-      </div>`:`<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);margin-bottom:12px;display:flex;align-items:center;gap:10px;">
-        <span style="display:flex;color:var(--success);">${icon('checkCircle',18)}</span>
-        <div style="font-size:13px;font-weight:700;color:var(--success);">${state.lang==='es'?'Oferta comercial aprobada':'Commercial offer approved'}</div>
-      </div>`}
+      ${(function(){const r=getPqResult();const es=state.lang==='es';
+        if(r==='conditional_visit')return`<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--warning-light);border:1px solid var(--warning-border);margin-bottom:12px;display:flex;align-items:center;gap:10px;">
+          <span style="display:flex;color:var(--warning);">${icon('mapPin',18)}</span>
+          <div style="font-size:13px;font-weight:700;color:var(--warning);">${es?'Oferta Condicionada — Visita de verificación requerida':'Conditional Offer — Verification visit required'}</div>
+        </div>`;
+        if(r==='conditional')return`<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--info-amber-light);border:1px solid var(--info-amber-border);margin-bottom:12px;display:flex;align-items:center;gap:10px;">
+          <span style="display:flex;color:var(--info-amber);">${icon('clipboardList',18)}</span>
+          <div style="font-size:13px;font-weight:700;color:var(--info-amber);">${es?'Oferta Condicionada — Sujeta a revisión por área de crédito':'Conditional Offer — Subject to credit area review'}</div>
+        </div>`;
+        // express (or null/legacy approved)
+        return`<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--success-light);border:1px solid var(--success-border);margin-bottom:12px;display:flex;align-items:center;gap:10px;">
+          <span style="display:flex;color:var(--success);">${icon('checkCircle',18)}</span>
+          <div style="font-size:13px;font-weight:700;color:var(--success);">${es?'Pre-aprobado Express':'Express Pre-approval'}</div>
+        </div>`;
+      })()}
       <div style="margin-bottom:16px;">${prequalExpiryChip(state.prequalDate||customer.prequalDate)}</div>
       <!-- CMM -->
       <div style="padding:18px;border:1.5px solid #C5D0F0;border-radius:var(--radius-sm);background:var(--primary-light);margin-bottom:16px;">
@@ -6731,12 +7047,25 @@ function pgSalesCart(){
           ${es?'Estas cuotas ya están incluidas en la CMM comprometida de Q'+(cmmUsed||0).toFixed(2):'These installments are already included in the committed MMI of Q'+(cmmUsed||0).toFixed(2)}
         </div>
       </div>
-      ${customer.forkSociodemo==='preapproved_visit'?`<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--warning-light);border:1px solid var(--warning-border);margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;">
-        <span style="flex-shrink:0;display:flex;margin-top:1px;">${icon('alertTriangle',14,'var(--warning)')}</span>
-        <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;"><strong style="color:var(--warning);">${es?'Oferta sujeta a análisis y visita':'Offer subject to analysis and visit'}</strong><br>${es?'Esta oferta no es express. La solicitud será enviada a análisis con visita de verificación antes de aprobación.':'This offer is not express. The application will be sent to analysis with a verification visit before approval.'}</div>
-      </div>`:''}
-      <!-- Limit Increase CTA -->
-      ${!customer.forkSociodemo||customer.forkSociodemo!=='preapproved_visit'?`<div style="margin-bottom:16px;padding:14px 16px;border-radius:var(--radius-sm);border:1.5px dashed var(--primary);background:var(--primary-light);cursor:pointer;" id="btnRequestLimitIncrease">
+      ${(function(){
+        const fs=customer.forkSociodemo;
+        const r=fs==='approved'?'express':fs==='preapproved_visit'?'conditional_visit':fs;
+        if(r==='conditional_visit')return`<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--warning-light);border:1px solid var(--warning-border);margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;">
+          <span style="flex-shrink:0;display:flex;margin-top:1px;">${icon('mapPin',14,'var(--warning)')}</span>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;"><strong style="color:var(--warning);">${es?'Oferta condicionada con visita':'Conditional offer with visit'}</strong><br>${es?'La solicitud será enviada a análisis con visita de verificación antes de aprobación.':'The application will be sent to analysis with a verification visit before approval.'}</div>
+        </div>`;
+        if(r==='conditional')return`<div style="padding:12px 16px;border-radius:var(--radius-sm);background:var(--info-amber-light);border:1px solid var(--info-amber-border);margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;">
+          <span style="flex-shrink:0;display:flex;margin-top:1px;">${icon('clipboardList',14,'var(--info-amber)')}</span>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;"><strong style="color:var(--info-amber);">${es?'Oferta condicionada':'Conditional offer'}</strong><br>${es?'La solicitud será enviada a análisis por nuestra área de crédito antes de aprobación.':'The application will be sent for review by our credit area before approval.'}</div>
+        </div>`;
+        return '';
+      })()}
+      <!-- Limit Increase CTA — hidden for conditional/conditional_visit -->
+      ${(function(){
+        const fs=customer.forkSociodemo;
+        const r=fs==='approved'?'express':fs==='preapproved_visit'?'conditional_visit':fs;
+        if(r==='conditional'||r==='conditional_visit')return '';
+        return `<div style="margin-bottom:16px;padding:14px 16px;border-radius:var(--radius-sm);border:1.5px dashed var(--primary);background:var(--primary-light);cursor:pointer;" id="btnRequestLimitIncrease">
         <div style="display:flex;align-items:center;gap:12px;">
           <div style="width:40px;height:40px;border-radius:10px;background:var(--white);border:1px solid #C5D0F0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon('trendingUp',20,'var(--primary)')}</div>
           <div style="flex:1;">
@@ -6745,7 +7074,8 @@ function pgSalesCart(){
           </div>
           <span style="display:flex;color:var(--primary);">${icon('chevronRight',18)}</span>
         </div>
-      </div>`:''}`;
+      </div>`;
+      })()}`;
 
     }
   } else if(activeTab==='activity'){
@@ -6914,15 +7244,25 @@ function navigateSalesScenario(){
   }
 
   // ── Outcome mapping ──
-  const scenarioToOutcome={'new':3,'existingNoCredit':1,'existingPrequal':0,'existing':2,'existingPastDue':5,'rejected':4,'creditCard':6,'existingLegacy':1,'existingLegacyPastDue':4,'inAnalysis':0,'inAnalysisVisit':0,'pendingId':0};
+  const scenarioToOutcome={'new':3,'existingNoCredit':1,'existingPrequal':0,'existingPrequalExpress':0,'existingPrequalConditional':0,'existingPrequalConditionalVisit':0,'existing':2,'existingPastDue':5,'rejected':4,'creditCard':6,'existingLegacy':1,'existingLegacyPastDue':4,'inAnalysis':0,'inAnalysisVisit':0,'pendingId':0};
   state.outcome=scenarioToOutcome[state.salesScenario]??1;
 
   // ── Single customer data definition per scenario ──
   const sc=state.salesScenario;
   if(sc==='existing'){
     state.salesCustomer={name:'ROSA ANGELICA MARTINEZ RUIZ',doc:docNum?docStr:'DPI: 2901270362101',since:'2019',rating:'A',limitMerc:vpLimit(936-378.30,25,48),limitCash:vpLimit(936-378.30,26,36),maxCuota:936-378.30};
-  } else if(sc==='existingPrequal'){
-    state.salesCustomer={name:'MARIA ELENA GONZALEZ REYES',doc:docNum?docStr:'DPI: 3456789012303',since:'2021',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),prequalDate:(()=>{const d=new Date();d.setDate(d.getDate()-20);return d.toISOString().slice(0,10);})()};
+  } else if(sc==='existingPrequal'||sc==='existingPrequalExpress'||sc==='existingPrequalConditional'||sc==='existingPrequalConditionalVisit'){
+    // Map scenario to forkSociodemo result + a distinct seed name per variant
+    const variantMap={
+      'existingPrequal':            {name:'MARIA ELENA GONZALEZ REYES',  doc:'DPI: 3456789012303',forkSociodemo:'express'},
+      'existingPrequalExpress':     {name:'MARIA ELENA GONZALEZ REYES',  doc:'DPI: 3456789012303',forkSociodemo:'express'},
+      'existingPrequalConditional': {name:'JORGE LUIS HERRERA MORALES', doc:'DPI: 4567890123404',forkSociodemo:'conditional'},
+      'existingPrequalConditionalVisit':{name:'CLAUDIA PATRICIA SOLÍS VARGAS',doc:'DPI: 5678901234505',forkSociodemo:'conditional_visit'},
+    };
+    const v=variantMap[sc];
+    state.salesCustomer={name:v.name,doc:docNum?docStr:v.doc,since:'2021',isNewCredit:true,maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36),prequalDate:(()=>{const d=new Date();d.setDate(d.getDate()-20);return d.toISOString().slice(0,10);})(),forkSociodemo:v.forkSociodemo};
+    // Mirror onto state so getPqResult() picks it up immediately when navigating to simulation
+    state.forkSociodemo=v.forkSociodemo;
   } else if(sc==='existingLegacy'){
     state.salesCustomer={name:'ANA LUCIA MORALES FUENTES',doc:docNum?docStr:'DPI: 1854739201456',since:'2018',isLegacy:true,legacyRating:'A',maxCuota:663,limitMerc:vpLimit(663,25,48),limitMoto:vpLimit(663,25,60),limitCash:vpLimit(663,26,36)};
   } else if(sc==='existingLegacyPastDue'){
@@ -6978,7 +7318,7 @@ function selectResult(el){
   if(el.dataset.outcome!==undefined){
     state.outcome=parseInt(el.dataset.outcome);
     state.action=null;state.isHit=undefined;state.prequalStep=0;
-    state.pqData={firstName:'',secondName:'',lastName1:'',lastName2:'',dob:'',gender:'',marital:'',email:'',phone:'',dept:'',muni:'',canton:'',street:'',p1:'',p2:'',p3:'',p4:'',income:'',activity:'',industry:'',income2:'',activity2:'',industry2:'',empName:'',depSource:'',p1_2:'',p2_2:'',p3_2:'',p4_2:'',empName2:'',depSource2:'',showSecondIncome:false,consentSig:false,consentTC:false};
+    state.pqData={firstName:'',secondName:'',lastName1:'',lastName2:'',dob:'',gender:'',marital:'',email:'',phone:'',dept:'',muni:'',canton:'',street:'',p1:'',p2:'',p3:'',p4:'',income:'',activity:'',industry:'',income2:'',activity2:'',industry2:'',income3:'',activity3:'',industry3:'',empName:'',depSource:'',p1_2:'',p2_2:'',p3_2:'',p4_2:'',empName2:'',depSource2:'',p1_3:'',p2_3:'',p3_3:'',p4_3:'',empName3:'',depSource3:'',showSecondIncome:false,showThirdIncome:false,consentSig:false,consentTC:false};
     state.buroConsent=false;state.otpSent=false;state.otpVerified=false;state.otpEditPhone=false;state.otpPhone='';state.limitUpgraded=false;state.amlAnswers={};
     // Direct navigation on click
     nav(1);return;
@@ -7006,7 +7346,7 @@ function goHome(){
   const lang=state.lang,user=state.loginUser,store=state.selectedStore,sols=state.solicitudes||[],salesData=state.sales||[];
   state={lang:lang,screen:'home',loginUser:user,loginPass:'',showPass:false,selectedStore:store,
     idType:'DPI',idNumber:'',outcome:null,action:null,prequalStep:0,
-    pqData:{firstName:'',secondName:'',lastName1:'',lastName2:'',dob:'',gender:'',marital:'',email:'',phone:'',dept:'',muni:'',canton:'',street:'',p1:'',p2:'',p3:'',p4:'',income:'',activity:'',industry:'',income2:'',activity2:'',industry2:'',empName:'',depSource:'',p1_2:'',p2_2:'',p3_2:'',p4_2:'',empName2:'',depSource2:'',showSecondIncome:false,consentSig:false,consentTC:false},
+    pqData:{firstName:'',secondName:'',lastName1:'',lastName2:'',dob:'',gender:'',marital:'',email:'',phone:'',dept:'',muni:'',canton:'',street:'',p1:'',p2:'',p3:'',p4:'',income:'',activity:'',industry:'',income2:'',activity2:'',industry2:'',income3:'',activity3:'',industry3:'',empName:'',depSource:'',p1_2:'',p2_2:'',p3_2:'',p4_2:'',empName2:'',depSource2:'',p1_3:'',p2_3:'',p3_3:'',p4_3:'',empName3:'',depSource3:'',showSecondIncome:false,showThirdIncome:false,consentSig:false,consentTC:false},
     buroConsent:false,otpPhone:'',otpSent:false,otpVerified:false,otpEditPhone:false,
     simPlazo:undefined,simPrima:undefined,simCPI:true,simCartTotal:9360,limitUpgraded:false,
     amlAnswers:{},feicStep:0,feicData:{nit:'',profesion:'',birthCountry:'guatemala',birthDept:'',birthMuni:'',pep:'',pepFam:'',pepAsoc:'',cpe:'',egresos:'',fundsOrigin:''},
@@ -7460,11 +7800,12 @@ function bind(){
   const bpc=$('btnPayContinue');if(bpc)bpc.onclick=()=>{
     if(state.salesPayMethod==='credit'){
       if(!state.outcome){
-        if(state.salesScenario==='existing')state.outcome=2;
-        else if(state.salesScenario==='existingPrequal')state.outcome=1;
-        else if(state.salesScenario==='existingLegacy')state.outcome=1;
-        else if(state.salesScenario==='existingLegacyPastDue')state.outcome=2;
-        else if(state.salesScenario==='existingNoCredit')state.outcome=1;
+        const sc=state.salesScenario;
+        if(sc==='existing')state.outcome=2;
+        else if(sc==='existingPrequal'||sc==='existingPrequalExpress'||sc==='existingPrequalConditional'||sc==='existingPrequalConditionalVisit')state.outcome=1;
+        else if(sc==='existingLegacy')state.outcome=1;
+        else if(sc==='existingLegacyPastDue')state.outcome=2;
+        else if(sc==='existingNoCredit')state.outcome=1;
         else state.outcome=3;
       }
       state.action='cart';
@@ -7513,8 +7854,9 @@ function bind(){
   const cfp=$('btnCashFromProfile');if(cfp)cfp.onclick=()=>{
     state.action='cash';
     if(!state.outcome){
-      if(state.salesScenario==='existing')state.outcome=2;
-      else if(state.salesScenario==='existingPrequal')state.outcome=1;
+      const sc=state.salesScenario;
+      if(sc==='existing')state.outcome=2;
+      else if(sc==='existingPrequal'||sc==='existingPrequalExpress'||sc==='existingPrequalConditional'||sc==='existingPrequalConditionalVisit')state.outcome=1;
       else state.outcome=2;
     }
     state.screen='simulation';
@@ -7592,7 +7934,7 @@ function bind(){
     }
   };
   const brli=$('btnRequestLimitIncrease');if(brli)brli.onclick=()=>{
-    state._limitIncreaseData={income:'',income2:'',activity:'',industry:'',activity2:'',industry2:'',empName:'',empName2:'',depSource:'',depSource2:'',p1:'',p2:'',p3:'',p4:'',p1_2:'',p2_2:'',p3_2:'',p4_2:'',showSecondIncome:false,docs1:[],docs2:[]};
+    state._limitIncreaseData={income:'',income2:'',income3:'',activity:'',industry:'',activity2:'',industry2:'',activity3:'',industry3:'',empName:'',empName2:'',empName3:'',depSource:'',depSource2:'',depSource3:'',p1:'',p2:'',p3:'',p4:'',p1_2:'',p2_2:'',p3_2:'',p4_2:'',p1_3:'',p2_3:'',p3_3:'',p4_3:'',showSecondIncome:false,showThirdIncome:false,docs1:[],docs2:[],docs3:[]};
     state._limitIncreaseStep=0;
     state._liEvalResult=null;state._liNewCMM=null;
     state._liVisitAddr=null;state._liVisitDate=null;state._liVisitTime=null;
@@ -7624,25 +7966,59 @@ function bind(){
   };
 
   // Step 0: income field bindings (from buildIncomeBlock)
+  // Helper: shape default _limitIncreaseData when missing
+  const _liDefault=()=>({income:'',income2:'',income3:'',docs1:[],docs2:[],docs3:[],showSecondIncome:false,showThirdIncome:false});
   const liIncome=$('liIncome');if(liIncome){
-    liIncome.onchange=e=>{if(!state._limitIncreaseData)state._limitIncreaseData={income:'',docs1:[],income2:'',docs2:[],showSecondIncome:false};state._limitIncreaseData.income=e.target.value;render();};
+    liIncome.onchange=e=>{if(!state._limitIncreaseData)state._limitIncreaseData=_liDefault();state._limitIncreaseData.income=e.target.value;render();};
     liIncome.onkeydown=e=>{if(e.key==='Enter')e.target.blur();};
   }
   const liIncome2=$('liIncome2');if(liIncome2){liIncome2.onchange=e=>{if(state._limitIncreaseData)state._limitIncreaseData.income2=e.target.value;};}
+  const liIncome3=$('liIncome3');if(liIncome3){liIncome3.onchange=e=>{if(state._limitIncreaseData)state._limitIncreaseData.income3=e.target.value;};}
   const liInd=$('liIndustry');if(liInd)liInd.onchange=e=>{if(state._limitIncreaseData)state._limitIncreaseData.industry=e.target.value;};
   const liInd2=$('liIndustry2');if(liInd2)liInd2.onchange=e=>{if(state._limitIncreaseData)state._limitIncreaseData.industry2=e.target.value;};
-  bindAutocomplete('liActivity','_liActivity');
-  bindAutocomplete('liActivity2','_liActivity2');
+  const liInd3=$('liIndustry3');if(liInd3)liInd3.onchange=e=>{if(state._limitIncreaseData)state._limitIncreaseData.industry3=e.target.value;};
+  // (Legacy IDs no longer exist; activity bindings for limit-increase happen below via li_Activity / li2_Activity / li3_Activity prefixes)
 
-  const liAddInc2=$('liAddIncome2');if(liAddInc2)liAddInc2.onclick=()=>{if(state._limitIncreaseData)state._limitIncreaseData.showSecondIncome=true;render();};
+  // Add another income (li): single button that opens slot 2 then slot 3
+  const liAddInc=$('liAddIncome');if(liAddInc)liAddInc.onclick=()=>{
+    if(!state._limitIncreaseData)state._limitIncreaseData=_liDefault();
+    const li=state._limitIncreaseData;
+    if(!li.showSecondIncome){li.showSecondIncome=true;}
+    else if(!li.showThirdIncome){li.showThirdIncome=true;}
+    render();
+  };
+  // Remove income 2 — compact: shift _3 → _2 if it exists
   const liRmInc2=$('liRemoveIncome2');if(liRmInc2)liRmInc2.onclick=()=>{
-    if(state._limitIncreaseData){state._limitIncreaseData.showSecondIncome=false;state._limitIncreaseData.income2='';state._limitIncreaseData.docs2=[];state._limitIncreaseData.activity2='';state._limitIncreaseData.industry2='';}
+    const li=state._limitIncreaseData;if(!li){render();return;}
+    if(li.showThirdIncome){
+      // Shift income 3 → income 2
+      li.income2=li.income3||'';li.activity2=li.activity3||'';li.industry2=li.industry3||'';
+      li.empName2=li.empName3||'';li.depSource2=li.depSource3||'';
+      li.p1_2=li.p1_3||'';li.p2_2=li.p2_3||'';li.p3_2=li.p3_3||'';li.p4_2=li.p4_3||'';
+      li.docs2=li.docs3||[];
+      // Clear income 3
+      li.income3='';li.activity3='';li.industry3='';li.empName3='';li.depSource3='';
+      li.p1_3='';li.p2_3='';li.p3_3='';li.p4_3='';li.docs3=[];
+      li.showThirdIncome=false;
+    } else {
+      li.showSecondIncome=false;
+      li.income2='';li.activity2='';li.industry2='';li.empName2='';li.depSource2='';
+      li.p1_2='';li.p2_2='';li.p3_2='';li.p4_2='';li.docs2=[];
+    }
+    render();
+  };
+  // Remove income 3
+  const liRmInc3=$('liRemoveIncome3');if(liRmInc3)liRmInc3.onclick=()=>{
+    const li=state._limitIncreaseData;if(!li){render();return;}
+    li.showThirdIncome=false;
+    li.income3='';li.activity3='';li.industry3='';li.empName3='';li.depSource3='';
+    li.p1_3='';li.p2_3='';li.p3_3='';li.p4_3='';li.docs3=[];
     render();
   };
 
   // Docs for income 1
   const liUpload1=$('liUploadDoc1');if(liUpload1)liUpload1.onclick=()=>{
-    if(!state._limitIncreaseData)state._limitIncreaseData={income:'',docs1:[],income2:'',docs2:[],showSecondIncome:false};
+    if(!state._limitIncreaseData)state._limitIncreaseData=_liDefault();
     const fnames=['constancia_salario_mar2026.pdf','estado_cuenta_banco.pdf','declaracion_ISR.pdf'];
     const d=state._limitIncreaseData.docs1=state._limitIncreaseData.docs1||[];
     d.push(fnames[d.length]||'comprobante_ingreso1_'+Date.now()+'.pdf');
@@ -7652,13 +8028,23 @@ function bind(){
 
   // Docs for income 2
   const liUpload2=$('liUploadDoc2');if(liUpload2)liUpload2.onclick=()=>{
-    if(!state._limitIncreaseData)state._limitIncreaseData={income:'',docs1:[],income2:'',docs2:[],showSecondIncome:false};
+    if(!state._limitIncreaseData)state._limitIncreaseData=_liDefault();
     const fnames=['constancia_salario2_mar2026.pdf','estado_cuenta_banco2.pdf','declaracion_ISR2.pdf'];
     const d=state._limitIncreaseData.docs2=state._limitIncreaseData.docs2||[];
     d.push(fnames[d.length]||'comprobante_ingreso2_'+Date.now()+'.pdf');
     render();
   };
   document.querySelectorAll('[data-li-rmdoc2]').forEach(el=>{el.onclick=()=>{const idx=parseInt(el.dataset.liRmdoc2);if(state._limitIncreaseData&&state._limitIncreaseData.docs2)state._limitIncreaseData.docs2.splice(idx,1);render();};});
+
+  // Docs for income 3
+  const liUpload3=$('liUploadDoc3');if(liUpload3)liUpload3.onclick=()=>{
+    if(!state._limitIncreaseData)state._limitIncreaseData=_liDefault();
+    const fnames=['constancia_salario3_mar2026.pdf','estado_cuenta_banco3.pdf','declaracion_ISR3.pdf'];
+    const d=state._limitIncreaseData.docs3=state._limitIncreaseData.docs3||[];
+    d.push(fnames[d.length]||'comprobante_ingreso3_'+Date.now()+'.pdf');
+    render();
+  };
+  document.querySelectorAll('[data-li-rmdoc3]').forEach(el=>{el.onclick=()=>{const idx=parseInt(el.dataset.liRmdoc3);if(state._limitIncreaseData&&state._limitIncreaseData.docs3)state._limitIncreaseData.docs3.splice(idx,1);render();};});
 
   // Step 0 → Step 1
   const liSubmit=$('btnLimitIncSubmit');if(liSubmit)liSubmit.onclick=()=>{
@@ -7687,7 +8073,7 @@ function bind(){
   function _liPersistAndNavigate(){
     const li=state._limitIncreaseData||{};
     const evalResult=state._liSelectedResult||'analysis';
-    const income=(parseFloat(li.income)||0)+(parseFloat(li.income2)||0);
+    const income=(parseFloat(li.income)||0)+(parseFloat(li.income2)||0)+(parseFloat(li.income3)||0);
     const pct=Math.max(0,((income/8500)-1)*100);
     const newCMM=Math.round(936*(1+pct/100));
     const newAvail=newCMM-378.30;
@@ -7953,7 +8339,7 @@ function bind(){
     state.screen='salesScenario';render();
   };
   // Outcome
-  document.querySelectorAll('[data-outcome]').forEach(el=>{el.onclick=()=>{state.outcome=parseInt(el.dataset.outcome);state.action=null;state.isHit=undefined;state.prequalStep=0;state.pqData={firstName:'',secondName:'',lastName1:'',lastName2:'',dob:'',gender:'',marital:'',email:'',phone:'',dept:'',muni:'',canton:'',street:'',p1:'',p2:'',p3:'',p4:'',income:'',activity:'',industry:'',income2:'',activity2:'',industry2:'',empName:'',depSource:'',p1_2:'',p2_2:'',p3_2:'',p4_2:'',empName2:'',depSource2:'',showSecondIncome:false,consentSig:false,consentTC:false};state.buroConsent=false;state.otpSent=false;state.otpVerified=false;state.otpEditPhone=false;state.otpPhone='';state.limitUpgraded=false;state.amlAnswers={};render();};});
+  document.querySelectorAll('[data-outcome]').forEach(el=>{el.onclick=()=>{state.outcome=parseInt(el.dataset.outcome);state.action=null;state.isHit=undefined;state.prequalStep=0;state.pqData={firstName:'',secondName:'',lastName1:'',lastName2:'',dob:'',gender:'',marital:'',email:'',phone:'',dept:'',muni:'',canton:'',street:'',p1:'',p2:'',p3:'',p4:'',income:'',activity:'',industry:'',income2:'',activity2:'',industry2:'',income3:'',activity3:'',industry3:'',empName:'',depSource:'',p1_2:'',p2_2:'',p3_2:'',p4_2:'',empName2:'',depSource2:'',p1_3:'',p2_3:'',p3_3:'',p4_3:'',empName3:'',depSource3:'',showSecondIncome:false,showThirdIncome:false,consentSig:false,consentTC:false};state.buroConsent=false;state.otpSent=false;state.otpVerified=false;state.otpEditPhone=false;state.otpPhone='';state.limitUpgraded=false;state.amlAnswers={};render();};});
   document.querySelectorAll('[data-hit]').forEach(el=>{el.onclick=()=>{const v=el.dataset.hit;state.isHit=v==='true'?true:v==='false'?false:v;render();};});
   // Sociodemo answers
   document.querySelectorAll('.socio-opt').forEach(el=>{el.onclick=()=>{if(!state.socioAnswers)state.socioAnswers={};state.socioAnswers[el.dataset.sq]=el.dataset.sval;render();};});
@@ -7962,9 +8348,11 @@ function bind(){
   // New prefix-based PQ branching (for income blocks)
   document.querySelectorAll('[data-pqx]').forEach(el=>{el.onclick=()=>{
     const fullKey=el.dataset.pqx,v=el.dataset.val;
-    // Map prefix to state: pq_p1 → pqData.p1, pq2_p1 → pqData.p1_2, li_p1 → _limitIncreaseData.p1, li2_p1 → _limitIncreaseData.p1_2
-    if(fullKey.startsWith('pq2_')){const k=fullKey.slice(4);const mk=k+'_2';state.pqData[mk]=v;if(k==='p1'){state.pqData.p2_2='';state.pqData.p3_2='';state.pqData.p4_2='';}if(k==='p2'){state.pqData.p3_2='';state.pqData.p4_2='';}}
+    // Map prefix to state: pq_p1 → pqData.p1, pq2_p1 → pqData.p1_2, pq3_p1 → pqData.p1_3, li_p1 → _limitIncreaseData.p1, li2_p1 → _limitIncreaseData.p1_2, li3_p1 → _limitIncreaseData.p1_3
+    if(fullKey.startsWith('pq3_')){const k=fullKey.slice(4);const mk=k+'_3';state.pqData[mk]=v;if(k==='p1'){state.pqData.p2_3='';state.pqData.p3_3='';state.pqData.p4_3='';}if(k==='p2'){state.pqData.p3_3='';state.pqData.p4_3='';}}
+    else if(fullKey.startsWith('pq2_')){const k=fullKey.slice(4);const mk=k+'_2';state.pqData[mk]=v;if(k==='p1'){state.pqData.p2_2='';state.pqData.p3_2='';state.pqData.p4_2='';}if(k==='p2'){state.pqData.p3_2='';state.pqData.p4_2='';}}
     else if(fullKey.startsWith('pq_')){const k=fullKey.slice(3);state.pqData[k]=v;if(k==='p1'){state.pqData.p2='';state.pqData.p3='';state.pqData.p4='';}if(k==='p2'){state.pqData.p3='';state.pqData.p4='';}}
+    else if(fullKey.startsWith('li3_')){const k=fullKey.slice(4);if(state._limitIncreaseData){const mk=k+'_3';state._limitIncreaseData[mk]=v;if(k==='p1'){state._limitIncreaseData.p2_3='';state._limitIncreaseData.p3_3='';state._limitIncreaseData.p4_3='';}if(k==='p2'){state._limitIncreaseData.p3_3='';state._limitIncreaseData.p4_3='';}}}
     else if(fullKey.startsWith('li2_')){const k=fullKey.slice(4);if(state._limitIncreaseData){const mk=k+'_2';state._limitIncreaseData[mk]=v;if(k==='p1'){state._limitIncreaseData.p2_2='';state._limitIncreaseData.p3_2='';state._limitIncreaseData.p4_2='';}if(k==='p2'){state._limitIncreaseData.p3_2='';state._limitIncreaseData.p4_2='';}}}
     else if(fullKey.startsWith('li_')){const k=fullKey.slice(3);if(state._limitIncreaseData){state._limitIncreaseData[k]=v;if(k==='p1'){state._limitIncreaseData.p2='';state._limitIncreaseData.p3='';state._limitIncreaseData.p4='';}if(k==='p2'){state._limitIncreaseData.p3='';state._limitIncreaseData.p4='';}}}
     render();
@@ -7975,8 +8363,10 @@ function bind(){
     const evtName=(el.tagName==='SELECT'||isIncomeField)?'change':'input';
     el.addEventListener(evtName,e=>{
       const fk=e.target.dataset.incfield;
-      if(fk.startsWith('pq2_')){state.pqData[fk.slice(4)+'2']=e.target.value;}
+      if(fk.startsWith('pq3_')){state.pqData[fk.slice(4)+'3']=e.target.value;}
+      else if(fk.startsWith('pq2_')){state.pqData[fk.slice(4)+'2']=e.target.value;}
       else if(fk.startsWith('pq_')){state.pqData[fk.slice(3)]=e.target.value;}
+      else if(fk.startsWith('li3_')&&state._limitIncreaseData){state._limitIncreaseData[fk.slice(4)+'3']=e.target.value;}
       else if(fk.startsWith('li2_')&&state._limitIncreaseData){state._limitIncreaseData[fk.slice(4)+'2']=e.target.value;}
       else if(fk.startsWith('li_')&&state._limitIncreaseData){state._limitIncreaseData[fk.slice(3)]=e.target.value;}
       if(isIncomeField)render(); // re-render to update totals on change
@@ -7987,11 +8377,13 @@ function bind(){
   Object.entries(pf).forEach(([id,k])=>{const el=$(id);if(el){el.addEventListener(el.tagName==='SELECT'?'change':'input',e=>state.pqData[k]=e.target.value);}});
   // Phone field: prepend +502 on change
   const pqPhEl=$('pqPhone');if(pqPhEl){pqPhEl.addEventListener('change',e=>{const v=e.target.value.trim();state.pqData.phone=v?'+502 '+v.replace(/^\+?502\s?/,''):''});pqPhEl.addEventListener('input',e=>{const v=e.target.value.trim();state.pqData.phone=v?'+502 '+v.replace(/^\+?502\s?/,''):''});}
-  // Autocomplete for activity fields (all prefixes)
+  // Autocomplete for activity fields (all prefixes — stateKey is informational; routing is handled by _writeActivityValue based on input id prefix)
   bindAutocomplete('pq_Activity','activity');
   bindAutocomplete('pq2_Activity','activity2');
+  bindAutocomplete('pq3_Activity','activity3');
   bindAutocomplete('li_Activity','_liActivity');
   bindAutocomplete('li2_Activity','_liActivity2');
+  bindAutocomplete('li3_Activity','_liActivity3');
   // PQ nav
   const pn=$('btnPqNext');if(pn)pn.onclick=()=>{state.prequalStep=(state.prequalStep||0)+1;render();};
   const pp=$('btnPqPrev');if(pp)pp.onclick=()=>{
@@ -8008,6 +8400,17 @@ function bind(){
   document.querySelectorAll('[data-socio-opt]').forEach(el=>{el.onclick=()=>{if(!state.socioAnswers)state.socioAnswers={};const questions=['sd_housing','sd_years','sd_dependents','sd_education','sd_employment','sd_transport','sd_banking','sd_utilities','sd_savings','sd_debts'];state.socioAnswers[questions[state.socioStep||0]]=parseInt(el.dataset.socioOpt);render();};});
   const sn=$('btnSocioNext');if(sn)sn.onclick=()=>{state.socioStep=(state.socioStep||0)+1;render();};
   const sp2=$('btnSocioPrev');if(sp2)sp2.onclick=()=>{state.socioStep=Math.max(0,(state.socioStep||0)-1);render();};
+  // PQ result fork: apply system suggestion shortcut
+  const apsg=$('btnApplySuggestion');if(apsg)apsg.onclick=()=>{state.forkSociodemo=suggestPqResult();render();};
+  // Scenario selector search
+  const scSearchEl=$('scenarioSearch');if(scSearchEl){
+    scSearchEl.addEventListener('input',e=>{state._scenarioSearch=e.target.value;render();
+      // Restore focus + cursor position after re-render
+      setTimeout(()=>{const el=document.getElementById('scenarioSearch');if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}},0);
+    });
+  }
+  const scc=$('btnClearScenarioSearch');if(scc)scc.onclick=()=>{state._scenarioSearch='';render();};
+  const scci=$('btnClearScenarioSearchInline');if(scci)scci.onclick=()=>{state._scenarioSearch='';render();};
   // PQ consent
   // Consent toggles
   document.querySelectorAll('[data-consent-toggle]').forEach(el=>{el.onclick=()=>{
@@ -8035,9 +8438,56 @@ function bind(){
       };
     }
   }
-  // 2nd income
-  const ai=$('btnAddIncome2');if(ai)ai.onclick=()=>{state.pqData.showSecondIncome=true;render();};
-  const ri=$('btnRemoveIncome2');if(ri)ri.onclick=()=>{state.pqData.showSecondIncome=false;state.pqData.income2='';state.pqData.activity2='';state.pqData.industry2='';state.pqData.empName2='';state.pqData.depSource2='';state.pqData.p1_2='';state.pqData.p2_2='';state.pqData.p3_2='';state.pqData.p4_2='';render();};
+  // Income block collapse/expand toggles
+  document.querySelectorAll('[data-pq-collapse]').forEach(el=>{el.onclick=()=>{
+    const n=parseInt(el.dataset.pqCollapse);if(!state.pqCollapsed)state.pqCollapsed={1:false,2:false,3:false};
+    state.pqCollapsed[n]=true;render();
+  };});
+  document.querySelectorAll('[data-pq-toggle]').forEach(el=>{el.onclick=()=>{
+    const n=parseInt(el.dataset.pqToggle);if(!state.pqCollapsed)state.pqCollapsed={1:false,2:false,3:false};
+    state.pqCollapsed[n]=false;render();
+  };});
+  // Add another income (preca): single button that opens slot 2 then slot 3 + auto-collapse previous if complete
+  const ai=$('btnAddIncome');if(ai)ai.onclick=()=>{
+    if(!state.pqCollapsed)state.pqCollapsed={1:false,2:false,3:false};
+    if(!state.pqData.showSecondIncome){
+      // About to open #2 — auto-collapse #1 if complete to focus attention on the new block
+      if(_pqBlockComplete(1))state.pqCollapsed[1]=true;
+      state.pqData.showSecondIncome=true;
+    } else if(!state.pqData.showThirdIncome){
+      // About to open #3 — auto-collapse #2 if complete (and ensure #1 stays collapsed if it was)
+      if(_pqBlockComplete(2))state.pqCollapsed[2]=true;
+      state.pqData.showThirdIncome=true;
+    }
+    render();
+  };
+  // Remove income 2 — compact: shift _3 → _2 if it exists
+  const ri=$('btnRemoveIncome2');if(ri)ri.onclick=()=>{
+    const pq=state.pqData;
+    if(pq.showThirdIncome){
+      // Shift income 3 → income 2
+      pq.income2=pq.income3||'';pq.activity2=pq.activity3||'';pq.industry2=pq.industry3||'';
+      pq.empName2=pq.empName3||'';pq.depSource2=pq.depSource3||'';
+      pq.p1_2=pq.p1_3||'';pq.p2_2=pq.p2_3||'';pq.p3_2=pq.p3_3||'';pq.p4_2=pq.p4_3||'';
+      // Clear income 3
+      pq.income3='';pq.activity3='';pq.industry3='';pq.empName3='';pq.depSource3='';
+      pq.p1_3='';pq.p2_3='';pq.p3_3='';pq.p4_3='';
+      pq.showThirdIncome=false;
+    } else {
+      pq.showSecondIncome=false;
+      pq.income2='';pq.activity2='';pq.industry2='';pq.empName2='';pq.depSource2='';
+      pq.p1_2='';pq.p2_2='';pq.p3_2='';pq.p4_2='';
+    }
+    render();
+  };
+  // Remove income 3
+  const ri3=$('btnRemoveIncome3');if(ri3)ri3.onclick=()=>{
+    const pq=state.pqData;
+    pq.showThirdIncome=false;
+    pq.income3='';pq.activity3='';pq.industry3='';pq.empName3='';pq.depSource3='';
+    pq.p1_3='';pq.p2_3='';pq.p3_3='';pq.p4_3='';
+    render();
+  };
   // DocScan — Onfido-style full flow
   // Phase: select
   ['dpi','pasaporte','residencia'].forEach(id=>{
@@ -8127,7 +8577,7 @@ function bind(){
   // Limit modal — only for outcomes 0/1/3 (prequal flows with declared income)
   // For outcome 2 (active line), limit increase goes to the formal limitIncrease flow
   function startLimitIncreaseFromSim(cuotaExceedsCMM){
-    state._limitIncreaseData={income:'',income2:'',activity:'',industry:'',activity2:'',industry2:'',empName:'',empName2:'',depSource:'',depSource2:'',p1:'',p2:'',p3:'',p4:'',p1_2:'',p2_2:'',p3_2:'',p4_2:'',showSecondIncome:false,docs1:[],docs2:[]};
+    state._limitIncreaseData={income:'',income2:'',income3:'',activity:'',industry:'',activity2:'',industry2:'',activity3:'',industry3:'',empName:'',empName2:'',empName3:'',depSource:'',depSource2:'',depSource3:'',p1:'',p2:'',p3:'',p4:'',p1_2:'',p2_2:'',p3_2:'',p4_2:'',p1_3:'',p2_3:'',p3_3:'',p4_3:'',showSecondIncome:false,showThirdIncome:false,docs1:[],docs2:[],docs3:[]};
     state._limitIncreaseStep=0;
     state._liEvalResult=null;state._liSelectedResult=null;
     state._liVisitAddr=null;state._liVisitDate=null;state._liVisitTime=null;
