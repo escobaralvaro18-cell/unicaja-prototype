@@ -2351,7 +2351,16 @@ function pgPrequal(){
       </div>
     </div>
     <div class="form-row"><div class="form-group"><label class="form-label">${t('gender')}</label><select class="form-select" id="pqGender"><option value="">${t('sel')}</option><option value="M" ${state.pqData.gender==='M'?'selected':''}>${t('male')}</option><option value="F" ${state.pqData.gender==='F'?'selected':''}>${t('female')}</option></select></div><div class="form-group"><label class="form-label">${t('marital')}</label><select class="form-select" id="pqMarital"><option value="">${t('sel')}</option><option value="soltero" ${state.pqData.marital==='soltero'?'selected':''}>${t('single')}</option><option value="casado" ${state.pqData.marital==='casado'?'selected':''}>${t('married')}</option><option value="union" ${state.pqData.marital==='union'?'selected':''}>${t('union')}</option><option value="divorciado" ${state.pqData.marital==='divorciado'?'selected':''}>${t('divorced')}</option><option value="viudo" ${state.pqData.marital==='viudo'?'selected':''}>${t('widowed')}</option></select></div></div>
-    <div class="form-group"><label class="form-label">${t('email')}</label><input class="form-input" type="email" inputmode="email" id="pqEmail" placeholder="correo@ejemplo.com" value="${state.pqData.email||''}"/></div>`;
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">${t('email')}</label><input class="form-input" type="email" inputmode="email" id="pqEmail" placeholder="correo@ejemplo.com" value="${state.pqData.email||''}"/></div>
+      <div class="form-group">
+        <label class="form-label">${t('phone')}</label>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="padding:10px;background:var(--surface-alt);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-weight:700;color:var(--text-secondary);white-space:nowrap;flex-shrink:0;">+502</div>
+          <input class="form-input" type="tel" inputmode="tel" id="pqPhone" placeholder="0000-0000" value="${(state.pqData.phone||'').replace(/^\+?502\s?/,'')}" style="flex:1;min-width:0;"/>
+        </div>
+      </div>
+    </div>`;
   }else if(step===1){
     // Step 1: Dirección de Hogar only
     c=`<div class="section-label">${t('addrHome')}</div>
