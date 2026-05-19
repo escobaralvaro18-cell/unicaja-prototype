@@ -10961,7 +10961,15 @@ function bind(){
               persistSolicitud({status:'rejected',billingStatus:null});
               state.screen='solRejected';
             } else if(state.forkApproval==='manual_visit'){
-              state.screen='visitSchedule';
+              // BUG FIX (v97): si la visita ya fue agendada en pgApplication
+              // (caso conditional_visit), evitar duplicar la pantalla pgVisitSchedule.
+              if(state.visitAddr && state.visitDate && state.visitTime){
+                persistSolicitud({status:'analysis_visit',billingStatus:null});
+                state._solSaved=true;
+                state.screen='done';
+              } else {
+                state.screen='visitSchedule';
+              }
             } else {
               // manual (no visit)
               persistSolicitud({status:'analysis',billingStatus:null});
@@ -11001,7 +11009,13 @@ function bind(){
               state.screen='solRejected';
             } else if(state.forkApproval==='manual_visit'){
               // Manual with visit — schedule visit before persist
-              state.screen='visitSchedule';
+              // BUG FIX (v97): si la visita ya fue agendada en pgApplication
+              // (caso conditional_visit), evitar duplicar la pantalla.
+              if(state.visitAddr && state.visitDate && state.visitTime){
+                state.screen='done';
+              } else {
+                state.screen='visitSchedule';
+              }
             } else {
               // Manual analysis (no visit)
               state.screen='done';
