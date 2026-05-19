@@ -662,16 +662,16 @@ es:{
   visitAM:'Mañana (8:00–12:00)',visitMid:'Medio día (12:00–14:00)',visitPM:'Tarde (14:00–17:00)',
   // Done
   doneTitle:'Solicitud en Análisis',doneSMS:'SMS de Verificación Enviado',
-  doneSMSDesc1:'Se ha enviado un SMS al número',doneSMSDesc2:'del cliente para realizar la',doneSMSDesc3:'validación de identidad y firma digital',
-  doneStatus:'Estado',donePending:'Pendiente de firma del cliente',
-  doneWait:'Una vez el cliente haya completado la validación de identidad y firma digital, esta pantalla se actualizará para proceder con la facturación.',
+  doneSMSDesc1:'Se ha enviado un SMS al número',doneSMSDesc2:'del cliente para realizar la',doneSMSDesc3:'verificación biométrica de identidad',
+  doneStatus:'Estado',donePending:'Pendiente de verificación biométrica',
+  doneWait:'Una vez el cliente haya completado la verificación biométrica, esta pantalla se actualizará para proceder con la facturación.',
   doneAnalysis:'La solicitud de crédito ha sido enviada al área de crédito y verificación para su análisis.',
   doneVisitLabel:'Visita de verificación agendada',
   doneVisitHome:'Domicilio',doneVisitWork:'Lugar de Trabajo',
   doneVisitAM:'Mañana (8:00–12:00)',doneVisitMid:'Medio día (12:00–14:00)',doneVisitPM:'Tarde (14:00–17:00)',
   doneResolution:'La resolución de la solicitud se dará posterior a la visita de verificación.',
   doneApproved:'Si el crédito es aprobado, se procederá con la facturación y entrega del producto al cliente.',
-  doneApprovedPreapprove:'Si la solicitud es aprobada, se procederá con la firma del contrato de la línea de crédito del cliente.',
+  doneApprovedPreapprove:'Si la solicitud es aprobada, se procederá a la activación de la línea de crédito del cliente.',
   doneApprovedCash:'Si el crédito es aprobado, se procederá con la facturación y desembolso del efectivo al cliente.',
   // Approved from dashboard
   approvedTitle:'Solicitud Aprobada',approvedPreTitle:'Línea de Crédito Aprobada',
@@ -934,16 +934,16 @@ en:{
   visitDate:'Visit date',visitTime:'Preferred time',
   visitAM:'Morning (8:00–12:00)',visitMid:'Midday (12:00–14:00)',visitPM:'Afternoon (14:00–17:00)',
   doneTitle:'Application Under Review',doneSMS:'Verification SMS Sent',
-  doneSMSDesc1:'An SMS was sent to',doneSMSDesc2:'for the customer to complete',doneSMSDesc3:'identity validation and digital signature',
-  doneStatus:'Status',donePending:'Pending customer signature',
-  doneWait:'Once the customer completes identity validation and digital signature, this screen will update to proceed with billing.',
+  doneSMSDesc1:'An SMS was sent to',doneSMSDesc2:'for the customer to complete',doneSMSDesc3:'biometric identity verification',
+  doneStatus:'Status',donePending:'Pending biometric verification',
+  doneWait:'Once the customer completes biometric verification, this screen will update to proceed with billing.',
   doneAnalysis:'The credit application has been sent to the credit and verification department for analysis.',
   doneVisitLabel:'Verification visit scheduled',
   doneVisitHome:'Home',doneVisitWork:'Workplace',
   doneVisitAM:'Morning (8:00–12:00)',doneVisitMid:'Midday (12:00–14:00)',doneVisitPM:'Afternoon (14:00–17:00)',
   doneResolution:'The application decision will be made after the verification visit.',
   doneApproved:'If the credit is approved, billing and product delivery to the customer will proceed.',
-  doneApprovedPreapprove:'If the application is approved, the customer\'s credit line contract signing will proceed.',
+  doneApprovedPreapprove:'If the application is approved, the customer\'s credit line will be activated.',
   doneApprovedCash:'If the credit is approved, billing and cash disbursement to the customer will proceed.',
   approvedTitle:'Application Approved',approvedPreTitle:'Credit Line Approved',
   approvedMercNext1:'Print contract and credit formalization documents',approvedMercNext2:'Obtain customer signature on printed documents',approvedMercNext3:'Collect the down payment from the customer',approvedMercNext4:'Invoice and deliver the product to the customer',
@@ -1442,9 +1442,14 @@ function render(){
         state.salesCustomer.limitCash=vpLimit(936-378.30, 26, 36);
         state.salesCustomer.maxCuota=936-378.30;
       }
-      // If outcome 1 (existingNoCredit) — land on credit tab (but don't lock it for legacy customers)
+      // If outcome 1 (existingNoCredit) — land on credit tab on first entry only.
+      // BUG FIX (v97): without _initialized guard, every render forced salesTab='credit'
+      // and bounced the user back when they clicked the Cart tab.
       else if(state.outcome===1&&!state.salesCustomer.isNewCredit&&!state.salesCustomer.isLegacy){
-        state.salesTab='credit';
+        if(!state.salesCustomer._initialized){
+          state.salesCustomer._initialized=true;
+          state.salesTab='credit';
+        }
       }
       // If customer is past due (outcome 5), mark as pastDue
       else if(state.outcome===5&&!state.salesCustomer.pastDue){
@@ -3720,9 +3725,28 @@ function _flatDeliverables(){
   return out;
 }
 
+// Defaults · lista de sucursales fallback si state.stores está corrupto/vacío
+const _DEFAULT_STORES = [
+  {id:'GT-Z10', name:'Z.10 Multifórum',   city:'Guatemala',       eta:'24h'},
+  {id:'GT-Z4',  name:'Z.4 Plaza Central', city:'Guatemala',       eta:'24h'},
+  {id:'GT-Z18', name:'Z.18 Atanasio',     city:'Guatemala',       eta:'24h'},
+  {id:'GT-MIX', name:'Plaza Mixco',       city:'Mixco',           eta:'24h'},
+  {id:'GT-VN',  name:'Villa Nueva',       city:'Villa Nueva',     eta:'48h'},
+  {id:'GT-ANT', name:'Antigua',           city:'Antigua',         eta:'48h'},
+  {id:'GT-XELA',name:'Xela',              city:'Quetzaltenango',  eta:'48h'},
+];
+// Garantiza que state.stores exista (defensa contra resets que lo borren)
+function _stores(){
+  if(!state.stores || !Array.isArray(state.stores) || state.stores.length===0){
+    state.stores = _DEFAULT_STORES.slice();
+  }
+  return state.stores;
+}
+
 // Default node = sucursal del asesor (state.selectedStore) o GT-Z10
 function _defaultNode(){
-  const sid = state.selectedStore && state.stores.find(s=>s.id===state.selectedStore)
+  const stores = _stores();
+  const sid = state.selectedStore && stores.find(s=>s.id===state.selectedStore)
     ? state.selectedStore : 'GT-Z10';
   return { type:'pickup', ref:sid };
 }
@@ -3733,8 +3757,13 @@ function _nodeKey(node){ return node.type+':'+node.ref; }
 // Resuelve un nodo a {label, sub, icon, fee, eta, isPickup}
 function _resolveNode(node){
   const es = state.lang==='es';
+  const stores = _stores();
+  if(!node || !node.type){
+    // Defensivo · nodo undefined o malformado: caer al default
+    return { label:es?'Sin destino':'No destination', sub:'', icon:'store', fee:0, eta:'24h', isPickup:true };
+  }
   if(node.type==='pickup'){
-    const s = state.stores.find(x=>x.id===node.ref) || state.stores[0];
+    const s = stores.find(x=>x.id===node.ref) || stores[0];
     return {
       label: (es?'Retiro · ':'Pickup · ')+s.name,
       sub: s.city,
@@ -3857,7 +3886,7 @@ function _getNodeOptions(){
       eta: '2-4d'
     });
   });
-  state.stores.forEach(s => {
+  _stores().forEach(s => {
     opts.pickups.push({
       key: 'pickup:'+s.id,
       label: s.name,
@@ -5216,7 +5245,7 @@ function pgApplication(){
       <div class="btn-row"><button class="btn btn-secondary" id="btnBack">${t('btnBack')}</button><button class="btn btn-primary" id="btnNext" ${!_ciIsValid()?'disabled':''}>${t('btnSubmit')}</button></div></div>`;
   }
 
-  return`<div class="card"><div class="card-header"><h2>${t('appTitle')}</h2><p>${isCash?t('appDescCash'):isLegacy?(state.lang==='es'?'Verificación de identidad y firma del contrato de línea.':'Identity verification and line contract signing.'):t('appDesc')}</p></div>
+  return`<div class="card"><div class="card-header"><h2>${t('appTitle')}</h2><p>${isCash?t('appDescCash'):isLegacy?(state.lang==='es'?'Verificación de identidad del cliente.':'Customer identity verification.'):t('appDesc')}</p></div>
   ${state.limitUpgraded?`<div style="padding:10px 14px;border-radius:var(--radius-sm);background:var(--warning-light);border:1px solid var(--warning-border);margin-bottom:20px;font-size:12px;display:flex;align-items:center;gap:8px;"><span style="display:flex;">${icon('trendingUp',16)}</span><div>${t('limUpBanner')}</div></div>`:''}
   ${isLegacy?`<div style="padding:12px 14px;border-radius:var(--radius-sm);background:#F3E8FF;border:1px solid #DDD6FE;margin-bottom:20px;display:flex;align-items:flex-start;gap:8px;">
     <span style="flex-shrink:0;display:flex;margin-top:1px;">${icon('building',14,'#7C3AED')}</span>
@@ -5922,13 +5951,13 @@ function pgSolicitudDetail(){
       if(bioVerified){
         return`<div style="border-radius:var(--radius-sm);border:1.5px solid var(--success);background:var(--success-light);padding:14px 16px;text-align:center;">
           <div style="display:flex;justify-content:center;margin-bottom:8px;"><div style="width:40px;height:40px;border-radius:50%;background:white;border:2px solid var(--success);display:flex;align-items:center;justify-content:center;">${icon('check',20,'var(--success)')}</div></div>
-          <div style="font-size:13px;font-weight:700;color:var(--success);margin-bottom:3px;">${es?'Identidad verificada y contrato firmado':'Identity verified and contract signed'}</div>
-          <div style="font-size:11px;color:var(--text-secondary);">${es?'La biometría coincide con el DPI capturado. El contrato de línea fue firmado digitalmente.':'Biometrics match the captured ID. The line contract was signed digitally.'}</div>
+          <div style="font-size:13px;font-weight:700;color:var(--success);margin-bottom:3px;">${es?'Identidad verificada':'Identity verified'}</div>
+          <div style="font-size:11px;color:var(--text-secondary);">${es?'La biometría coincide con el DPI capturado.':'Biometrics match the captured ID.'}</div>
         </div>`;
       } else if(bioSent){
         return`<div style="border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--white);padding:14px 16px;text-align:center;">
           <div style="display:flex;justify-content:center;margin-bottom:8px;"><div style="width:40px;height:40px;border-radius:50%;background:var(--primary-light);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;">${icon('smartphone',18,'var(--primary)')}</div></div>
-          <div style="font-size:12px;font-weight:700;margin-bottom:4px;">${es?'Link enviado — verificación y firma pendiente':'Link sent — verification and signature pending'}</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:4px;">${es?'Link enviado — verificación biométrica pendiente':'Link sent — biometric verification pending'}</div>
           <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);margin-bottom:10px;">${currentPhone}</div>
           <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
             <button class="btn btn-secondary" id="btnSimBioApproved" style="font-size:11px;padding:6px 14px;border-style:dashed;">${es?'Simular verificación exitosa':'Simulate successful verification'}</button>
@@ -5937,8 +5966,8 @@ function pgSolicitudDetail(){
         </div>`;
       } else {
         return`<div style="border-radius:var(--radius-sm);border:1.5px solid #B5D4F4;background:var(--primary-light);padding:14px 16px;">
-          <div style="font-size:12px;font-weight:700;color:#0C447C;margin-bottom:4px;">${es?'Verificación biométrica y firma pendiente':'Biometric verification and signature pending'}</div>
-          <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;margin-bottom:10px;">${es?'Se enviará un enlace de validación de identidad y firma digital del contrato de línea de crédito al número registrado del cliente.':'A validation link for identity verification and digital signing of the credit line contract will be sent to the customer\'s registered number.'}</div>
+          <div style="font-size:12px;font-weight:700;color:#0C447C;margin-bottom:4px;">${es?'Verificación biométrica pendiente':'Biometric verification pending'}</div>
+          <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;margin-bottom:10px;">${es?'Se enviará un enlace de verificación biométrica al número registrado del cliente.':'A biometric verification link will be sent to the customer\'s registered number.'}</div>
           ${editingPhone?`
             <div style="margin-bottom:10px;">
               <label class="form-label" style="font-size:11px;">${es?'Nuevo número':'New number'}</label>
@@ -5953,7 +5982,7 @@ function pgSolicitudDetail(){
               <button class="btn btn-secondary" id="btnBioEditPhone" style="padding:3px 10px;font-size:10px;">${es?'Cambiar':'Change'}</button>
             </div>
           `}
-          <button class="btn btn-primary" id="btnSendBioApproved" style="width:100%;justify-content:center;padding:10px;font-size:13px;gap:8px;">${icon('smartphone',16,'white')} ${es?'Enviar verificación y firma':'Send verification and signature'}</button>
+          <button class="btn btn-primary" id="btnSendBioApproved" style="width:100%;justify-content:center;padding:10px;font-size:13px;gap:8px;">${icon('smartphone',16,'white')} ${es?'Enviar verificación biométrica':'Send biometric verification'}</button>
         </div>`;
       }
     })();
@@ -8998,8 +9027,9 @@ function backFromDetail(){
 
 /* ═══════════════ GO HOME ═══════════════ */
 function goHome(){
-  const lang=state.lang,user=state.loginUser,store=state.selectedStore,sols=state.solicitudes||[],salesData=state.sales||[];
+  const lang=state.lang,user=state.loginUser,store=state.selectedStore,sols=state.solicitudes||[],salesData=state.sales||[],stores=state.stores||[];
   state={lang:lang,screen:'home',loginUser:user,loginPass:'',showPass:false,selectedStore:store,
+    stores:stores,
     idType:'DPI',idNumber:'',outcome:null,action:null,prequalStep:0,
     pqData:{firstName:'',secondName:'',lastName1:'',lastName2:'',dob:'',gender:'',marital:'',email:'',phone:'',dept:'',muni:'',canton:'',street:'',p1:'',p2:'',p3:'',p4:'',income:'',activity:'',industry:'',income2:'',activity2:'',industry2:'',income3:'',activity3:'',industry3:'',empName:'',depSource:'',p1_2:'',p2_2:'',p3_2:'',p4_2:'',empName2:'',depSource2:'',p1_3:'',p2_3:'',p3_3:'',p4_3:'',empName3:'',depSource3:'',showSecondIncome:false,showThirdIncome:false,consentSig:false,consentTC:false},
     buroConsent:false,otpPhone:'',otpSent:false,otpVerified:false,otpEditPhone:false,
