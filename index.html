@@ -680,6 +680,25 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 }
 .ctx-header-back:hover{background:var(--surface-alt);color:var(--text);}
 .ctx-header-body{flex:1;min-width:0;}
+.ctx-header-title{
+  font-size:14px;
+  font-weight:700;
+  color:var(--text);
+  line-height:1.15;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.ctx-header-meta{
+  font-size:11px;
+  color:var(--text-secondary);
+  margin-top:3px;
+  line-height:1.3;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-family:var(--mono);
+}
 .ctx-header-name{
   font-size:14px;
   font-weight:800;
@@ -724,6 +743,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
   .ctx-header{padding:10px 12px;}
   .ctx-header-back{width:44px;height:44px;}
   .ctx-header-name{font-size:13px;}
+  .ctx-header-title{font-size:13px;}
+  .ctx-header-meta{font-size:10.5px;}
 }
 /* H42 · Mobile typographic density — minimum 11px for small chips/badges,
    12px for status strings. Conservative: only sizes flagged in audit. */
@@ -764,6 +785,14 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 /* ─────────── pgSimulation · layout ─────────── */
 .sim-page-head{margin-bottom:16px;}
 .sim-page-title{font-size:20px;font-weight:800;color:var(--text);margin:0 0 4px;line-height:1.2;letter-spacing:-0.01em;}
+/* sim-body · sustituye al outer card de pgSimulation (opción A del rediseño v99).
+   El título "Cotización · X" ahora vive en el ctx-header. Aquí solo apilamos
+   los inner cards con gap consistente, sin padding extra (lo aporta el wrapper
+   .inner-container del shell fromSales). */
+.sim-body{display:flex;flex-direction:column;gap:12px;}
+@media (max-width: 480px){
+  .sim-body{gap:10px;}
+}
 
 .sim-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);display:flex;align-items:center;gap:6px;margin:0 0 10px;}
 
@@ -1303,6 +1332,223 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .ex-cta-main-row .ex-cta-btn{flex:1;}
 
 .ex-stats.is-2col{grid-template-columns:repeat(2,1fr);}
+
+/* Canal de venta pill (v99 — Fase 12) */
+.sc-pill{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:14px;background:var(--primary-light);color:var(--primary);font-size:11.5px;font-weight:600;cursor:pointer;flex-shrink:0;border:1px solid #C4D2E8;font-family:inherit;-webkit-tap-highlight-color:transparent;}
+.sc-pill:active,.sc-pill:hover{background:#DCE7F4;}
+.sc-pill svg{flex-shrink:0;}
+.sc-pill-lbl{font-size:9.5px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-right:2px;}
+
+/* sales-client-bar-mobile — header del cliente en pgSalesCart (v99 · Fase 12) */
+.scbm-row{display:flex;align-items:center;gap:11px;}
+.scbm-edit{width:34px;height:34px;border-radius:50%;background:var(--surface-alt);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;border:none;font-family:inherit;-webkit-tap-highlight-color:transparent;}
+.scbm-edit:active,.scbm-edit:hover{background:var(--border);color:var(--primary);}
+.scbm-canal-row{margin-top:10px;display:flex;align-items:center;gap:8px;padding-top:10px;border-top:1px dashed var(--border);}
+.scbm-canal-lbl{font-size:11px;color:var(--text-secondary);font-weight:500;}
+.scbm-meta-badge{display:inline-flex;}
+.scbm-meta-badge > div{margin-top:0 !important;}
+
+/* Bottom-sheet world-class (v99 — Fase 12b) */
+.sc-overlay{position:fixed;inset:0;background:rgba(15,24,37,0.55);z-index:9000;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s;padding:0;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.sc-sheet{background:var(--white);width:100%;max-width:480px;border-radius:18px 18px 0 0;box-shadow:0 -10px 40px -10px rgba(15,24,37,0.25);max-height:85vh;display:flex;flex-direction:column;animation:slideUpSheet .35s cubic-bezier(0.32,0.72,0,1);font-family:inherit;}
+@keyframes slideUpSheet{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.sc-sheet-handle{padding:10px 0 6px;display:flex;justify-content:center;flex-shrink:0;}
+.sc-sheet-handle-bar{width:40px;height:5px;background:#D5D7DD;border-radius:3px;}
+.sc-sheet-head{padding:6px 20px 18px;flex-shrink:0;}
+.sc-sheet-title{font-size:18px;font-weight:700;color:var(--text);line-height:1.2;margin:0;}
+.sc-sheet-desc{font-size:13px;color:var(--text-secondary);margin-top:4px;line-height:1.5;}
+.sc-sheet-list{flex:1;overflow-y:auto;padding:4px 0 8px;-webkit-overflow-scrolling:touch;}
+.sc-sheet-opt{padding:14px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;min-height:60px;box-sizing:border-box;border:none;width:100%;background:transparent;font-family:inherit;text-align:left;-webkit-tap-highlight-color:transparent;transition:background .12s;}
+.sc-sheet-opt:active{background:var(--surface-alt);}
+.sc-sheet-opt.is-selected{background:#F0F6FC;}
+.sc-sheet-opt-icon{width:38px;height:38px;border-radius:50%;background:var(--surface-alt);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .12s, color .12s;}
+.sc-sheet-opt.is-selected .sc-sheet-opt-icon{background:var(--primary);color:#fff;}
+.sc-sheet-opt-body{flex:1;min-width:0;}
+.sc-sheet-opt-title{font-size:15px;font-weight:600;color:var(--text);line-height:1.25;}
+.sc-sheet-opt.is-selected .sc-sheet-opt-title{color:var(--primary);font-weight:700;}
+.sc-sheet-opt-desc{font-size:12px;color:var(--text-secondary);margin-top:2px;line-height:1.4;}
+.sc-sheet-check{width:24px;height:24px;border-radius:50%;background:var(--primary);color:#fff;display:none;align-items:center;justify-content:center;flex-shrink:0;}
+.sc-sheet-opt.is-selected .sc-sheet-check{display:flex;}
+.sc-sheet-close{padding:4px 0 calc(8px + env(safe-area-inset-bottom, 0px));background:var(--white);border-top:1px solid var(--border);display:flex;justify-content:center;flex-shrink:0;}
+.sc-sheet-close-btn{background:none;border:none;font-family:inherit;font-size:14px;color:var(--text-secondary);font-weight:600;cursor:pointer;padding:14px 28px;border-radius:8px;}
+.sc-sheet-close-btn:active,.sc-sheet-close-btn:hover{background:var(--surface-alt);}
+/* Bottom-sheet full width en mobile (v99 · Fase 12 — fix) */
+@media (max-width: 480px){
+  .sc-overlay{padding:0;}
+  .sc-sheet{max-width:100%;width:100%;border-radius:18px 18px 0 0;}
+}
+
+/* Transportado por · radio cards (v99 — Fase 12) */
+.cv-fld-lbl-req{color:var(--danger);font-weight:700;font-size:10.5px;}
+.cv-radio-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.cv-radio-card{background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;min-height:80px;box-sizing:border-box;position:relative;-webkit-tap-highlight-color:transparent;}
+.cv-radio-card.is-on{border-color:var(--primary);background:var(--primary-light);}
+.cv-radio-card-icon{width:32px;height:32px;border-radius:50%;background:var(--surface-alt);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;}
+.cv-radio-card.is-on .cv-radio-card-icon{background:#DCE7F4;color:var(--primary);}
+.cv-radio-card-title{font-size:12.5px;font-weight:700;color:var(--text);}
+.cv-radio-card-desc{font-size:10.5px;color:var(--text-secondary);line-height:1.35;}
+.cv-radio-check{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;background:var(--primary);color:#fff;display:none;align-items:center;justify-content:center;}
+.cv-radio-card.is-on .cv-radio-check{display:flex;}
+
+/* Plan de entrega rediseñado (v99 — Fase 13) */
+.dl-section-l{font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em;padding:0 4px 4px;display:flex;align-items:center;justify-content:space-between;}
+.dl-section-l .link{font-family:var(--font-sans);font-size:12px;font-weight:600;color:var(--primary);text-transform:none;letter-spacing:0;cursor:pointer;}
+
+/* Mode cards */
+.dl-mod-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.dl-mod{background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:13px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;position:relative;min-height:110px;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+.dl-mod.is-on{border-color:var(--primary);background:var(--primary-light);}
+.dl-mod-tag{position:absolute;top:8px;left:8px;font-size:9px;font-weight:700;padding:2px 6px;border-radius:5px;background:var(--success-light);color:var(--success);text-transform:uppercase;letter-spacing:0.04em;}
+.dl-mod-check{position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;background:var(--primary);color:#fff;display:none;align-items:center;justify-content:center;}
+.dl-mod.is-on .dl-mod-check{display:flex;}
+.dl-mod-icon{width:36px;height:36px;border-radius:50%;background:var(--surface-alt);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;}
+.dl-mod.is-on .dl-mod-icon{background:var(--primary);color:#fff;}
+.dl-mod-title{font-size:13.5px;font-weight:700;color:var(--text);}
+.dl-mod-desc{font-size:11px;color:var(--text-secondary);line-height:1.35;}
+.dl-mod-price{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--success);}
+.dl-mod-price.paid{color:var(--primary);}
+
+/* List rows for sucursal / direccion */
+.dl-list{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:8px;}
+.dl-row{padding:11px 14px;display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--border);min-height:60px;cursor:pointer;box-sizing:border-box;}
+.dl-row:last-child{border-bottom:none;}
+.dl-row.is-on{background:var(--primary-light);}
+.dl-row:active,.dl-row:hover{background:var(--surface-alt);}
+.dl-row.is-on:active,.dl-row.is-on:hover{background:var(--primary-light);}
+.dl-radio{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--white);}
+.dl-row.is-on .dl-radio{border-color:var(--primary);}
+.dl-radio-dot{width:8px;height:8px;border-radius:50%;background:var(--primary);opacity:0;}
+.dl-row.is-on .dl-radio-dot{opacity:1;}
+.dl-row-body{flex:1;min-width:0;}
+.dl-row-name{font-size:13px;font-weight:700;color:var(--text);display:inline-flex;align-items:center;gap:6px;}
+.dl-row-pill{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:6px;letter-spacing:0.04em;text-transform:uppercase;}
+.dl-row-pill-current{background:var(--success-light);color:var(--success);}
+.dl-row-pill-default{background:var(--primary-light);color:var(--primary);}
+.dl-row-pill-new{background:var(--info-amber-light, #FAEEDA);color:var(--info-amber, #854F0B);}
+.dl-row-meta{font-size:11px;color:var(--text-secondary);margin-top:2px;font-family:var(--mono);}
+.dl-row-cost{font-family:var(--mono);font-size:11.5px;font-weight:700;flex-shrink:0;}
+.dl-row-cost.free{color:var(--success);}
+.dl-row-cost.paid{color:var(--primary);}
+
+/* Add new dashed */
+.dl-add{padding:11px 14px;border:1.5px dashed #C4D2E8;border-radius:10px;color:var(--primary);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;background:#F5F9FD;}
+.dl-add:active{background:var(--primary-light);}
+
+/* Split toggle */
+.dl-split{padding:10px 12px;background:var(--white);border:1px solid var(--border);border-radius:9px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:var(--text-secondary);}
+.dl-split-link{font-size:12px;font-weight:700;color:var(--primary);cursor:pointer;background:none;border:none;font-family:inherit;}
+
+/* Items recap */
+.dl-items{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px 14px;}
+.dl-items-h{font-size:10.5px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;display:flex;justify-content:space-between;align-items:baseline;}
+.dl-items-c{font-family:var(--mono);color:var(--text);font-weight:700;text-transform:none;letter-spacing:0;font-size:12px;}
+.dl-items-list{margin-top:6px;font-size:11.5px;color:var(--text-secondary);line-height:1.5;}
+
+/* Split mode item card */
+.dl-item-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:8px;}
+.dl-item-head{padding:11px 12px;display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--border);}
+.dl-item-thumb{width:42px;height:42px;border-radius:8px;background:var(--surface-alt);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.dl-item-body{flex:1;min-width:0;}
+.dl-item-name{font-size:12.5px;font-weight:600;color:var(--text);line-height:1.3;}
+.dl-item-sku{font-size:10.5px;color:var(--text-secondary);margin-top:2px;font-family:var(--mono);}
+.dl-item-price{font-family:var(--mono);font-size:12.5px;font-weight:700;color:var(--text);flex-shrink:0;}
+.dl-item-dest{padding:10px 12px;background:var(--surface-alt);display:flex;align-items:center;gap:10px;cursor:pointer;}
+.dl-item-dest.empty{background:#FFFBEC;border-top:1px dashed #F5C9A8;}
+.dl-item-dest-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.dl-item-dest-icon.pickup{background:var(--success-light);color:var(--success);}
+.dl-item-dest-icon.address{background:var(--primary-light);color:var(--primary);}
+.dl-item-dest-icon.warn{background:#FAEEDA;color:#854F0B;}
+.dl-item-dest-body{flex:1;min-width:0;}
+.dl-item-dest-mode{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;}
+.dl-item-dest-mode.pickup{color:var(--success);}
+.dl-item-dest-mode.address{color:var(--primary);}
+.dl-item-dest-mode.warn{color:#854F0B;}
+.dl-item-dest-target{font-size:12.5px;font-weight:700;color:var(--text);margin-top:1px;}
+
+/* Map */
+.dl-map{position:relative;height:160px;border-radius:10px;overflow:hidden;background:#E3E8F0;border:1px solid var(--border);}
+.dl-map-tile{position:absolute;inset:0;background:linear-gradient(90deg,#D4DBE6 1px,transparent 1px) 0 0/40px 40px,linear-gradient(0deg,#D4DBE6 1px,transparent 1px) 0 0/40px 40px,linear-gradient(135deg,#DBE3EF,#CFD7E5);}
+.dl-map-r{position:absolute;background:#fff;}
+.dl-map-r.h1{top:42%;left:0;right:0;height:6px;}
+.dl-map-r.v1{top:0;bottom:0;left:55%;width:5px;}
+.dl-map-pin{position:absolute;top:50%;left:50%;transform:translate(-50%,-100%);color:var(--danger);z-index:2;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));cursor:grab;}
+.dl-map-pin:active{cursor:grabbing;}
+.dl-map-shadow{position:absolute;top:50%;left:50%;transform:translate(-50%,-15%);width:18px;height:6px;border-radius:50%;background:rgba(0,0,0,0.18);filter:blur(1px);z-index:1;}
+.dl-map-overlay{position:absolute;left:8px;right:8px;bottom:8px;background:var(--white);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.dl-map-coord{flex:1;min-width:0;}
+.dl-map-coord-l{font-size:9.5px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;}
+.dl-map-coord-v{font-size:11.5px;font-weight:600;color:var(--text);font-family:var(--mono);}
+.dl-map-loc{font-size:11px;font-weight:700;color:var(--primary);padding:4px 8px;border-radius:6px;background:var(--primary-light);border:none;cursor:pointer;font-family:inherit;flex-shrink:0;}
+
+/* Transportado por */
+.dl-trans-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.dl-trans{padding:11px 8px;border:1.5px solid var(--border);border-radius:9px;background:var(--white);display:flex;flex-direction:column;align-items:center;text-align:center;gap:5px;position:relative;min-height:80px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.dl-trans.is-on{border-color:var(--primary);background:var(--primary-light);}
+.dl-trans-check{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;background:var(--primary);color:#fff;display:none;align-items:center;justify-content:center;}
+.dl-trans.is-on .dl-trans-check{display:flex;}
+.dl-trans-icon{width:32px;height:32px;border-radius:50%;background:var(--surface-alt);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;}
+.dl-trans.is-on .dl-trans-icon{background:var(--primary);color:#fff;}
+.dl-trans-t{font-size:12.5px;font-weight:700;color:var(--text);}
+.dl-trans-d{font-size:10.5px;color:var(--text-secondary);line-height:1.3;}
+
+/* Datos envío - node card */
+.dl-node{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px;}
+.dl-node-head{padding:11px 14px;display:flex;align-items:center;gap:10px;background:var(--surface-alt);border-bottom:1px solid var(--border);}
+.dl-node-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.dl-node-icon.pickup{background:var(--success-light);color:var(--success);}
+.dl-node-icon.address{background:var(--primary-light);color:var(--primary);}
+.dl-node-body{flex:1;min-width:0;}
+.dl-node-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;}
+.dl-node-lbl.pickup{color:var(--success);}
+.dl-node-lbl.address{color:var(--primary);}
+.dl-node-target{font-size:13px;font-weight:700;color:var(--text);margin-top:1px;}
+.dl-node-items{font-size:10.5px;color:var(--text-secondary);margin-top:2px;font-family:var(--mono);}
+.dl-node-content{padding:12px 14px;display:flex;flex-direction:column;gap:12px;}
+.dl-node-pickup{padding:11px 14px;font-size:11.5px;color:var(--text-secondary);background:var(--surface-alt);display:flex;align-items:center;gap:7px;}
+.dl-node-pickup svg{color:var(--success);flex-shrink:0;}
+.dl-node-subsec{display:flex;flex-direction:column;gap:6px;}
+.dl-node-subsec-l{font-size:11px;font-weight:600;color:var(--text-secondary);}
+.dl-node-subsec-l-req{color:var(--danger);font-weight:700;font-size:9px;background:var(--danger-light);padding:1.5px 5px;border-radius:4px;margin-left:4px;letter-spacing:0.03em;text-transform:uppercase;}
+
+/* Form fields */
+.dl-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.dl-fld{display:flex;flex-direction:column;gap:4px;}
+.dl-fld-l{font-size:11px;font-weight:600;color:var(--text-secondary);}
+.dl-fld-i{padding:9px 11px;border:1px solid var(--border);border-radius:7px;font-size:13px;color:var(--text);background:var(--white);min-height:38px;box-sizing:border-box;font-family:inherit;width:100%;}
+.dl-fld-i:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light);}
+
+/* Date + slot grid */
+.dl-date-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+.dl-date{padding:9px 4px;border:1px solid var(--border);border-radius:7px;background:var(--surface-alt);text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.dl-date.is-on{border-color:var(--primary);background:var(--primary-light);}
+.dl-date-d{font-size:11px;font-weight:700;color:var(--text);}
+.dl-date-m{font-size:9.5px;color:var(--text-secondary);margin-top:1px;font-family:var(--mono);}
+.dl-slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.dl-slot{padding:11px 4px;border:1px solid var(--border);border-radius:7px;background:var(--surface-alt);text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.dl-slot.is-on{border-color:var(--primary);background:var(--primary-light);}
+.dl-slot-t{font-size:12px;font-weight:700;color:var(--text);}
+.dl-slot-h{font-size:9.5px;color:var(--text-secondary);margin-top:1px;font-family:var(--mono);}
+
+/* Summary */
+.dl-summary{background:var(--primary-light);border:1px solid #C4D2E8;border-radius:10px;padding:12px 14px;}
+.dl-summary-t{font-size:11px;font-weight:700;color:var(--primary);}
+.dl-summary-d{font-size:11.5px;color:var(--text);margin-top:4px;line-height:1.5;}
+.dl-summary-d strong{font-family:var(--mono);font-weight:700;}
+.dl-summary-line{display:flex;justify-content:space-between;align-items:baseline;font-size:11.5px;padding:3px 0;}
+.dl-summary-line-l{color:var(--text-secondary);}
+.dl-summary-line-v{color:var(--text);font-weight:600;font-family:var(--mono);}
+.dl-summary-total{margin-top:6px;padding-top:8px;border-top:1px solid #C4D2E8;font-size:12.5px;font-weight:700;display:flex;justify-content:space-between;}
+.dl-summary-total-v{color:var(--primary);font-family:var(--mono);}
+
+/* Sheet (asignar destino por item en split mode) */
+.dl-sheet-ov{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9000;display:flex;align-items:flex-end;justify-content:center;}
+.dl-sheet{background:var(--white);border-radius:14px 14px 0 0;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;}
+.dl-sheet-h{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.dl-sheet-t{font-size:14px;font-weight:800;color:var(--text);}
+.dl-sheet-x{cursor:pointer;color:var(--text-dim);}
+.dl-sheet-b{padding:10px 12px;overflow-y:auto;flex:1;}
+.dl-sheet-section{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-dim);padding:8px 4px 4px;}
 </style>
 </head>
 <body>
@@ -2030,6 +2276,62 @@ function icon(name,size=16,color='currentColor'){
   return icons[name]||'';
 }
 
+/* ═══════════════ CANAL DE VENTA helpers (v99 · Fase 12) ═══════════════ */
+function _renderSalesChannelPill(){
+  const es = state.lang==='es';
+  const ch = SALES_CHANNELS.find(c=>c.id===(state.salesChannel||'piso')) || SALES_CHANNELS[0];
+  const label = es?ch.es:ch.en;
+  return `<span class="sc-pill" data-sc-open="1">
+    <span class="sc-pill-lbl">${es?'Canal':'Channel'}</span>
+    ${label}
+    ${icon('chevronDown',11)}
+  </span>`;
+}
+
+// Variante compacta SIN label interno "CANAL" — usar cuando el label "Canal:"
+// vive fuera del pill (ej. la fila scbm-canal-row en pgSalesCart mobile).
+function _renderSalesChannelPillCompact(){
+  const es = state.lang==='es';
+  const ch = SALES_CHANNELS.find(c=>c.id===(state.salesChannel||'piso')) || SALES_CHANNELS[0];
+  const label = es?ch.es:ch.en;
+  return `<span class="sc-pill" data-sc-open="1">
+    ${icon(ch.icon,12)}
+    ${label}
+    ${icon('chevronDown',11)}
+  </span>`;
+}
+
+function _renderSalesChannelSheet(){
+  if(!state._salesChannelOpen) return '';
+  const es = state.lang==='es';
+  const current = state.salesChannel||'piso';
+  return `<div class="sc-overlay" id="scOverlay">
+    <div class="sc-sheet" onclick="event.stopPropagation()">
+      <div class="sc-sheet-handle"><div class="sc-sheet-handle-bar"></div></div>
+      <div class="sc-sheet-head">
+        <h2 class="sc-sheet-title">${es?'Canal de venta':'Sales channel'}</h2>
+        <div class="sc-sheet-desc">${es?'Cómo llegó esta venta. Tocá una opción para aplicarla.':'How this sale was originated. Tap an option to apply.'}</div>
+      </div>
+      <div class="sc-sheet-list">
+        ${SALES_CHANNELS.map(c=>{
+          const sel = c.id===current;
+          return `<button type="button" class="sc-sheet-opt ${sel?'is-selected':''}" data-sc-pick="${c.id}">
+            <div class="sc-sheet-opt-icon">${icon(c.icon,18)}</div>
+            <div class="sc-sheet-opt-body">
+              <div class="sc-sheet-opt-title">${es?c.es:c.en}</div>
+              <div class="sc-sheet-opt-desc">${es?c.desc_es:c.desc_en}</div>
+            </div>
+            <div class="sc-sheet-check">${icon('check',14,'#fff')}</div>
+          </button>`;
+        }).join('')}
+      </div>
+      <div class="sc-sheet-close">
+        <button class="sc-sheet-close-btn" id="btnSalesChannelClose">${es?'Cancelar':'Cancel'}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
 /* ═══════════════ GUATEMALA CONFIG ═══════════════ */
 const GT_DOCS = {
   'DPI':      { label:'DPI (CUI)',            maxLen:13, minLen:13, numeric:true,  placeholder:'0000000000000', hint:'13 dígitos numéricos',                 pattern:/^\d{13}$/ },
@@ -2037,6 +2339,15 @@ const GT_DOCS = {
   'Residencia':{ label:'Carné de Residencia',  maxLen:20, minLen:5,  numeric:false, placeholder:'Ej. RES-0000000',hint:'Alfanumérico (emitido por IGM)',      pattern:/^[A-Za-z0-9\-]{5,20}$/ },
 };
 const GT_DEFAULT_DOC = 'DPI';
+
+// Canal de venta — opciones (v99 · Fase 12)
+const SALES_CHANNELS = [
+  {id:'piso',      es:'Piso',      en:'Floor',     desc_es:'Venta presencial en tienda',          desc_en:'In-store presence',          icon:'store'},
+  {id:'ruteo',     es:'Ruteo',     en:'Routing',   desc_es:'Vendedor visitando clientes',         desc_en:'Salesperson visiting clients',icon:'package'},
+  {id:'ecommerce', es:'Ecommerce', en:'Ecommerce', desc_es:'Compra iniciada en tienda online',   desc_en:'Order started in online store',icon:'barcode'},
+  {id:'whatsapp',  es:'WhatsApp',  en:'WhatsApp',  desc_es:'Atención por chat con el cliente',    desc_en:'Chat-based assistance',       icon:'messageSquare'},
+  {id:'b2b',       es:'B2B',       en:'B2B',       desc_es:'Venta a otra empresa o corporativo',  desc_en:'Sale to business or corporate',icon:'briefcase'},
+];
 
 // Currency helper — Quetzales
 let state = {
@@ -2068,6 +2379,11 @@ let state = {
   _obsIncomeDocs:[],
   _obsAddressDocs:[],
   _obsRefs:[{name:'',phone:'',rel:''},{name:'',phone:'',rel:''}],
+  // Canal de venta (v99 · Fase 12)
+  salesChannel:'piso',
+  _salesChannelOpen:false,
+  // Transportado por (v99 · Fase 12)
+  salesDeliveryTransport:null,
   simPlanExpanded:false,
   simPlanExpandedCash:false,
   simPlazo:undefined,simPrima:undefined,simCPI:true,simCartTotal:9360,
@@ -2233,7 +2549,12 @@ solicitudes:[
   salesCartItems:[],salesIdType:'DPI',salesIdNumber:'',
   salesCotizacion:null,
   salesSubScreen:null,salesDetailItem:null,salesCreditDiscount:false,
-  // H29: shipping date/time son ephemeral (no persisten en backend), prefijo _.
+  // Plan de entrega rediseñado (v99 · Fase 13) — 3 sub-steps dentro de salesSubScreen='checkout'
+  salesDeliveryStep:'plan', // 'plan' | 'address' | 'shipping'
+  salesDeliveryMode:null,   // 'pickup' | 'address' (modalidad activa cuando NO está en split)
+  _dlAssignItemKey:null,    // key del item cuya sheet de destino está abierta (split mode)
+  _dlActiveNodeKey:null,    // key del nodo activo en step 'shipping' (para form per-node)
+  salesAddressForm:{ label:'', dept:'', muni:'', street:'', refs:'', lat:14.6064, lng:-90.5132 },
   salesNoDelivery:false,salesShipMethod:null,_salesShipDate:null,_salesShipTime:null,salesPayMethod:null,
   // Plan de entrega (v97) — array de nodos. Cada nodo asigna items al mismo destino.
   // type: 'pickup' (sucursal) | 'address' (dirección del cliente o nueva)
@@ -2530,7 +2851,17 @@ function render(){
     const initials=(customer.name||'').split(' ').filter(Boolean).map(w=>w[0]).slice(0,2).join('');
     const isPreApproved=state.outcome===2;
     const isDone=s==='done'||s==='rejected'||s==='approved';
-    const screenTitle=s==='simulation'?t('step3'):s==='forkAml'?(state.lang==='es'?'Validación AML':'AML Validation'):s==='aml'?t('step4'):s==='docScan'?(state.lang==='es'?'Verificación de Identidad':'Identity Verification'):s==='otp'?t('otpTitle'):s==='application'?t('step5'):s==='forkApproval'?(state.lang==='es'?'Resultado':'Result'):s==='rejected'?(state.lang==='es'?'Resultado':'Result'):s==='done'?t('doneTitle'):s==='approved'?t('approvedTitle'):s==='increaseStart'?(state.lang==='es'?'Incremento de Línea':'Line Increase'):s==='increaseUpdate'?(state.lang==='es'?'Actualizar ingresos':'Update income'):s==='increaseAddresses'?(state.lang==='es'?'Confirmar direcciones':'Confirm addresses'):s==='increasePreEval'?(state.lang==='es'?'Pre-evaluación':'Pre-evaluation'):s==='visitSchedule'?(state.lang==='es'?'Agendar visita':'Schedule visit'):s==='incomeUpload'?(state.lang==='es'?'Verificación de ingresos':'Income verification'):(state.lang==='es'?'Resultado':'Result');
+    // Simulation title (v99 opción A): el outer card de pgSimulation se eliminó y
+    // su título ahora vive en el ctx-header. Es product-aware (Mercadería/Moto/Cash).
+    const _simCartItems = state.salesCartItems||[];
+    const _simCartHasMoto = _simCartItems.some(it=>it.category==='moto');
+    const _simEs = state.lang==='es';
+    const simulationTitle = state.action==='cash'
+      ? (_simEs?'Cotización · Cash':'Quote · Cash')
+      : _simCartHasMoto
+        ? (_simEs?'Cotización · Moto':'Quote · Motorcycle')
+        : (_simEs?'Cotización · Mercadería':'Quote · Merchandise');
+    const screenTitle=s==='simulation'?simulationTitle:s==='forkAml'?(state.lang==='es'?'Validación AML':'AML Validation'):s==='aml'?t('step4'):s==='docScan'?(state.lang==='es'?'Verificación de Identidad':'Identity Verification'):s==='otp'?t('otpTitle'):s==='application'?t('step5'):s==='forkApproval'?(state.lang==='es'?'Resultado':'Result'):s==='rejected'?(state.lang==='es'?'Resultado':'Result'):s==='done'?t('doneTitle'):s==='approved'?t('approvedTitle'):s==='increaseStart'?(state.lang==='es'?'Incremento de Línea':'Line Increase'):s==='increaseUpdate'?(state.lang==='es'?'Actualizar ingresos':'Update income'):s==='increaseAddresses'?(state.lang==='es'?'Confirmar direcciones':'Confirm addresses'):s==='increasePreEval'?(state.lang==='es'?'Pre-evaluación':'Pre-evaluation'):s==='visitSchedule'?(state.lang==='es'?'Agendar visita':'Schedule visit'):s==='incomeUpload'?(state.lang==='es'?'Verificación de ingresos':'Income verification'):(state.lang==='es'?'Resultado':'Result');
     let cardContent='';
     if(s==='simulation')cardContent=pgSimulation();
     else if(s==='incomeUpload')cardContent=pgIncomeUpload();
@@ -2556,8 +2887,8 @@ function render(){
       <div class="ctx-header">
         ${showBackBtn?`<span id="btn_${backAction}" class="ctx-header-back" role="button" tabindex="0" aria-label="${state.lang==='es'?'Atrás':'Back'}">${icon('chevronLeft',22)}</span>`:''}
         <div class="ctx-header-body">
-          <div class="ctx-header-name">${customer.name}</div>
-          <div class="ctx-header-doc">${icon('idCard',11,'var(--primary)')} ${customer.doc}</div>
+          <div class="ctx-header-title">${screenTitle}</div>
+          <div class="ctx-header-meta">${customer.name} · ${customer.doc}</div>
         </div>
       </div>
       <div style="flex:1;padding:16px;overflow-y:auto;">
@@ -3890,6 +4221,25 @@ function productBadge(product){
   const label=translateProduct(product);
   return`<span style="padding:2px 8px;border-radius:10px;background:var(--surface-alt);border:1px solid var(--border);font-size:10px;font-weight:600;color:var(--text-secondary);white-space:nowrap;">${label}</span>`;
 }
+// Helper (v99 — Fase 14): si el cart ya está en modo crédito (≥1 item con creditPromo:true),
+// auto-aplicar promo crédito al item nuevo si tiene promoRate disponible.
+// Silencioso: muta el cartItem en-place. No toast, no tag, no flash — el item entra como si la promo
+// hubiera sido elegida manualmente.
+function _applyAutoCreditPromo(cartItem, catalogItem){
+  if(!cartItem) return cartItem;
+  if(cartItem.creditPromo === true) return cartItem; // ya tiene promo
+  const inCreditMode = (state.salesCartItems||[]).some(it => it && it.creditPromo === true);
+  if(!inCreditMode) return cartItem;
+  const rate = (catalogItem && catalogItem.promoRate) || cartItem.promoRate || 0;
+  if(rate <= 0) return cartItem; // sin promo disponible, se queda sin descuento
+  const basePrice = cartItem.originalPrice || cartItem.price;
+  cartItem.originalPrice = basePrice;
+  cartItem.price = parseFloat((basePrice * (1 - rate)).toFixed(2));
+  cartItem.creditPromo = true;
+  cartItem.promoRate = rate;
+  return cartItem;
+}
+
 function getCatalog(){
   const es=state.lang==='es';
   return[
@@ -5154,6 +5504,49 @@ function _getNodeOptions(){
   return opts;
 }
 
+// ═══ Helpers para el rediseño v99 · Fase 13 ═══════════════════════════
+// Tienda actual del operador (la sucursal donde está logueado)
+function _currentStoreId(){
+  const s = state.selectedStore;
+  if(s && _stores().find(x=>x.id===s)) return s;
+  return 'GT-Z10';
+}
+// Sincroniza state.salesDeliveryMode con la realidad de cartFulfillment.
+// 'pickup' si todos pickup, 'address' si todos address, null si mixto/vacío.
+function _syncDeliveryMode(){
+  _ensureFulfillment();
+  const ns = state.cartFulfillment || [];
+  if(ns.length === 0){ state.salesDeliveryMode = null; return; }
+  const types = new Set(ns.map(n=>n.type));
+  if(types.size === 1){
+    state.salesDeliveryMode = ns[0].type === 'pickup' ? 'pickup' : 'address';
+  } else {
+    // mixto · usado en split — no sobreescribimos el mode (preserve user choice)
+  }
+}
+// Genera las próximas 5 fechas disponibles (iso, día, mes corto)
+function _dlNextDates(){
+  const es = state.lang==='es';
+  const out = [];
+  const now = new Date();
+  for(let i=1;i<=5;i++){
+    const d=new Date(now); d.setDate(d.getDate()+i);
+    const mLbl = d.toLocaleDateString(es?'es-GT':'en-US',{month:'short'}).replace('.','');
+    out.push({ iso:d.toISOString().split('T')[0], d:d.getDate(), m:mLbl });
+  }
+  return out;
+}
+// Slots de horario disponibles
+function _dlSlots(){
+  const es = state.lang==='es';
+  return [
+    { id:'am',  t: es?'Mañana':'Morning',  h:'8–12'  },
+    { id:'mid', t: es?'Medio día':'Midday', h:'12–3' },
+    { id:'pm',  t: es?'Tarde':'Afternoon', h:'3–6'   },
+  ];
+}
+// ════════════════════════════════════════════════════════════════════
+
 // Helper compartido: renderiza la plan-card expandible.
 // Args:
 //   plans: array de planes (cada uno con {id,name,rate,minPrimaPct,maxPlazo,gracia})
@@ -5289,11 +5682,8 @@ function pgSimulation(){
       if(pqR==='conditional') return es?'Continuar a documentos':'Continue to documents';
       return es?'Confirmar Cotización':'Confirm Quote';
     })();
-    return`<div class="card">
-    <!-- PAGE HEAD -->
-    <div class="sim-page-head">
-      <h2 class="sim-page-title">${es?'Cotización · ':'Quote · '}${isMotoFlow?(es?'Moto':'Motorcycle'):(es?'Mercadería':'Merchandise')}</h2>
-    </div>
+    // v99 opción A: outer card removido; título ahora vive en ctx-header.
+    return`<div class="sim-body">
     ${_pqSimBanner()}
     <!-- PQ Uplift teaser / banner provisional -->
     ${_simProactiveUpliftOffer(cuotaT, maxC)}
@@ -5552,11 +5942,8 @@ function pgSimulation(){
       return esC?'Confirmar Cotización':'Confirm Quote';
     })();
 
-    return`<div class="card">
-    <!-- PAGE HEAD -->
-    <div class="sim-page-head">
-      <h2 class="sim-page-title">${esC?'Cotización · Préstamo Cash':'Quote · Cash Loan'}</h2>
-    </div>
+    // v99 opción A: outer card removido; título ahora vive en ctx-header.
+    return`<div class="sim-body">
     ${_pqSimBanner()}
     <!-- PQ Uplift teaser / banner provisional -->
     ${_simProactiveUpliftOffer(cuotaTC, maxCCash)}
@@ -8744,6 +9131,463 @@ function regaliaRemoveConfirmModal(){
   </div>`;
 }
 
+// ═══════════════════════════════════════════════════════════════════════
+// Plan de entrega · 3 sub-screens · v99 · Fase 13
+// ═══════════════════════════════════════════════════════════════════════
+
+// PANTALLA 1 · Plan de entrega
+function _renderPlanEntrega(){
+  _ensureFulfillment();
+  _syncDeliveryMode();
+  const es = state.lang==='es';
+  const ds = _flatDeliverables();
+  const dsByKey = {}; ds.forEach(d => dsByKey[d.key] = d);
+  const nodes = state.cartFulfillment;
+  const isSplit = nodes.length >= 2 || state._splitMode === true;
+  const customer = state.salesCustomer || {};
+  const addrs = customer.deliveryAddresses || [];
+  const stores = _stores();
+  const curStoreId = _currentStoreId();
+  const totalFee = _getDeliveryCost();
+  // categoryIcon shared with item cards
+  const categoryIcon = {moto:'bike',electronica:'tv',linea_blanca:'refrigerator',electrodomesticos:'plug'};
+
+  // ── Inferir modalidad por defecto cuando no hay nodos o todo es del mismo tipo
+  let mode = state.salesDeliveryMode;
+  if(!mode){
+    if(nodes.length>0 && nodes.every(n=>n.type==='pickup')) mode='pickup';
+    else if(nodes.length>0 && nodes.every(n=>n.type==='address')) mode='address';
+    else mode='pickup';
+    state.salesDeliveryMode = mode;
+  }
+
+  // ── Resolver el nodo activo (el primero, para single-mode)
+  const singleNode = nodes[0] || null;
+  const singleNodeKey = singleNode ? _nodeKey(singleNode) : '';
+
+  // ── HEADER
+  const headerHTML = `<div style="padding:12px 16px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;">
+    <span id="btnDlBack" style="cursor:pointer;display:flex;color:var(--text-dim);transform:rotate(180deg);">${icon('chevronRight',22)}</span>
+    <div style="font-size:16px;font-weight:800;">${es?'Plan de entrega':'Delivery plan'}</div>
+    <div style="margin-left:auto;font-size:10.5px;color:var(--text-dim);">${es?'Paso':'Step'} 1 ${es?'de':'of'} ${nodes.some(n=>n.type==='address')?'2':'1'}</div>
+  </div>`;
+
+  // ── SPLIT MODE — items list with per-item destination
+  if(isSplit){
+    const itemsHTML = ds.map(d=>{
+      // find which node has this item
+      const ownerNode = nodes.find(n => (n.items||[]).includes(d.key));
+      const r = ownerNode ? _resolveNode(ownerNode) : null;
+      const cartItem = (d.key.startsWith('cart:')) ? (state.salesCartItems[parseInt(d.key.split(':')[1],10)]||{}) : null;
+      const icName = cartItem ? (categoryIcon[cartItem.category||'']||'package') : 'gift';
+      const sku = cartItem ? ((cartItem.brand||'')+(cartItem.model?' · '+cartItem.model:'')) : (es?'Regalía':'Gift');
+      const hasDest = !!ownerNode;
+      const destCls = !hasDest ? 'warn' : (r.isPickup?'pickup':'address');
+      const destMode = !hasDest ? (es?'Sin destino':'No destination') : (r.isPickup?(es?'Retiro':'Pickup'):(es?'Envío':'Delivery'));
+      return `<div class="dl-item-card">
+        <div class="dl-item-head">
+          <div class="dl-item-thumb">${icon(icName,22,'#8D93A5')}</div>
+          <div class="dl-item-body">
+            <div class="dl-item-name">${d.label}</div>
+            <div class="dl-item-sku">${sku}</div>
+          </div>
+          <div class="dl-item-price">${d.isGift?(es?'Gratis':'Free'):'Q'+d.price.toFixed(2)}</div>
+        </div>
+        <div class="dl-item-dest ${hasDest?'':'empty'}" data-dl-assign="${d.key}">
+          <div class="dl-item-dest-icon ${destCls}">${icon(hasDest?(r.isPickup?'store':'mapPin'):'alertTriangle',16)}</div>
+          <div class="dl-item-dest-body">
+            <div class="dl-item-dest-mode ${destCls}">${destMode}</div>
+            <div class="dl-item-dest-target">${hasDest?r.label.replace(/^(Retiro · |Pickup · |Envío · |Delivery · )/,''):'—'}</div>
+          </div>
+          ${icon('chevronRight',16,'#8D93A5')}
+        </div>
+      </div>`;
+    }).join('');
+
+    const missingCount = ds.filter(d => !nodes.some(n => (n.items||[]).includes(d.key))).length;
+    const continueDisabled = missingCount > 0;
+
+    // Summary by destination
+    const summaryLines = nodes.map(n => {
+      const r = _resolveNode(n);
+      return `<div class="dl-summary-line">
+        <span class="dl-summary-line-l">${r.label} <small style="opacity:.7">(${n.items.length})</small></span>
+        <span class="dl-summary-line-v">${r.fee===0?(es?'Gratis':'Free'):'Q'+r.fee.toFixed(2)}</span>
+      </div>`;
+    }).join('');
+
+    // ── SHEET (asignar destino por item) — overlay
+    const sheetHTML = (state._dlAssignItemKey != null) ? _renderAssignSheet(state._dlAssignItemKey) : '';
+
+    return `<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);">
+      ${headerHTML}
+      <div style="flex:1;padding:16px;overflow-y:auto;padding-bottom:90px;">
+        <div class="inner-container" style="max-width:680px;">
+
+          <div class="dl-split" style="margin-bottom:12px;">
+            <span>${icon('package',14)}&nbsp; <strong style="color:var(--text);">${es?'Entrega dividida':'Split delivery'}</strong> · ${ds.length} ${es?'productos':'items'}</span>
+            <button id="btnDlConsolidate" class="dl-split-link">${es?'Un solo destino':'Single destination'}</button>
+          </div>
+
+          ${itemsHTML}
+
+          <div style="margin-top:14px;">
+            <div class="dl-section-l">${es?'Resumen':'Summary'}</div>
+            <div class="dl-summary">
+              ${summaryLines}
+              <div class="dl-summary-total">
+                <span>${es?'Total flete':'Total fee'}</span>
+                <span class="dl-summary-total-v">${totalFee===0?(es?'Gratis':'Free'):'Q'+totalFee.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+
+          ${missingCount>0?`<div style="margin-top:10px;padding:10px 12px;background:var(--info-amber-light);border:1px solid var(--info-amber-border);border-radius:8px;font-size:11.5px;color:var(--info-amber);display:flex;align-items:center;gap:7px;">
+            ${icon('alertTriangle',14)} ${es?`Asigná destino a ${missingCount} ${missingCount===1?'producto':'productos'} para continuar`:`Assign a destination to ${missingCount} item${missingCount===1?'':'s'} to continue`}
+          </div>`:''}
+
+          <div style="display:flex;gap:8px;margin-top:16px;">
+            <button class="btn btn-secondary" id="btnDlBack2" style="flex:1;justify-content:center;">${es?'Atrás':'Back'}</button>
+            <button class="btn btn-primary" id="btnDlContinue" style="flex:2;justify-content:center;${continueDisabled?'opacity:0.5;pointer-events:none;':''}">${es?'Continuar':'Continue'} →</button>
+          </div>
+        </div>
+      </div>
+      ${sheetHTML}
+    </div>`;
+  }
+
+  // ── SINGLE MODE — mode cards + list
+  const pickupCard = `<div class="dl-mod ${mode==='pickup'?'is-on':''}" data-dl-mode="pickup">
+    <div class="dl-mod-tag">${es?'Gratis':'Free'}</div>
+    <div class="dl-mod-check">${icon('checkCircle',11,'#fff')}</div>
+    <div class="dl-mod-icon">${icon('store',18)}</div>
+    <div class="dl-mod-title">${es?'Retiro en tienda':'Pickup in store'}</div>
+    <div class="dl-mod-desc">${es?'Listo en 24h':'Ready in 24h'}</div>
+    <div class="dl-mod-price">Q0.00</div>
+  </div>`;
+  const addressCard = `<div class="dl-mod ${mode==='address'?'is-on':''}" data-dl-mode="address">
+    <div class="dl-mod-check">${icon('checkCircle',11,'#fff')}</div>
+    <div class="dl-mod-icon">${icon('home',18)}</div>
+    <div class="dl-mod-title">${es?'Envío a domicilio':'Home delivery'}</div>
+    <div class="dl-mod-desc">${es?'A la dirección del cliente · 2-4 días':'To customer address · 2-4 days'}</div>
+    <div class="dl-mod-price paid">${es?'Desde Q40':'From Q40'}</div>
+  </div>`;
+
+  let listHTML = '';
+  if(mode==='pickup'){
+    const rows = stores.map(s => {
+      const isCurrent = s.id === curStoreId;
+      const isSel = (singleNode && singleNode.type==='pickup' && singleNode.ref===s.id) || (!singleNode && isCurrent);
+      return `<div class="dl-row ${isSel?'is-on':''}" data-dl-store="${s.id}">
+        <div class="dl-radio"><div class="dl-radio-dot"></div></div>
+        <div class="dl-row-body">
+          <div class="dl-row-name">
+            ${s.name}
+            ${isCurrent?`<span class="dl-row-pill dl-row-pill-current">${es?'Tienda actual':'Current store'}</span>`:''}
+          </div>
+          <div class="dl-row-meta">${s.city} · ETA ${s.eta||'24h'}</div>
+        </div>
+        <div class="dl-row-cost free">${es?'Gratis':'Free'}</div>
+      </div>`;
+    }).join('');
+    listHTML = `<div class="dl-section-l"><span>${es?'Elegir sucursal':'Choose store'}</span></div>
+      <div class="dl-list">${rows}</div>`;
+  } else {
+    const defaultAddr = addrs.find(a=>a.isDefault) || addrs[0];
+    const selAddrId = (singleNode && singleNode.type==='address') ? singleNode.ref : (defaultAddr&&defaultAddr.id);
+    const rows = addrs.length>0 ? addrs.map(a => {
+      const isSel = selAddrId === a.id;
+      const isGT = (a.muni||'').toLowerCase().includes('guatemala');
+      const fee = isGT ? 40 : 80;
+      return `<div class="dl-row ${isSel?'is-on':''}" data-dl-addr="${a.id}">
+        <div class="dl-radio"><div class="dl-radio-dot"></div></div>
+        <div class="dl-row-body">
+          <div class="dl-row-name">
+            ${a.label||(es?'Dirección':'Address')}
+            ${a.isDefault?`<span class="dl-row-pill dl-row-pill-default">${es?'Predeterminada':'Default'}</span>`:''}
+          </div>
+          <div class="dl-row-meta" style="font-family:inherit;font-size:11px;font-weight:400;">${(a.street||'')}${a.muni?', '+a.muni:''}</div>
+        </div>
+        <div class="dl-row-cost paid">Q${fee}</div>
+      </div>`;
+    }).join('') : '';
+    listHTML = `<div class="dl-section-l"><span>${es?'Dirección de entrega':'Delivery address'}</span></div>
+      ${rows?`<div class="dl-list">${rows}</div>`:''}
+      <div class="dl-add" id="btnDlAddAddr">${icon('plus',14)} ${es?'Agregar nueva dirección':'Add new address'}</div>`;
+  }
+
+  // Split toggle (only if 2+ items)
+  const splitToggle = ds.length>=2 ? `<div class="dl-split" style="margin-top:14px;">
+    <span>${icon('package',14)}&nbsp; ${es?`Mismo destino para ${ds.length} productos`:`Same destination for ${ds.length} items`}</span>
+    <button id="btnDlSplit" class="dl-split-link">${es?'Dividir entrega →':'Split delivery →'}</button>
+  </div>` : '';
+
+  // Items recap
+  const itemsRecap = `<div class="dl-items" style="margin-top:14px;">
+    <div class="dl-items-h"><span>${es?'Productos en este envío':'Items in this delivery'}</span><span class="dl-items-c">${ds.length}</span></div>
+    <div class="dl-items-list">${ds.map(d=>`<div>${d.isGift?(icon('gift',10,'#856404')+' '):''}${d.label} <span style="float:right;font-family:var(--mono);">${d.isGift?(es?'Gratis':'Free'):'Q'+d.price.toFixed(2)}</span></div>`).join('')}</div>
+  </div>`;
+
+  return `<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);">
+    ${headerHTML}
+    <div style="flex:1;padding:16px;overflow-y:auto;padding-bottom:90px;">
+      <div class="inner-container" style="max-width:680px;">
+        <div class="dl-section-l"><span>${es?'Modalidad':'Mode'}</span></div>
+        <div class="dl-mod-grid">${pickupCard}${addressCard}</div>
+
+        ${listHTML}
+        ${splitToggle}
+        ${itemsRecap}
+
+        <div style="display:flex;gap:8px;margin-top:18px;">
+          <button class="btn btn-secondary" id="btnDlBack2" style="flex:1;justify-content:center;">${es?'Atrás':'Back'}</button>
+          <button class="btn btn-primary" id="btnDlContinue" style="flex:2;justify-content:center;">${es?'Continuar':'Continue'} →</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// SHEET · asignar destino para un item específico (split mode)
+function _renderAssignSheet(itemKey){
+  const es = state.lang==='es';
+  const stores = _stores();
+  const curStoreId = _currentStoreId();
+  const customer = state.salesCustomer || {};
+  const addrs = customer.deliveryAddresses || [];
+  const nodes = state.cartFulfillment || [];
+  const ownerNode = nodes.find(n => (n.items||[]).includes(itemKey));
+  const ownerKey = ownerNode ? _nodeKey(ownerNode) : '';
+
+  const pickups = stores.map(s => {
+    const k = 'pickup:'+s.id;
+    const isCurrent = s.id === curStoreId;
+    return `<div class="dl-row ${ownerKey===k?'is-on':''}" data-dl-assign-pick="${k}">
+      <div class="dl-radio"><div class="dl-radio-dot"></div></div>
+      <div class="dl-row-body">
+        <div class="dl-row-name">${s.name}${isCurrent?`<span class="dl-row-pill dl-row-pill-current">${es?'Actual':'Current'}</span>`:''}</div>
+        <div class="dl-row-meta" style="font-family:inherit;font-size:11px;font-weight:400;">${s.city} · ETA ${s.eta||'24h'}</div>
+      </div>
+      <div class="dl-row-cost free">${es?'Gratis':'Free'}</div>
+    </div>`;
+  }).join('');
+
+  const addrsHTML = addrs.map(a => {
+    const k = 'address:'+a.id;
+    const isGT = (a.muni||'').toLowerCase().includes('guatemala');
+    const fee = isGT?40:80;
+    return `<div class="dl-row ${ownerKey===k?'is-on':''}" data-dl-assign-pick="${k}">
+      <div class="dl-radio"><div class="dl-radio-dot"></div></div>
+      <div class="dl-row-body">
+        <div class="dl-row-name">${a.label||(es?'Dirección':'Address')}${a.isDefault?`<span class="dl-row-pill dl-row-pill-default">${es?'Predeterminada':'Default'}</span>`:''}</div>
+        <div class="dl-row-meta" style="font-family:inherit;font-size:11px;font-weight:400;">${(a.street||'')}${a.muni?', '+a.muni:''}</div>
+      </div>
+      <div class="dl-row-cost paid">Q${fee}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="dl-sheet-ov" id="dlSheetOv">
+    <div class="dl-sheet">
+      <div class="dl-sheet-h">
+        <div class="dl-sheet-t">${es?'Destino para este producto':'Destination for this item'}</div>
+        <span class="dl-sheet-x" id="btnDlSheetClose">${icon('x',18)}</span>
+      </div>
+      <div class="dl-sheet-b">
+        <div class="dl-sheet-section">${es?'Retiro en sucursal':'Pickup in store'}</div>
+        <div class="dl-list">${pickups}</div>
+        <div class="dl-sheet-section">${es?'Envío a domicilio':'Home delivery'}</div>
+        ${addrsHTML?`<div class="dl-list">${addrsHTML}</div>`:''}
+        <div class="dl-add" id="btnDlSheetAddAddr">${icon('plus',14)} ${es?'Agregar nueva dirección':'Add new address'}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// PANTALLA 2 · Nueva dirección
+function _renderNewAddress(){
+  const es = state.lang==='es';
+  const f = state.salesAddressForm || {};
+  return `<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);">
+    <div style="padding:12px 16px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;">
+      <span id="btnDlAddrCancel" style="cursor:pointer;display:flex;color:var(--text-dim);transform:rotate(180deg);">${icon('chevronRight',22)}</span>
+      <div style="font-size:16px;font-weight:800;">${es?'Nueva dirección':'New address'}</div>
+    </div>
+    <div style="flex:1;padding:16px;overflow-y:auto;padding-bottom:90px;">
+      <div class="inner-container" style="max-width:680px;">
+
+        <div class="dl-section-l"><span>${es?'Datos de la dirección':'Address details'}</span></div>
+
+        <div class="dl-fld" style="margin-bottom:10px;">
+          <label class="dl-fld-l">${es?'Etiqueta':'Label'}</label>
+          <input class="dl-fld-i" id="dlAddrLabel" placeholder="${es?'Ej: Casa, Oficina':'E.g.: Home, Office'}" value="${f.label||''}"/>
+        </div>
+
+        <div class="dl-form-grid" style="margin-bottom:10px;">
+          <div class="dl-fld">
+            <label class="dl-fld-l">${t('dept')}</label>
+            <select class="dl-fld-i" id="dlAddrDept"><option value="">${es?'Seleccioná':'Select'}</option>${_renderDeptOptions(f.dept||'')}</select>
+          </div>
+          <div class="dl-fld">
+            <label class="dl-fld-l">${t('muni')}</label>
+            <select class="dl-fld-i" id="dlAddrMuni"><option value="">${es?'Seleccioná':'Select'}</option>${f.dept?_renderMuniOptions(f.dept, f.muni||''):''}</select>
+          </div>
+        </div>
+
+        <div class="dl-fld" style="margin-bottom:10px;">
+          <label class="dl-fld-l">${es?'Dirección':'Address'}</label>
+          <input class="dl-fld-i" id="dlAddrStreet" placeholder="${es?'Calle, número, zona':'Street, number, zone'}" value="${f.street||''}"/>
+        </div>
+
+        <div class="dl-fld" style="margin-bottom:14px;">
+          <label class="dl-fld-l">${es?'Referencias':'References'}</label>
+          <input class="dl-fld-i" id="dlAddrRefs" placeholder="${es?'Puntos de referencia':'Landmarks'}" value="${f.refs||''}"/>
+        </div>
+
+        <div class="dl-section-l"><span>${es?'Ubicación en mapa':'Map location'}</span><span class="link" id="btnDlMyLoc">${es?'Mi ubicación':'My location'}</span></div>
+        <div class="dl-map" id="dlMap">
+          <div class="dl-map-tile"></div>
+          <div class="dl-map-r h1"></div>
+          <div class="dl-map-r v1"></div>
+          <div class="dl-map-shadow"></div>
+          <div class="dl-map-pin" id="dlMapPin">${icon('mapPin',32,'currentColor')}</div>
+          <div class="dl-map-overlay">
+            <div class="dl-map-coord">
+              <div class="dl-map-coord-l">${es?'Coordenadas':'Coordinates'}</div>
+              <div class="dl-map-coord-v">${(f.lat||14.6064).toFixed(4)}, ${(f.lng||-90.5132).toFixed(4)}</div>
+            </div>
+            <button class="dl-map-loc" id="btnDlMyLoc2">${icon('mapPin',12)} ${es?'Mi ubicación':'My location'}</button>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:18px;">
+          <button class="btn btn-secondary" id="btnDlAddrCancel2" style="flex:1;justify-content:center;">${es?'Cancelar':'Cancel'}</button>
+          <button class="btn btn-primary" id="btnDlAddrSave" style="flex:2;justify-content:center;">${es?'Guardar dirección':'Save address'}</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// PANTALLA 3 · Datos del envío
+function _renderShippingData(){
+  _ensureFulfillment();
+  const es = state.lang==='es';
+  const nodes = state.cartFulfillment || [];
+  const ds = _flatDeliverables();
+  const dsByKey = {}; ds.forEach(d => dsByKey[d.key] = d);
+  const customer = state.salesCustomer || {};
+  const defaultEmail = customer.email || (state.pqData&&state.pqData.email) || '';
+  const defaultPhone = customer.phone || (state.pqData&&state.pqData.phone) || '+502 5890-1234';
+  const dates = _dlNextDates();
+  const slots = _dlSlots();
+
+  const nodesHTML = nodes.map((n, ni) => {
+    const r = _resolveNode(n);
+    const nodeId = _nodeKey(n);
+    const cls = r.isPickup?'pickup':'address';
+    const itemsBrief = n.items.map(k => (dsByKey[k]&&dsByKey[k].label)||k).join(' · ');
+    const targetName = r.label.replace(/^(Retiro · |Pickup · |Envío · |Delivery · )/,'');
+
+    const headHTML = `<div class="dl-node-head">
+      <div class="dl-node-icon ${cls}">${icon(r.isPickup?'store':'mapPin',16)}</div>
+      <div class="dl-node-body">
+        <div class="dl-node-lbl ${cls}">${r.isPickup?(es?'Retiro':'Pickup'):(es?'Envío':'Delivery')} · ${n.items.length} ${n.items.length===1?'item':'items'}</div>
+        <div class="dl-node-target">${targetName}</div>
+        <div class="dl-node-items">${itemsBrief.length>60?itemsBrief.substring(0,60)+'…':itemsBrief}</div>
+      </div>
+    </div>`;
+
+    if(r.isPickup){
+      return `<div class="dl-node">
+        ${headHTML}
+        <div class="dl-node-pickup">${icon('checkCircle',16)} ${es?'Sin datos requeridos · listo para retiro':'No data required · ready for pickup'}</div>
+      </div>`;
+    }
+
+    // address: form per node
+    const contact = n.contact || { email: defaultEmail, phone: defaultPhone };
+    const scheduled = n.scheduledFor || '';
+    const slot = n.slot || '';
+    const transport = n.transport || '';
+
+    return `<div class="dl-node">
+      ${headHTML}
+      <div class="dl-node-content">
+
+        <div class="dl-node-subsec">
+          <div class="dl-node-subsec-l">${es?'Contacto para la entrega':'Delivery contact'}</div>
+          <div class="dl-form-grid">
+            <div class="dl-fld"><label class="dl-fld-l">${es?'Email':'Email'}</label><input class="dl-fld-i" data-dl-contact-email="${nodeId}" value="${contact.email||''}"/></div>
+            <div class="dl-fld"><label class="dl-fld-l">${es?'Teléfono':'Phone'}</label><input class="dl-fld-i" data-dl-contact-phone="${nodeId}" value="${contact.phone||''}"/></div>
+          </div>
+        </div>
+
+        <div class="dl-node-subsec">
+          <div class="dl-node-subsec-l">${es?'Fecha de entrega':'Delivery date'}</div>
+          <div class="dl-date-grid">
+            ${dates.map(d=>`<div class="dl-date ${scheduled===d.iso?'is-on':''}" data-dl-date="${nodeId}|${d.iso}">
+              <div class="dl-date-d">${d.d}</div>
+              <div class="dl-date-m">${d.m}</div>
+            </div>`).join('')}
+          </div>
+        </div>
+
+        <div class="dl-node-subsec">
+          <div class="dl-node-subsec-l">${es?'Horario':'Time slot'}</div>
+          <div class="dl-slot-grid">
+            ${slots.map(sl=>`<div class="dl-slot ${slot===sl.id?'is-on':''}" data-dl-slot="${nodeId}|${sl.id}">
+              <div class="dl-slot-t">${sl.t}</div>
+              <div class="dl-slot-h">${sl.h}</div>
+            </div>`).join('')}
+          </div>
+        </div>
+
+        <div class="dl-node-subsec">
+          <div class="dl-node-subsec-l">${es?'Transportado por':'Transported by'} <span class="dl-node-subsec-l-req">${es?'Requerido':'Required'}</span></div>
+          <div class="dl-trans-grid">
+            <div class="dl-trans ${transport==='tienda'?'is-on':''}" data-dl-transport="${nodeId}|tienda">
+              <div class="dl-trans-check">${icon('checkCircle',11,'#fff')}</div>
+              <div class="dl-trans-icon">${icon('store',16)}</div>
+              <div class="dl-trans-t">${es?'Tienda':'Store'}</div>
+              <div class="dl-trans-d">${es?'Transporte propio':'Own transport'}</div>
+            </div>
+            <div class="dl-trans ${transport==='cdd'?'is-on':''}" data-dl-transport="${nodeId}|cdd">
+              <div class="dl-trans-check">${icon('checkCircle',11,'#fff')}</div>
+              <div class="dl-trans-icon">${icon('package',16)}</div>
+              <div class="dl-trans-t">CDD</div>
+              <div class="dl-trans-d">${es?'Centro de Distribución':'Distribution Center'}</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>`;
+  }).join('');
+
+  const missing = nodes.filter(n => n.type==='address' && !n.transport);
+  const continueDisabled = missing.length > 0;
+
+  return `<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);">
+    <div style="padding:12px 16px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;">
+      <span id="btnDlShipBack" style="cursor:pointer;display:flex;color:var(--text-dim);transform:rotate(180deg);">${icon('chevronRight',22)}</span>
+      <div style="font-size:16px;font-weight:800;">${es?'Datos del envío':'Shipping details'}</div>
+      <div style="margin-left:auto;font-size:10.5px;color:var(--text-dim);">${es?'Paso 2 de 2':'Step 2 of 2'}</div>
+    </div>
+    <div style="flex:1;padding:16px;overflow-y:auto;padding-bottom:90px;">
+      <div class="inner-container" style="max-width:680px;">
+        ${nodesHTML}
+        ${continueDisabled?`<div style="margin-top:6px;padding:10px 12px;background:var(--info-amber-light);border:1px solid var(--info-amber-border);border-radius:8px;font-size:11.5px;color:var(--info-amber);display:flex;align-items:center;gap:7px;">
+          ${icon('alertTriangle',14)} ${es?'Seleccioná transportado por en cada envío':'Select transported-by for each delivery'}
+        </div>`:''}
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <button class="btn btn-secondary" id="btnDlShipBack2" style="flex:1;justify-content:center;">${es?'Atrás':'Back'}</button>
+          <button class="btn btn-primary" id="btnDlShipContinue" style="flex:2;justify-content:center;${continueDisabled?'opacity:0.5;pointer-events:none;':''}">${state._editPlanFromSim?(es?'Volver a la cotización':'Back to quote'):(es?'Confirmar':'Confirm')} →</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
 function pgSalesCart(){
   const customer=state.salesCustomer||{name:'ROSA ANGELICA MARTINEZ RUIZ',doc:(state.salesIdType||'DPI')+': '+(state.salesIdNumber||'0000000000000')};
   const initials=(customer.name||'').split(' ').filter(Boolean).map(w=>w[0]).slice(0,2).join('');
@@ -8778,6 +9622,7 @@ function pgSalesCart(){
         </div>
       </div>
       <div id="btnEditClientSidebar" style="font-size:11px;color:var(--primary);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">${icon('user',12)} ${t('salesEditClient')}</div>
+      <div style="margin-top:10px;">${_renderSalesChannelPill()}</div>
     </div>
     <div class="sales-sidebar-nav">
       <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-dim);padding:8px 14px 6px;">${state.lang==='es'?'Navegación':'Navigation'}</div>
@@ -8983,7 +9828,16 @@ function pgSalesCart(){
   // ─── SUB: Limit Increase ───────────────────────────────────────────
 
   if(sub==='checkout'){
-    // ═══ Plan de entrega · v97 ═══════════════════════════════════════
+    // ═══ Plan de entrega rediseñado · v99 · Fase 13 ════════════════════
+    _ensureFulfillment();
+    const step = state.salesDeliveryStep || 'plan';
+    if(step === 'address')  return _renderNewAddress();
+    if(step === 'shipping') return _renderShippingData();
+    return _renderPlanEntrega();
+  }
+
+  // ─── LEGACY (no longer wired — kept blocked to preserve original render path off) ──
+  if(false && sub==='checkout-legacy'){
     _ensureFulfillment();
     const es = state.lang==='es';
     const ds = _flatDeliverables();
@@ -8992,6 +9846,31 @@ function pgSalesCart(){
     const isSplit = nodes.length >= 2 || state._splitMode === true;
     const total = _getDeliveryCost();
     const dsByKey = {}; ds.forEach(d => dsByKey[d.key] = d);
+
+    // Transportado por · sólo aplica cuando hay al menos un nodo de entrega a domicilio (v99 · Fase 12)
+    const deliveryEnabled = nodes.some(n => n.type === 'address');
+    const transportBlock = deliveryEnabled ? `
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:14px;margin-bottom:14px;">
+        <label style="font-size:11.5px;font-weight:600;color:var(--text-secondary);display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span>${es?'Transportado por':'Transported by'}</span>
+          <span class="cv-fld-lbl-req">${es?'Requerido':'Required'}</span>
+        </label>
+        <div class="cv-radio-grid">
+          <div class="cv-radio-card ${state.salesDeliveryTransport==='tienda'?'is-on':''}" data-transport-pick="tienda">
+            <div class="cv-radio-check">${icon('checkCircle',11,'#fff')}</div>
+            <div class="cv-radio-card-icon">${icon('store',16)}</div>
+            <div class="cv-radio-card-title">${es?'Tienda':'Store'}</div>
+            <div class="cv-radio-card-desc">${es?'Transporte propio':'Own transport'}</div>
+          </div>
+          <div class="cv-radio-card ${state.salesDeliveryTransport==='cdd'?'is-on':''}" data-transport-pick="cdd">
+            <div class="cv-radio-check">${icon('checkCircle',11,'#fff')}</div>
+            <div class="cv-radio-card-icon">${icon('package',16)}</div>
+            <div class="cv-radio-card-title">CDD</div>
+            <div class="cv-radio-card-desc">${es?'Centro de Distribución':'Distribution Center'}</div>
+          </div>
+        </div>
+      </div>
+    ` : '';
 
     // Render del dropdown agrupado (mismo HTML reutilizable)
     // right:0 → siempre se alinea al borde derecho del trigger (no se corta hacia la derecha)
@@ -9096,6 +9975,8 @@ function pgSalesCart(){
               </button>
             </div>` : '<div style="margin-bottom:16px;"></div>'}
 
+            ${transportBlock}
+
             <button class="btn btn-primary btn-lg" id="btnCheckoutContinue" style="width:100%;justify-content:center;">${state._editPlanFromSim?(es?'Volver a la cotización':'Back to quote'):(es?'Continuar':'Continue')} →</button>
           </div>
         </div>
@@ -9162,6 +10043,8 @@ function pgSalesCart(){
               ${icon('rotateCw',12)} ${es?'Consolidar todo a 1 destino':'Consolidate to 1 destination'}
             </button>
           </div>
+
+          ${transportBlock}
 
           <button class="btn btn-primary btn-lg" id="btnCheckoutContinue" style="width:100%;justify-content:center;">${state._editPlanFromSim?(es?'Volver a la cotización':'Back to quote'):(es?'Continuar':'Continue')} →</button>
         </div>
@@ -9327,15 +10210,19 @@ function pgSalesCart(){
         <span style="flex-shrink:0;display:flex;color:var(--warning);margin-top:1px;">${icon('alertTriangle',14,'#D97B0D')}</span>
         <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;"><strong style="color:var(--warning);">${es?'Cliente en mora':'Customer past due'}</strong> — ${es?`Q${(customer.pastDueAmount||0).toFixed(2)} pendientes. Sin crédito propio disponible.`:`Q${(customer.pastDueAmount||0).toFixed(2)} outstanding. Store credit unavailable.`}</div>
       </div>`:'';
-    const prequalBanner=!hasCredit&&!customer.creditRejected&&!customer.pastDue?`
-      <div style="padding:14px 16px;border-radius:var(--radius-sm);background:var(--primary-light);border:1.5px solid #C5D0F0;margin-bottom:14px;">
-        <div style="display:flex;align-items:flex-start;gap:12px;">
-          <div style="width:36px;height:36px;border-radius:50%;background:var(--white);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon('creditCard',18,'#2B5CE6')}</div>
-          <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:3px;">${es?'¿Pagar a crédito?':'Pay on credit?'}</div>
-          <div style="font-size:11px;color:var(--text-secondary);line-height:1.4;margin-bottom:10px;">${es?'Cliente sin pre-calificación vigente.':'Customer not yet pre-qualified.'}</div>
-          <button class="btn btn-primary" id="btnPrequalFromPayment" style="padding:8px 16px;font-size:12px;display:flex;align-items:center;gap:5px;">${icon('clipboardList',14)} ${es?'Pre-calificar':'Pre-qualify'}</button></div>
+    // Card de opción "Pago a Crédito · Pre-calificar" — se renderiza dentro de "Cómo querés pagar"
+    const prequalOption=!hasCredit&&!customer.creditRejected&&!customer.pastDue?`
+      <div style="padding:14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--white);margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--surface-alt);">${icon('lock',11,'var(--text-dim)')}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:14px;font-weight:700;">${es?'Pago a Crédito Propio':'Store Credit'}</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:2px;line-height:1.4;">${es?'Cliente sin pre-calificación vigente':'Customer not yet pre-qualified'}</div>
+          </div>
+          <button class="btn btn-primary" id="btnPrequalFromPayment" style="padding:8px 14px;font-size:12px;flex-shrink:0;display:inline-flex;align-items:center;gap:5px;">${icon('clipboardList',13)} ${es?'Pre-calificar':'Pre-qualify'}</button>
         </div>
       </div>`:'';
+    const prequalBanner=''; // legacy var preservada por compat
 
     // Cart items list — reactive prices
     const categoryIcon={moto:'bike',electronica:'tv',linea_blanca:'refrigerator',electrodomesticos:'plug'};
@@ -9385,6 +10272,8 @@ function pgSalesCart(){
 
           <!-- ── Payment methods ── -->
           <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-dim);margin-bottom:10px;">${es?'Cómo querés pagar':'How do you want to pay'}</div>
+
+          ${prequalOption}
 
           ${hasCredit?`<div data-paymethod="credit" style="padding:14px;border-radius:var(--radius-sm);border:${isCreditSel?'2px solid var(--primary)':'1.5px solid var(--border)'};background:${isCreditSel?'var(--primary-light)':'var(--white)'};cursor:pointer;transition:all .15s;margin-bottom:10px;">
             <div style="display:flex;align-items:center;gap:12px;">
@@ -9464,7 +10353,7 @@ function pgSalesCart(){
       <div style="font-size:18px;font-weight:800;color:var(--primary);margin-bottom:8px;">${t('salesCartEmpty')}</div>
       <div style="font-size:13px;color:var(--text-dim);line-height:1.6;max-width:320px;margin:0 auto;">${t('salesCartEmptyDesc')}</div>
     </div>`:`
-    ${state.salesCotizacion?`<div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:8px;">COT: ${state.salesCotizacion}</div>`:''}
+    ${state.salesCotizacion?`<div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:8px;">${state.salesCotizacion}</div>`:''}
     <div style="margin-bottom:16px;">
       ${items.map((it,idx)=>{
         const regalias = it.regalias||[];
@@ -10201,17 +11090,30 @@ function pgSalesCart(){
         ${activeTab==='cart'?`<span id="btnOpenSearch" style="width:36px;height:36px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--primary);">${icon('search',18)}</span>
         <span id="btnOpenScan" style="width:36px;height:36px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--primary);">${icon('barcode',18)}</span>`:''}
       </div>
-      <div class="sales-client-bar-desktop" style="padding:10px 16px;border-top:1px solid var(--border);">
-        <div class="inner-container" style="display:flex;align-items:center;gap:12px;">
-          <div style="width:38px;height:38px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">${initials}</div>
-          <div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${customer.name}</div><div style="font-size:11px;color:var(--text-dim);">${customer.doc}</div>${creditBadge(customer)}</div>
-          <div id="btnEditClientMobile" style="font-size:11px;color:var(--primary);font-weight:600;cursor:pointer;flex-shrink:0;">${t('salesEditClient')}</div>
+      <div class="sales-client-bar-desktop sales-client-bar-mobile" style="padding:10px 16px;border-top:1px solid var(--border);">
+        <div class="inner-container">
+          <div class="scbm-row">
+            <div class="scbm-avatar" style="width:38px;height:38px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">${initials}</div>
+            <div class="scbm-body" style="flex:1;min-width:0;">
+              <div class="scbm-name" style="font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${customer.name}</div>
+              <div class="scbm-meta" style="font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:2px;">
+                <span>${customer.doc}</span>
+                <span class="scbm-meta-badge">${creditBadge(customer)}</span>
+              </div>
+            </div>
+            <button id="btnEditClientMobile" class="scbm-edit" title="${t('salesEditClient')}" aria-label="${t('salesEditClient')}">${icon('edit',15)}</button>
+          </div>
+          <div class="scbm-canal-row">
+            <span class="scbm-canal-lbl">${state.lang==='es'?'Canal:':'Channel:'}</span>
+            ${_renderSalesChannelPillCompact()}
+          </div>
         </div>
       </div>
     </div>
     <div style="flex:1;padding:16px;overflow-y:auto;"><div class="sales-content-wrap">${content}</div></div>
     </div>
     ${tabBar}
+    ${_renderSalesChannelSheet()}
   </div>`;
 }
 /* ═══════════════ NAV ═══════════════ */
@@ -10221,6 +11123,9 @@ function navigateSalesScenario(){
   state.salesSubScreen=null;
   const fromOrigination=state._scenarioFromOrigination;
   if(fromOrigination) state._scenarioFromOrigination=false;
+  // Reset canal de venta + transportado por al iniciar una venta nueva (v99 · Fase 12)
+  state.salesChannel='piso';
+  state.salesDeliveryTransport=null;
 
   // Resolve document from whichever flow provided it
   const docType=state.idType||state.salesIdType||'DPI';
@@ -10309,6 +11214,7 @@ function navigateSalesScenario(){
       const ci={id:pItem.id,name:pItem.name,brand:pItem.brand,model:pItem.model,category:pItem.category||null,sku:pItem.sku,price:pItem.price,creditPromo:false};
       if(state._pendingCreditDiscount&&pItem.promoRate){ci.originalPrice=pItem.price;ci.price=parseFloat((pItem.price*(1-pItem.promoRate)).toFixed(2));ci.creditPromo=true;ci.promoRate=pItem.promoRate;}
       if(state._pendingWarranty>0){ci.warranty={label:state._pendingWarrantyLabel,price:state._pendingWarranty};}
+      _applyAutoCreditPromo(ci, pItem);
       state.salesCartItems.push(ci);
     }
     state._pendingCartItem=null;state._pendingWarranty=0;state._pendingWarrantyLabel='';state._pendingCreditDiscount=false;
@@ -10604,6 +11510,10 @@ function resetEphemeralState(){
   // Fase 11b — Observada inline editor
   state._obsExpanded=null; state._obsIncomeDocs=[]; state._obsAddressDocs=[];
   state._obsRefs=[{name:'',phone:'',rel:''},{name:'',phone:'',rel:''}];
+  // Canal de venta + transportado por (v99 · Fase 12)
+  state.salesChannel='piso';
+  state._salesChannelOpen=false;
+  state.salesDeliveryTransport=null;
 }
 
 /* ═══════════════ GO HOME ═══════════════ */
@@ -10637,6 +11547,8 @@ function goHome(){
     salesCartItems:[],salesIdType:'DPI',salesIdNumber:'',
     salesCotizacion:null,
     salesSubScreen:null,salesDetailItem:null,salesCreditDiscount:false,
+    salesDeliveryStep:'plan', salesDeliveryMode:null, _dlAssignItemKey:null, _dlActiveNodeKey:null,
+    salesAddressForm:{ label:'', dept:'', muni:'', street:'', refs:'', lat:14.6064, lng:-90.5132 },
     salesNoDelivery:false,salesShipMethod:null,_salesShipDate:null,_salesShipTime:null,salesPayMethod:null,
     cartFulfillment:[], _splitMode:false, _activeStoreDropdown:null,
     forkAml:null,forkApproval:null,forkVisit:null,forkSociodemo:null,
@@ -10715,6 +11627,9 @@ function persistSolicitud({status,billingStatus}){
     maxCuota:state.salesCustomer?.maxCuota||(state.limitUpgraded?780:663),
     cmmTotal:936,
     cmmComp:378.30,
+    // Canal de venta + transportado por (v99 · Fase 12)
+    salesChannel: state.salesChannel || 'piso',
+    deliveryTransport: state.salesDeliveryTransport || null,
   };
   // Build creditTerms from simulation state (skip for preapprove)
   if(!isPre){
@@ -11170,22 +12085,26 @@ function bind(){
   const scgo=$('btnSalesCreateGo');if(scgo)scgo.onclick=()=>{
     const d=state.salesNewData;
     const es=state.lang==='es';
+    // [DUP-DEBUG] Diagnostic logging — remove once duplicate-modal bug is confirmed fixed
+    try { console.log('[DUP-DEBUG] btnSalesCreateGo click — salesNewData=', JSON.parse(JSON.stringify(d||{})), 'screen=', state.screen, '_dupOverride=', state._dupOverride, '_dupCheck=', state._dupCheck); } catch(_){}
     clearFieldErrors();
     // Required fields → inline errors on the offending input
     if(!d.firstName||!d.lastName1){
+      console.log('[DUP-DEBUG] EARLY RETURN: missing firstName or lastName1 → field error shown, NO dup check ran');
       if(!d.firstName)showFieldError('scFirstName',es?'Ingresá el primer nombre':'Enter first name');
       if(!d.lastName1)showFieldError('scLastName1',es?'Ingresá el primer apellido':'Enter first last name');
       return;
     }
-    if(!d.dob){showFieldError('scDob',es?'Ingresá la fecha de nacimiento':'Enter the date of birth');return;}
-    if(!d.idNumber||!d.idNumber.trim()){showFieldError('scIdNumber',es?'Ingresá el número de documento':'Enter the document number');return;}
+    if(!d.dob){console.log('[DUP-DEBUG] EARLY RETURN: missing dob');showFieldError('scDob',es?'Ingresá la fecha de nacimiento':'Enter the date of birth');return;}
+    if(!d.idNumber||!d.idNumber.trim()){console.log('[DUP-DEBUG] EARLY RETURN: missing idNumber');showFieldError('scIdNumber',es?'Ingresá el número de documento':'Enter the document number');return;}
     // Validate format per doc type
     const fmt=_validateDocFormat(d.idType||'DPI', d.idNumber);
-    if(!fmt.ok){showFieldError('scIdNumber',(es?'Formato inválido. ':'Invalid format. ')+fmt.hint);return;}
+    if(!fmt.ok){console.log('[DUP-DEBUG] EARLY RETURN: invalid doc format for', d.idType, '→', d.idNumber, '· hint:', fmt.hint);showFieldError('scIdNumber',(es?'Formato inválido. ':'Invalid format. ')+fmt.hint);return;}
     // Email/teléfono · al menos uno requerido
     const emVal=((d.email||state.pqData.email||'')+'').trim();
     const phVal=((d.phone||state.pqData.phone||'')+'').trim();
     if(!emVal && !phVal){
+      console.log('[DUP-DEBUG] EARLY RETURN: no email and no phone');
       // No specific field — surface via toast
       showToast(es?'Ingresá al menos un correo o un teléfono para contacto y OTP':'Enter at least an email or phone for contact and OTP','error');
       // Highlight both
@@ -11194,12 +12113,14 @@ function bind(){
       return;
     }
     if(emVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emVal)){
+      console.log('[DUP-DEBUG] EARLY RETURN: invalid email format', emVal);
       showFieldError('scEmail',es?'El correo no tiene un formato válido':'Invalid email format');
       return;
     }
     if(phVal){
       const digits=phVal.replace(/\D/g,'').replace(/^502/,'');
       if(digits.length!==8){
+        console.log('[DUP-DEBUG] EARLY RETURN: invalid phone — digits=', digits.length, 'value=', phVal);
         showFieldError('scPhone',es?'El teléfono debe tener 8 dígitos':'Phone must have 8 digits');
         return;
       }
@@ -11207,12 +12128,24 @@ function bind(){
     // Run duplicate detection against the registry — unless operator already overrode
     if(!state._dupOverride){
       const dup=_findDuplicateCustomer(d);
+      console.log('[DUP-DEBUG] dup check ran. result=', dup ? {level:dup.level, subLevel:dup.subLevel, customer:(dup.customer.fn||'')+' '+(dup.customer.ln||'')} : null);
       if(dup){
         // Open modal — flow continues from the modal's CTAs
         state._dupCheck = dup;
+        console.log('[DUP-DEBUG] _dupCheck set, calling render(). Expect modal to appear.');
         render();
+        // After render, verify modal is in DOM
+        setTimeout(()=>{
+          const ov = document.getElementById('dupOverlay');
+          console.log('[DUP-DEBUG] post-render dupOverlay in DOM?', !!ov, '· state.screen=', state.screen, '· state._dupCheck still set?', !!state._dupCheck);
+          if(!ov) console.warn('[DUP-DEBUG] MODAL NOT RENDERED despite _dupCheck being set. Check render() for screen=salesCreate branch.');
+        }, 0);
         return;
+      } else {
+        console.log('[DUP-DEBUG] No duplicate found → proceeding to create new customer. (If you expected a match, verify your inputs against registry.)');
       }
+    } else {
+      console.log('[DUP-DEBUG] _dupOverride=true → SKIPPING dup check (operator already chose "create new" in a previous modal).');
     }
     // Use document fields captured in this form as the source of truth.
     // Sync to legacy state.salesIdType/salesIdNumber + idType/idNumber so downstream flows work.
@@ -11225,6 +12158,9 @@ function bind(){
     const finalEmail=emVal;
     const finalPhone=phVal;
     state.salesCustomer={name:fullName,doc:state.salesIdType+': '+state.salesIdNumber,dob:d.dob||'',email:finalEmail,phone:finalPhone};
+    // Reset canal de venta + transportado por al crear cliente nuevo (v99 · Fase 12)
+    state.salesChannel='piso';
+    state.salesDeliveryTransport=null;
     state.pqData.email=finalEmail;
     state.pqData.phone=finalPhone;
     // If coming from credit origination (outcome set), nav forward to prequal
@@ -11247,6 +12183,7 @@ function bind(){
           const ci={id:pItem.id,name:pItem.name,brand:pItem.brand,model:pItem.model,category:pItem.category||null,sku:pItem.sku,price:pItem.price,creditPromo:false};
           if(state._pendingCreditDiscount&&pItem.promoRate){ci.originalPrice=pItem.price;ci.price=parseFloat((pItem.price*(1-pItem.promoRate)).toFixed(2));ci.creditPromo=true;ci.promoRate=pItem.promoRate;}
           if(state._pendingWarranty>0){ci.warranty={label:state._pendingWarrantyLabel,price:state._pendingWarranty};}
+          _applyAutoCreditPromo(ci, pItem);
           state.salesCartItems.push(ci);
         }
         state._pendingCartItem=null;state._pendingWarranty=0;state._pendingWarrantyLabel='';state._pendingCreditDiscount=false;
@@ -11441,6 +12378,7 @@ function bind(){
         const _d=new Date();const _yy=String(_d.getFullYear()).slice(2),_mm=String(_d.getMonth()+1).padStart(2,'0'),_dd=String(_d.getDate()).padStart(2,'0');
         state.salesCotizacion='COT-'+_yy+_mm+_dd+String(Math.floor(1+Math.random()*9999)).padStart(4,'0');
       }
+      _applyAutoCreditPromo(cartItem, item);
       state.salesCartItems.push(cartItem);
     }
     state.salesSubScreen=null;state.salesTab='cart';state.salesCreditDiscount=false;render();
@@ -11704,6 +12642,7 @@ function bind(){
         state.salesCotizacion='COT-'+_yy+_mm+_dd+String(Math.floor(1+Math.random()*9999)).padStart(4,'0');
       }
       if(warrantyOpt){cartItem.warranty={label:warrantyOpt.label,price:warrantyOpt.price};}
+      _applyAutoCreditPromo(cartItem, item);
       state.salesCartItems.push(cartItem);
       state._warrantyReminder=null;state.salesSubScreen=null;state.salesTab='cart';state.salesCreditDiscount=false;render();
     };
@@ -11711,7 +12650,7 @@ function bind(){
     const wsk=$('btnWarrantySkip');if(wsk)wsk.onclick=()=>{_addItem(null);};
     const wo=$('warrantyOverlay');if(wo)wo.onclick=(e)=>{if(e.target===wo){state._warrantyReminder=null;render();}};
   }
-  const spr=$('btnSalesProceed');if(spr)spr.onclick=()=>{state.salesSubScreen='checkout';render();};
+  const spr=$('btnSalesProceed');if(spr)spr.onclick=()=>{state.salesSubScreen='checkout';state.salesDeliveryStep='plan';state._dlAssignItemKey=null;render();};
   // Checkout flow bindings
   const bcb=$('btnCheckoutBack');if(bcb)bcb.onclick=()=>{
     state._activeStoreDropdown=null;
@@ -11729,6 +12668,8 @@ function bind(){
     state._editPlanFromSim = true;
     state.screen = 'salesCart';
     state.salesSubScreen = 'checkout';
+    state.salesDeliveryStep = 'plan';
+    state._dlAssignItemKey = null;
     render();
   };
   // Legacy binary radio (kept for back-compat with any orphan callers)
@@ -11737,6 +12678,12 @@ function bind(){
     // Derive salesShipMethod from fulfillment (for back-compat with downstream screens)
     _ensureFulfillment();
     const types = new Set(state.cartFulfillment.map(n=>n.type));
+    // Validación · Transportado por (v99 · Fase 12) — requerido si hay entrega a domicilio
+    const _deliveryEnabled = state.cartFulfillment.some(n=>n.type==='address');
+    if(_deliveryEnabled && !state.salesDeliveryTransport){
+      alert(state.lang==='es' ? 'Seleccioná quién transporta antes de continuar' : 'Select transport before continuing');
+      return;
+    }
     if(types.size===1 && types.has('pickup')) state.salesShipMethod='store';
     else if(types.size===1 && types.has('address')) state.salesShipMethod='home';
     else state.salesShipMethod='split';
@@ -11751,7 +12698,210 @@ function bind(){
     }
     render();
   };
-  // ═══ Plan de entrega · handlers ═══
+  // ═══ Plan de entrega rediseñado · handlers (v99 · Fase 13) ═══════════
+  // Helper: continuar al siguiente paso desde el plan (step 'plan')
+  const _dlGoNext = ()=>{
+    _ensureFulfillment();
+    const types = new Set(state.cartFulfillment.map(n=>n.type));
+    if(types.size===1 && types.has('pickup')) state.salesShipMethod='store';
+    else if(types.size===1 && types.has('address')) state.salesShipMethod='home';
+    else state.salesShipMethod='split';
+    const hasAddress = state.cartFulfillment.some(n=>n.type==='address');
+    if(!hasAddress){
+      // No hay envíos a domicilio → confirmar directo (salir del checkout)
+      state.salesDeliveryStep = 'plan';
+      state._activeStoreDropdown = null;
+      if(state._editPlanFromSim){
+        state._editPlanFromSim=false; state.salesSubScreen=null; state.screen='simulation';
+      } else {
+        state.salesSubScreen='payment';
+      }
+      render(); return;
+    }
+    state.salesDeliveryStep = 'shipping';
+    render();
+  };
+  // Back desde el step 'plan'
+  const _dlBackFromPlan = ()=>{
+    state._activeStoreDropdown=null;
+    state.salesDeliveryStep='plan';
+    if(state._editPlanFromSim){
+      state._editPlanFromSim=false; state.salesSubScreen=null; state.screen='simulation';
+    } else {
+      state.salesSubScreen=null;
+    }
+    render();
+  };
+  const _bdlb=$('btnDlBack');  if(_bdlb)_bdlb.onclick=_dlBackFromPlan;
+  const _bdlb2=$('btnDlBack2');if(_bdlb2)_bdlb2.onclick=_dlBackFromPlan;
+  const _bdlc=$('btnDlContinue'); if(_bdlc)_bdlc.onclick=_dlGoNext;
+
+  // Mode cards (Retiro / Envío)
+  document.querySelectorAll('[data-dl-mode]').forEach(el=>{el.onclick=()=>{
+    const m = el.dataset.dlMode;
+    state.salesDeliveryMode = m;
+    // Reset nodos al cambiar de modalidad (single mode):
+    if(m==='pickup'){
+      _consolidateFulfillment('pickup:'+_currentStoreId());
+    } else {
+      const cust = state.salesCustomer || {};
+      const addrs = cust.deliveryAddresses || [];
+      if(addrs.length>0){
+        const def = addrs.find(a=>a.isDefault) || addrs[0];
+        _consolidateFulfillment('address:'+def.id);
+      } else {
+        // No hay direcciones · saltar al formulario de nueva dirección
+        state.salesAddressForm = { label:'', dept:'', muni:'', street:'', refs:'', lat:14.6064, lng:-90.5132 };
+        state._addAddrTargetContext = 'global';
+        state.salesDeliveryStep = 'address';
+      }
+    }
+    state._splitMode = false;
+    render();
+  };});
+
+  // Pick store row
+  document.querySelectorAll('[data-dl-store]').forEach(el=>{el.onclick=()=>{
+    _consolidateFulfillment('pickup:'+el.dataset.dlStore);
+    state._splitMode = false;
+    render();
+  };});
+
+  // Pick address row
+  document.querySelectorAll('[data-dl-addr]').forEach(el=>{el.onclick=()=>{
+    _consolidateFulfillment('address:'+parseInt(el.dataset.dlAddr,10));
+    state._splitMode = false;
+    render();
+  };});
+
+  // Agregar nueva dirección (desde plan)
+  const _bdlAddAddr=$('btnDlAddAddr'); if(_bdlAddAddr)_bdlAddAddr.onclick=()=>{
+    state.salesAddressForm = { label:'', dept:'', muni:'', street:'', refs:'', lat:14.6064, lng:-90.5132 };
+    state._addAddrTargetContext = 'global';
+    state.salesDeliveryStep = 'address';
+    render();
+  };
+
+  // Split toggle
+  const _bdlSplit=$('btnDlSplit'); if(_bdlSplit)_bdlSplit.onclick=()=>{_enableSplitMode(); render();};
+  const _bdlCons=$('btnDlConsolidate'); if(_bdlCons)_bdlCons.onclick=()=>{
+    _ensureFulfillment();
+    if(state.cartFulfillment.length>0){
+      _consolidateFulfillment(_nodeKey(state.cartFulfillment[0]));
+    }
+    state._splitMode = false;
+    render();
+  };
+
+  // Item → abrir sheet de asignar destino (split mode)
+  document.querySelectorAll('[data-dl-assign]').forEach(el=>{el.onclick=()=>{
+    state._dlAssignItemKey = el.dataset.dlAssign;
+    render();
+  };});
+  const _bdlSheetX=$('btnDlSheetClose'); if(_bdlSheetX)_bdlSheetX.onclick=()=>{state._dlAssignItemKey=null;render();};
+  const _bdlOv=$('dlSheetOv'); if(_bdlOv)_bdlOv.onclick=(e)=>{if(e.target===_bdlOv){state._dlAssignItemKey=null;render();}};
+  document.querySelectorAll('[data-dl-assign-pick]').forEach(el=>{el.onclick=()=>{
+    const targetKey = el.dataset.dlAssignPick;
+    const itemKey = state._dlAssignItemKey;
+    if(itemKey && targetKey){
+      _setItemNode(itemKey, targetKey);
+    }
+    state._dlAssignItemKey = null;
+    render();
+  };});
+  const _bdlSheetAdd=$('btnDlSheetAddAddr'); if(_bdlSheetAdd)_bdlSheetAdd.onclick=()=>{
+    const _ctxItem = state._dlAssignItemKey;
+    state.salesAddressForm = { label:'', dept:'', muni:'', street:'', refs:'', lat:14.6064, lng:-90.5132 };
+    state._addAddrTargetContext = _ctxItem ? ('item:'+_ctxItem) : 'global';
+    state._dlAssignItemKey = null;
+    state.salesDeliveryStep = 'address';
+    render();
+  };
+
+  // ─── STEP 2 · Nueva dirección · handlers
+  const _bdlAc=$('btnDlAddrCancel');  if(_bdlAc) _bdlAc.onclick=()=>{ state.salesDeliveryStep='plan'; render(); };
+  const _bdlAc2=$('btnDlAddrCancel2');if(_bdlAc2)_bdlAc2.onclick=()=>{ state.salesDeliveryStep='plan'; render(); };
+  // Live form bindings — actualizan state.salesAddressForm en cada cambio
+  const _bindDl = (id, key)=>{ const el=$(id); if(!el) return; el.oninput=()=>{ state.salesAddressForm = state.salesAddressForm||{}; state.salesAddressForm[key]=el.value; }; el.onchange=()=>{ state.salesAddressForm = state.salesAddressForm||{}; state.salesAddressForm[key]=el.value; if(id==='dlAddrDept'){ state.salesAddressForm.muni=''; render(); } }; };
+  _bindDl('dlAddrLabel','label');
+  _bindDl('dlAddrDept','dept');
+  _bindDl('dlAddrMuni','muni');
+  _bindDl('dlAddrStreet','street');
+  _bindDl('dlAddrRefs','refs');
+  // Map tap → simula drag (cambia coords un poco)
+  const _dlMap=$('dlMap'); if(_dlMap)_dlMap.onclick=(e)=>{
+    if(e.target.closest('.dl-map-loc')) return; // botón mi ubicación
+    const rect = _dlMap.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    state.salesAddressForm = state.salesAddressForm||{};
+    // Map proportional to a small lat/lng range around Guatemala City
+    state.salesAddressForm.lat = parseFloat((14.6064 + (0.5 - y) * 0.04).toFixed(4));
+    state.salesAddressForm.lng = parseFloat((-90.5132 + (x - 0.5) * 0.04).toFixed(4));
+    render();
+  };
+  const _bml1=$('btnDlMyLoc'); const _bml2=$('btnDlMyLoc2');
+  const _myLoc=()=>{ state.salesAddressForm = state.salesAddressForm||{}; state.salesAddressForm.lat=14.6349; state.salesAddressForm.lng=-90.5069; render(); };
+  if(_bml1)_bml1.onclick=_myLoc; if(_bml2)_bml2.onclick=_myLoc;
+  // Guardar dirección
+  const _bdlSave=$('btnDlAddrSave'); if(_bdlSave)_bdlSave.onclick=()=>{
+    const f = state.salesAddressForm || {};
+    if(!f.street || !f.street.trim()){
+      const inp=$('dlAddrStreet'); if(inp){ inp.style.borderColor='var(--danger)'; inp.focus(); }
+      return;
+    }
+    const c = state.salesCustomer; if(!c) return;
+    if(!c.deliveryAddresses) c.deliveryAddresses=[];
+    const maxId = c.deliveryAddresses.reduce((m,a)=>Math.max(m,a.id),0);
+    const newAddr = { id:maxId+1, label:f.label||'', dept:f.dept||'', muni:f.muni||'', street:f.street||'', refs:f.refs||'', lat:f.lat, lng:f.lng, isDefault: c.deliveryAddresses.length===0 };
+    c.deliveryAddresses.push(newAddr);
+    // Asignar la nueva dirección según contexto
+    const ctx = state._addAddrTargetContext || 'global';
+    if(ctx==='global'){
+      _consolidateFulfillment('address:'+newAddr.id);
+      state.salesDeliveryMode = 'address';
+    } else if(ctx.startsWith('item:')){
+      const itemKey = ctx.substring(5);
+      _setItemNode(itemKey, 'address:'+newAddr.id);
+    }
+    state._addAddrTargetContext = null;
+    state.salesAddressForm = { label:'', dept:'', muni:'', street:'', refs:'', lat:14.6064, lng:-90.5132 };
+    state.salesDeliveryStep = 'plan';
+    render();
+  };
+
+  // ─── STEP 3 · Datos del envío · handlers
+  const _dlShipBack=()=>{ state.salesDeliveryStep='plan'; render(); };
+  const _bsb=$('btnDlShipBack');  if(_bsb)_bsb.onclick=_dlShipBack;
+  const _bsb2=$('btnDlShipBack2');if(_bsb2)_bsb2.onclick=_dlShipBack;
+  // Helpers para encontrar nodo por key
+  const _dlFindNode = (key)=>{ const [t,r]=key.split(':'); const rp=t==='address'?parseInt(r,10):r; return (state.cartFulfillment||[]).find(n=>n.type===t && String(n.ref)===String(rp)); };
+  document.querySelectorAll('[data-dl-contact-email]').forEach(el=>{el.oninput=()=>{ const n=_dlFindNode(el.dataset.dlContactEmail); if(n){ n.contact=n.contact||{}; n.contact.email=el.value; } }; });
+  document.querySelectorAll('[data-dl-contact-phone]').forEach(el=>{el.oninput=()=>{ const n=_dlFindNode(el.dataset.dlContactPhone); if(n){ n.contact=n.contact||{}; n.contact.phone=el.value; } }; });
+  document.querySelectorAll('[data-dl-date]').forEach(el=>{el.onclick=()=>{ const [nk,iso]=el.dataset.dlDate.split('|'); const n=_dlFindNode(nk); if(n){ n.scheduledFor=iso; } render(); }; });
+  document.querySelectorAll('[data-dl-slot]').forEach(el=>{el.onclick=()=>{ const [nk,sl]=el.dataset.dlSlot.split('|'); const n=_dlFindNode(nk); if(n){ n.slot=sl; } render(); }; });
+  document.querySelectorAll('[data-dl-transport]').forEach(el=>{el.onclick=()=>{ const [nk,tr]=el.dataset.dlTransport.split('|'); const n=_dlFindNode(nk); if(n){ n.transport=tr; } // back-compat global flag
+    state.salesDeliveryTransport = tr;
+    render(); }; });
+  const _bsc=$('btnDlShipContinue'); if(_bsc)_bsc.onclick=()=>{
+    // Validar transport en cada nodo address
+    const missing = (state.cartFulfillment||[]).filter(n=>n.type==='address' && !n.transport);
+    if(missing.length){
+      alert(state.lang==='es' ? 'Seleccioná transportado por en cada envío' : 'Select transported-by for each delivery');
+      return;
+    }
+    // Persistir contact (defaults) y avanzar a payment / regresar a simulación
+    state.salesDeliveryStep='plan';
+    if(state._editPlanFromSim){
+      state._editPlanFromSim=false; state.salesSubScreen=null; state.screen='simulation';
+    } else {
+      state.salesSubScreen='payment';
+    }
+    render();
+  };
+  // ═══════════════════════════════════════════════════════════════════
+
+  // ═══ LEGACY · Plan de entrega · handlers (kept defensively for back-compat) ═══
   // Toggle the dropdown for a given node target (global | item:<key>)
   document.querySelectorAll('[data-node-trigger]').forEach(el=>{el.onclick=(e)=>{
     e.stopPropagation();
@@ -13385,6 +14535,20 @@ function bind(){
   const exLater = $('btnExLater'); if(exLater) exLater.onclick = ()=>{ state.screen='home'; render(); };
   const exResend = $('btnExResendSMS'); if(exResend) exResend.onclick = ()=>{ alert(state.lang==='es'?'SMS reenviado al cliente':'SMS resent to client'); };
   const exEditPhone = $('btnExEditPhone'); if(exEditPhone) exEditPhone.onclick = ()=>{ const newP=prompt(state.lang==='es'?'Nuevo número de celular':'New phone number', state._exPhone||'+502 5456-7890'); if(newP){ state._exPhone=newP; render(); } };
+
+  // === Canal de venta (v99 · Fase 12) handlers ===
+  document.querySelectorAll('[data-sc-open]').forEach(el=>{
+    el.onclick = ()=>{ state._salesChannelOpen = true; render(); };
+  });
+  const scClose = $('btnSalesChannelClose'); if(scClose) scClose.onclick = ()=>{ state._salesChannelOpen = false; render(); };
+  const scOv = $('scOverlay'); if(scOv) scOv.onclick = (e)=>{ if(e.target===scOv){ state._salesChannelOpen = false; render(); } };
+  document.querySelectorAll('[data-sc-pick]').forEach(el=>{
+    el.onclick = ()=>{ state.salesChannel = el.dataset.scPick; state._salesChannelOpen = false; render(); };
+  });
+  // === Transportado por (v99 · Fase 12) handlers ===
+  document.querySelectorAll('[data-transport-pick]').forEach(el=>{
+    el.onclick = ()=>{ state.salesDeliveryTransport = el.dataset.transportPick; render(); };
+  });
 }
 render();
 </script>
