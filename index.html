@@ -4442,10 +4442,14 @@ function dupCustomerModal(){
   const inputNameDisplay = _srchTitleCase(inputNameRaw) || inputNameRaw;
   const inputDobFmt = _srchFormatDOB(d.dob);
   const inputDocIcon = inputType === 'DPI' ? 'idCard' : 'fileText';
-  const primaryDocIcon = primary.type === 'DPI' ? 'idCard' : 'fileText';
+  // En Nivel 2b mostrar el doc del MISMO tipo que el operador ingresó (el doc que está en conflicto).
+  // En Nivel 2a el cliente NO tiene doc de ese tipo, así que mostrar el primario.
+  const sameTypeDoc = (c.docs||[]).find(dd => dd.type === inputType);
+  const displayDoc = sameTypeDoc || primary;
+  const displayDocFmt = displayDoc.type === 'DPI' ? _srchFormatDPI(displayDoc.number) : displayDoc.number;
+  const primaryDocIcon = displayDoc.type === 'DPI' ? 'idCard' : 'fileText';
   const inputDocBioVerified = false; // el input nunca tiene bio (es nuevo)
-  const primaryDocFromList = (c.docs||[]).find(d=>d.primary) || (c.docs||[])[0];
-  const existingDocBioVerified = !!(primaryDocFromList && primaryDocFromList.verifiedBio);
+  const existingDocBioVerified = !!(displayDoc && displayDoc.verifiedBio);
   // Match per field (asume case 2b: name=match, dob=match, doc=diff)
   // Para 2a name=match dob=match doc=diff (tipo distinto)
   const nameMatches = _nameKey(inputNameRaw) === _nameKey((c.fn||'')+' '+(c.ln||''));
@@ -4476,7 +4480,7 @@ function dupCustomerModal(){
       <div style="font-size:9px;font-weight:700;color:var(--success);text-transform:uppercase;letter-spacing:0.04em;display:flex;align-items:center;gap:4px;">${icon('userCheck',11)} ${es?'EN SISTEMA':'ON FILE'}</div>
       ${_fieldBlockNeutral(es?'Nombre':'Name', fullName, false)}
       ${_fieldBlockNeutral(es?'Fecha de nacimiento':'Date of birth', dobStr, true)}
-      ${_fieldBlockNeutral(primary.type, primaryFmt, true, existingDocBioVerified ? _bioBadge : '')}
+      ${_fieldBlockNeutral(displayDoc.type, displayDocFmt, true, existingDocBioVerified ? _bioBadge : '')}
     </div>
   </div>`;
 
@@ -4491,7 +4495,31 @@ function dupCustomerModal(){
     body = es
       ? `Este <strong>${conflictTypeLabel}</strong> ya está registrado a nombre de:`
       : `This <strong>${conflictTypeLabel}</strong> is already registered to:`;
-    bodyBlock = customerCard;
+    // FIX D1: el doc matchea pero si el nombre/DOB tipeado no coincide con el cliente registrado,
+    // mostrar banner de advertencia (puede ser otro cliente, typo de doc, o doc compartido).
+    const inputNameNorm = _nameKey(inputNameRaw);
+    const cnameNorm = _nameKey((c.fn||'') + ' ' + (c.ln||''));
+    const nameMismatch = inputNameRaw && cnameNorm && inputNameNorm !== cnameNorm;
+    const dobMismatch = d.dob && c.dob && (d.dob.trim() !== c.dob.trim());
+    const hasDiscrepancy = nameMismatch || dobMismatch;
+    const discrepancyBanner = hasDiscrepancy ? `<div style="margin-top:13px;padding:10px 12px;border-radius:8px;background:#FAEEDA;border:1px solid #F5C9A8;color:#854F0B;font-size:11.5px;line-height:1.5;display:flex;align-items:flex-start;gap:8px;">
+      <span style="flex-shrink:0;margin-top:1px;color:#854F0B;display:flex;">${icon('alertTriangle',13)}</span>
+      <div style="flex:1;">
+        <strong style="color:#854F0B;">${es?'Los datos ingresados no coinciden con el cliente registrado':'Entered data does not match the registered customer'}</strong>
+        <div style="margin-top:4px;color:#5A5C6B;font-size:11px;">
+          ${nameMismatch ? `${es?'Nombre tipeado':'Name entered'}: <strong style="color:var(--text);">${inputNameDisplay||inputNameRaw}</strong> · ${es?'en sistema':'on file'}: <strong style="color:var(--text);">${fullName}</strong><br>` : ''}
+          ${dobMismatch ? `${es?'DOB tipeado':'DOB entered'}: <strong style="color:var(--text);">${_srchFormatDOB(d.dob)||'—'}</strong> · ${es?'en sistema':'on file'}: <strong style="color:var(--text);">${dobStr||'—'}</strong>` : ''}
+        </div>
+        <div style="margin-top:6px;color:#5A5C6B;font-size:10.5px;">${es?'Revisá si el documento es correcto o si estás atendiendo a otra persona.':'Verify the document is correct or if you are serving a different person.'}</div>
+      </div>
+    </div>` : '';
+    // FIX C3: si hay homónimos (mismo nombre+DOB pero distinto doc), mostrar nota.
+    const relatedL2 = dup.relatedL2 || [];
+    const homonimosBanner = relatedL2.length > 0 ? `<div style="margin-top:10px;padding:9px 11px;border-radius:7px;background:#EEF3F9;border:1px solid #C4D2E8;color:#185FA5;font-size:11px;line-height:1.5;display:flex;align-items:flex-start;gap:7px;">
+      <span style="flex-shrink:0;margin-top:1px;color:#185FA5;display:flex;">${icon('info',12)}</span>
+      <span><strong>${es?`También hay ${relatedL2.length} cliente${relatedL2.length>1?'s':''} con el mismo nombre y fecha de nacimiento`:`There are also ${relatedL2.length} customer${relatedL2.length>1?'s':''} with the same name and date of birth`}</strong>${es?' — revisalos si tenés dudas que sea el cliente correcto.':' — review them if you doubt this is the right customer.'}</span>
+    </div>` : '';
+    bodyBlock = customerCard + discrepancyBanner + homonimosBanner;
     ctas = `<button class="btn btn-primary" id="dupUseExisting" style="flex:1;justify-content:center;">${es?'Abrir perfil del cliente':'Open customer profile'}</button>
             <button class="btn btn-secondary" id="dupCancel">${es?'Cancelar':'Cancel'}</button>`;
   } else if(level === 2 && subLevel === '2a'){
@@ -4515,8 +4543,9 @@ function dupCustomerModal(){
     // Nivel 2b · mismo tipo, número distinto → ramificar según si tiene línea de crédito + bio
     // Caso A: sin línea ni bio → permitir corrección directa
     // Caso B: con línea o bio verificada → no se puede corregir desde POS, solo abrir
-    const primaryDoc = (c.docs||[]).find(d=>d.primary) || (c.docs||[])[0];
-    const docBioVerified = !!(primaryDoc && primaryDoc.verifiedBio);
+    // IMPORTANTE: chequear bio sobre el doc del MISMO TIPO (displayDoc), no necesariamente el primario.
+    // Un Pasaporte secundario puede o no estar verificado bio independientemente del DPI primario.
+    const docBioVerified = !!(displayDoc && displayDoc.verifiedBio);
     // hasCredit: cliente con línea activa (isNewCredit, isLegacy, o scenario=existing y sin reject/pastdue)
     const hasCredit = !!(c.hasCredit || c.isLegacy || c.isNewCredit || (c.scenario==='existing' && !c.creditRejected && !c.pastDue));
     const requiresEscalation = hasCredit || docBioVerified;
@@ -4531,7 +4560,7 @@ function dupCustomerModal(){
 
     if(requiresEscalation){
       // Caso B: con línea de crédito + bio → no se puede corregir desde POS
-      const lastDigits = primary.number ? primary.number.slice(-4) : '';
+      const lastDigits = displayDoc.number ? displayDoc.number.slice(-4) : '';
       const contextBlock = `<div style="margin-top:13px;padding:10px 12px;border-radius:8px;background:var(--danger-light);border:1px solid #F09595;color:#791F1F;font-size:11.5px;line-height:1.5;display:flex;align-items:flex-start;gap:8px;">
         <span style="flex-shrink:0;margin-top:1px;color:#A32D2D;display:flex;">${icon('shield',13)}</span>
         <span>${es
@@ -4547,7 +4576,7 @@ function dupCustomerModal(){
       <button type="button" id="dupCancel" style="background:transparent;border:none;color:var(--text-dim);font-size:11.5px;cursor:pointer;text-decoration:underline;margin-top:4px;font-family:inherit;text-align:center;width:100%;">${es?'Cancelar y revisar los datos':'Cancel and review data'}</button>`;
     } else {
       // Caso A: sin línea de crédito → permitir corrección directa
-      const oldLast = primary.number ? primary.number.slice(-4) : '';
+      const oldLast = displayDoc.number ? displayDoc.number.slice(-4) : '';
       const newLast = inputNum ? inputNum.slice(-4) : '';
       const contextBlock = `<div style="margin-top:13px;padding:10px 12px;border-radius:8px;background:#EAF3DE;border:1px solid #97C459;color:#3B6D11;font-size:11.5px;line-height:1.5;display:flex;align-items:flex-start;gap:8px;">
         <span style="flex-shrink:0;margin-top:1px;color:#176B45;display:flex;">${icon('checkCircle',13)}</span>
@@ -8225,6 +8254,8 @@ function _nameKey(s){
 //   level 3 → fuzzy name + same DOB (varios candidatos similares)
 function _findDuplicateCustomer(formData){
   if(!formData) return null;
+  // FIX A9: normalizar números de documento (quita espacios/guiones, uppercase) antes de comparar.
+  const _normDoc = (n) => (n||'').toString().replace(/[\s\-]/g, '').toUpperCase();
   const inputDocType = formData.idType || 'DPI';
   const inputDocNum  = (formData.idNumber || '').toString().trim();
   const inputDob     = (formData.dob || '').trim();
@@ -8236,14 +8267,28 @@ function _findDuplicateCustomer(formData){
   if(inputDocNum){
     for(const c of registry){
       for(const d of _allDocs(c)){
-        if(d.type === inputDocType && d.number === inputDocNum){
+        if(d.type === inputDocType && _normDoc(d.number) === _normDoc(inputDocNum)){
           l1Matches.push({customer:c, conflict:d});
           break; // un match por customer
         }
       }
     }
   }
-  if(l1Matches.length > 0) return { level:1, matches:l1Matches };
+  if(l1Matches.length > 0) {
+    // FIX C3: además de L1, buscar homónimos (mismo nombre+DOB) para mostrarlos como aviso adicional.
+    const relatedL2 = [];
+    if(inputName && inputDob){
+      for(const c of registry){
+        const inL1 = l1Matches.some(m => m.customer === c);
+        if(inL1) continue;
+        const cname = _nameKey((c.fn||'') + ' ' + (c.ln||''));
+        if(cname === inputName && c.dob === inputDob){
+          relatedL2.push({customer:c});
+        }
+      }
+    }
+    return { level:1, matches:l1Matches, relatedL2 };
+  }
 
   // ─ Level 2 · exact name + DOB match (doc may be new) ─
   // Sub-level 2a: doc type DISTINTO al registrado (alias legítimo, se agrega como secundario)
@@ -12300,23 +12345,22 @@ function bind(){
     const ddu=$('dupUseExisting');if(ddu)ddu.onclick=()=>switchToMatched(false);
     const dda=$('dupAddAndUse');if(dda)dda.onclick=()=>switchToMatched(true);
     const ddcorr=$('dupCorrectDoc');if(ddcorr)ddcorr.onclick=()=>{
-      // Caso 2b · Cliente sin línea: reemplazar el DPI primario por el nuevo
+      // Caso 2b · Cliente sin línea: reemplazar el doc del MISMO TIPO por el nuevo número.
+      // Importante: preservar el flag primary (si era secundario, queda secundario).
       const dup=state._dupCheck;
       const c=dup.customer || (dup.matches && dup.matches[0] && dup.matches[0].customer);
       const d=state.salesNewData;
       if(c && d && d.idNumber){
         const newNum=d.idNumber.trim();
         const newType=d.idType||'DPI';
-        // Buscar el doc primario actual (mismo tipo que el ingresado, en niveles 2b)
         c.docs=c.docs||[];
-        const idx=c.docs.findIndex(x=>x.type===newType && x.primary);
-        const oldNum = idx>=0 ? c.docs[idx].number : '';
+        // Buscar el doc del MISMO tipo (sin importar primary), preservando su flag primary al reemplazar
+        const idx=c.docs.findIndex(x=>x.type===newType);
         if(idx>=0){
+          const oldNum = c.docs[idx].number;
           c.docs[idx]={...c.docs[idx], number:newNum, correctedAt:new Date().toISOString(), correctedFrom:oldNum};
-        } else {
-          // fallback si no había primario del mismo tipo
-          c.docs.unshift({type:newType,number:newNum,primary:true,addedAt:new Date().toISOString(),addedVia:'correction',correctedFrom:oldNum});
         }
+        // Nota: si no encontramos doc del mismo tipo, es 2a (no 2b), así que dupCorrectDoc no debería disparar
       }
       switchToMatched(false);
     };
@@ -12344,7 +12388,9 @@ function bind(){
         const inputType = d.idType || 'DPI';
         const inputNum = (d.idNumber || '').toString().trim();
         const docs = (c && c.docs) || [];
-        const exactMatch = docs.find(dd => dd.type === inputType && dd.number === inputNum);
+        // FIX A9: normalizar números (espacios/guiones, uppercase) antes de comparar.
+        const _normDoc = (n) => (n||'').toString().replace(/[\s\-]/g, '').toUpperCase();
+        const exactMatch = docs.find(dd => dd.type === inputType && _normDoc(dd.number) === _normDoc(inputNum));
         if(exactMatch){
           // Doc tipeado coincide exacto con uno del candidato → comportarse como L1 resuelto
           state._dupCheck = null;
