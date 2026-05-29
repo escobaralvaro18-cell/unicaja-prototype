@@ -1549,6 +1549,41 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .dl-sheet-x{cursor:pointer;color:var(--text-dim);}
 .dl-sheet-b{padding:10px 12px;overflow-y:auto;flex:1;}
 .dl-sheet-section{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-dim);padding:8px 4px 4px;}
+
+/* Multi-match modal (v99 — Fase 15) */
+.dup-mm-head{display:flex;align-items:flex-start;gap:11px;margin-bottom:10px;}
+.dup-mm-icon{width:36px;height:36px;border-radius:50%;background:var(--info-amber-light, #FAEEDA);color:var(--info-amber, #854F0B);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.dup-mm-title{font-size:15px;font-weight:700;color:var(--text);line-height:1.2;}
+.dup-mm-desc{font-size:12.5px;color:var(--text-secondary);margin-top:10px;line-height:1.55;}
+.dup-mm-desc strong{font-weight:700;color:var(--text);}
+.dup-mm-input{margin-top:13px;padding:10px 12px;background:var(--surface-alt);border:1px dashed var(--border);border-radius:8px;}
+.dup-mm-input-l{font-size:9px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px;display:flex;align-items:center;gap:4px;}
+.dup-mm-input-line{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:11.5px;}
+.dup-mm-input-line strong{color:var(--text);font-weight:700;font-size:12.5px;}
+.dup-mm-input-line span{font-family:var(--mono);color:var(--text-secondary);}
+.dup-mm-list-head{margin-top:14px;font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em;display:flex;justify-content:space-between;align-items:center;}
+.dup-mm-list-head .count{font-family:var(--mono);color:var(--text);font-weight:700;font-size:11px;letter-spacing:0;text-transform:none;}
+.dup-mm-list{display:flex;flex-direction:column;gap:7px;margin-top:8px;}
+.dup-mm-cand{background:var(--white);border:1.5px solid var(--border);border-radius:9px;padding:11px 12px;cursor:pointer;display:flex;align-items:flex-start;gap:11px;font-family:inherit;text-align:left;width:100%;-webkit-tap-highlight-color:transparent;transition:border-color .15s, background .15s;}
+.dup-mm-cand:hover,.dup-mm-cand:active{border-color:#C4D2E8;background:var(--primary-light);}
+.dup-mm-cand-avatar{width:34px;height:34px;border-radius:50%;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.dup-mm-cand-body{flex:1;min-width:0;}
+.dup-mm-cand-name{font-size:13px;font-weight:700;color:var(--text);line-height:1.2;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.dup-mm-pill{font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px;letter-spacing:0.04em;text-transform:uppercase;}
+.dup-mm-pill.active{background:var(--success-light);color:var(--success);}
+.dup-mm-pill.amber{background:#FAEEDA;color:var(--info-amber);}
+.dup-mm-pill.gray{background:var(--surface-alt);color:var(--text-secondary);}
+.dup-mm-cand-meta{font-size:11px;color:var(--text-secondary);margin-top:3px;font-family:var(--mono);}
+.dup-mm-cand-row{font-size:10.5px;color:var(--text-secondary);margin-top:3px;display:flex;align-items:center;gap:5px;}
+.dup-mm-cand-row .bio{color:var(--success);font-weight:600;display:inline-flex;align-items:center;gap:3px;}
+.dup-mm-cand-chev{color:var(--text-dim);flex-shrink:0;margin-top:8px;display:flex;}
+.dup-mm-create{margin-top:13px;padding:11px 13px;border:1.5px dashed var(--border);border-radius:9px;background:var(--surface-alt);display:flex;align-items:center;gap:10px;cursor:pointer;font-family:inherit;text-align:left;width:100%;-webkit-tap-highlight-color:transparent;}
+.dup-mm-create:hover,.dup-mm-create:active{background:var(--white);border-color:#C8CAD3;}
+.dup-mm-create-icon{width:30px;height:30px;border-radius:50%;background:var(--white);border:1px solid var(--border);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.dup-mm-create-body{flex:1;min-width:0;}
+.dup-mm-create-title{font-size:12.5px;font-weight:700;color:var(--text);}
+.dup-mm-create-desc{font-size:10.5px;color:var(--text-secondary);margin-top:1px;}
+.dup-mm-ghost{margin-top:8px;width:100%;background:transparent;border:none;color:var(--text-dim);font-size:11.5px;cursor:pointer;text-decoration:underline;padding:8px;text-align:center;font-family:inherit;}
 </style>
 </head>
 <body>
@@ -4296,9 +4331,96 @@ function dupCustomerModal(){
   const es = state.lang==='es';
   const dup = state._dupCheck;
   const d = state.salesNewData || {};
-  const c = dup.customer;
   const level = dup.level;
-  const subLevel = dup.subLevel || null;
+  // Normalize: support both new shape ({matches:[...]}) and legacy shape ({customer, conflict, subLevel}).
+  const matches = (dup.matches && dup.matches.length)
+    ? dup.matches
+    : (dup.customer ? [{customer:dup.customer, conflict:dup.conflict||null, subLevel:dup.subLevel||null}] : []);
+  const multi = matches.length > 1;
+
+  // ─── MULTI-MATCH BRANCH ─────────────────────────────────────────────
+  // Operator picks one candidate; on click we re-render this same modal as
+  // a single-match using the chosen entry so the existing L1/2a/2b/3 logic
+  // takes over unchanged.
+  if(multi){
+    const inputType = d.idType || 'DPI';
+    const inputNum = (d.idNumber || '').toString().trim();
+    const inputNumFmt = inputType === 'DPI' ? _srchFormatDPI(inputNum) : inputNum;
+    const inputNameRaw = [d.firstName, d.secondName, d.lastName1, d.lastName2].filter(Boolean).join(' ');
+    const inputNameDisplay = _srchTitleCase(inputNameRaw) || inputNameRaw;
+    const inputDobFmt = _srchFormatDOB(d.dob);
+    const candidatesHtml = matches.map((m, idx) => {
+      const c = m.customer;
+      const initials = ((c.fn||'') + ' ' + (c.ln||'')).split(' ').filter(Boolean).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+      const fullName = _srchTitleCase((c.fn||'') + ' ' + (c.ln||''));
+      const docs = _allDocs(c);
+      const docsLine = docs.map(dd => dd.type + ' ' + (dd.type==='DPI' ? _srchFormatDPI(dd.number) : dd.number)).join(' · ');
+      const primaryDoc = docs.find(dd=>dd.primary) || docs[0];
+      const bioVerified = !!(primaryDoc && primaryDoc.verifiedBio);
+      let avatarColor = 'var(--primary)';
+      let statePill = '';
+      if(c.scenario === 'existing' || c.scenario === 'existingActive2'){
+        avatarColor = 'var(--success)';
+        statePill = `<span class="dup-mm-pill active">${es?'Línea activa':'Active line'}</span>`;
+      } else if(c.scenario === 'existingNoCredit'){
+        avatarColor = '#534AB7';
+        statePill = `<span class="dup-mm-pill gray">${es?'Sin línea':'No credit'}</span>`;
+      } else {
+        statePill = `<span class="dup-mm-pill amber">${es?'Sin evaluar':'Not evaluated'}</span>`;
+      }
+      return `<button type="button" class="dup-mm-cand" data-dup-pick-match="${idx}">
+        <div class="dup-mm-cand-avatar" style="background:${avatarColor};">${initials||'?'}</div>
+        <div class="dup-mm-cand-body">
+          <div class="dup-mm-cand-name">${fullName}${statePill}</div>
+          <div class="dup-mm-cand-meta">${docsLine||(es?'Sin documentos':'No documents')}</div>
+          ${bioVerified ? `<div class="dup-mm-cand-row"><span class="bio">${icon('shield',9)} ${es?'Verificado biométricamente':'Bio verified'}</span></div>` : ''}
+        </div>
+        <span class="dup-mm-cand-chev">${icon('chevronRight',13)}</span>
+      </button>`;
+    }).join('');
+
+    return `<div id="dupOverlay" role="dialog" aria-modal="true" aria-labelledby="dupTitle" style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;">
+      <div style="background:white;border-radius:var(--radius-lg);max-width:520px;width:100%;padding:24px 22px;box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto;">
+        <div class="dup-mm-head">
+          <div class="dup-mm-icon">${icon('users',20)}</div>
+          <div>
+            <div class="dup-mm-title" id="dupTitle">${es?'Encontramos varios clientes con estos datos':'Multiple matches found'}</div>
+            <div class="dup-mm-desc">${es?`<strong>${matches.length} clientes</strong> tienen el mismo nombre y fecha de nacimiento. Elegí cuál es el que estás atendiendo.`:`<strong>${matches.length} customers</strong> share the same name and date of birth. Pick the right one.`}</div>
+          </div>
+        </div>
+        <div class="dup-mm-input">
+          <div class="dup-mm-input-l">${icon('edit',10)} ${es?'LO QUE INGRESASTE':'WHAT YOU ENTERED'}</div>
+          <div class="dup-mm-input-line">
+            <strong>${inputNameDisplay}</strong>
+            <span>DOB ${inputDobFmt} · ${inputType} ${inputNumFmt}</span>
+          </div>
+        </div>
+        <div class="dup-mm-list-head">
+          <span>${es?'Candidatos en sistema':'Candidates on file'}</span>
+          <span class="count">${matches.length} ${es?'encontrados':'found'}</span>
+        </div>
+        <div class="dup-mm-list">${candidatesHtml}</div>
+        <button type="button" class="dup-mm-create" id="dupOverride">
+          <div class="dup-mm-create-icon">${icon('plus',13)}</div>
+          <div class="dup-mm-create-body">
+            <div class="dup-mm-create-title">${es?'Ninguno · es otra persona':'None · different person'}</div>
+            <div class="dup-mm-create-desc">${es?'Crear cliente nuevo con los datos ingresados':'Create new customer with entered data'}</div>
+          </div>
+          <span>${icon('chevronRight',13)}</span>
+        </button>
+        <button type="button" id="dupCancel" class="dup-mm-ghost">${es?'Cancelar y revisar los datos':'Cancel and review data'}</button>
+      </div>
+    </div>`;
+  }
+
+  // ─── SINGLE-MATCH BRANCH (lógica existente) ────────────────────────
+  const picked = matches[0] || {customer:null, conflict:null, subLevel:null};
+  const c = picked.customer;
+  // Expose conflict/subLevel for the legacy code that reads dup.conflict / dup.subLevel.
+  // (Either single-match shape already had them top-level, or we shim from picked.)
+  if(!dup.conflict && picked.conflict) dup.conflict = picked.conflict;
+  if(!dup.subLevel && picked.subLevel) dup.subLevel = picked.subLevel;
+  const subLevel = picked.subLevel || dup.subLevel || null;
   const initials = ((c.fn||'') + ' ' + (c.ln||'')).split(' ').filter(Boolean).map(w=>w[0]).slice(0,2).join('');
   const fullName = _srchTitleCase((c.fn||'') + ' ' + (c.ln||''));
   const dobStr = _srchFormatDOB(c.dob);
@@ -4321,19 +4443,40 @@ function dupCustomerModal(){
   const inputDobFmt = _srchFormatDOB(d.dob);
   const inputDocIcon = inputType === 'DPI' ? 'idCard' : 'fileText';
   const primaryDocIcon = primary.type === 'DPI' ? 'idCard' : 'fileText';
-  const compareBlock = `<div class="dup-compare">
-    <div class="dup-cmp-col">
-      <div class="dup-cmp-l">${icon('edit',11)} ${es?'LO QUE INGRESASTE':'WHAT YOU ENTERED'}</div>
-      <div class="dup-cmp-nm">${inputNameDisplay||'—'}</div>
-      <div class="dup-cmp-sub">${inputDobFmt||'—'}</div>
-      <div class="dup-cmp-doc">${icon(inputDocIcon,12)} ${inputType} ${inputNumFmt||'—'}</div>
+  const inputDocBioVerified = false; // el input nunca tiene bio (es nuevo)
+  const primaryDocFromList = (c.docs||[]).find(d=>d.primary) || (c.docs||[])[0];
+  const existingDocBioVerified = !!(primaryDocFromList && primaryDocFromList.verifiedBio);
+  // Match per field (asume case 2b: name=match, dob=match, doc=diff)
+  // Para 2a name=match dob=match doc=diff (tipo distinto)
+  const nameMatches = _nameKey(inputNameRaw) === _nameKey((c.fn||'')+' '+(c.ln||''));
+  const dobMatches = (d.dob||'').trim() === (c.dob||'').trim();
+  const docMatches = false; // siempre false en niveles 2a/2b (sino sería L1)
+  const _matchIcon = (m) => m
+    ? `<span style="color:var(--success);display:inline-flex;align-items:center;">${icon('check',9,'var(--success)')}</span>`
+    : `<span style="color:var(--danger);display:inline-flex;align-items:center;">${icon('x',9,'var(--danger)')}</span>`;
+  const _fieldBlock = (label, value, matched, isMono, extra) => `<div style="display:flex;flex-direction:column;gap:2px;">
+    <div style="font-size:9px;font-weight:600;color:${matched?'var(--success)':'var(--danger)'};text-transform:uppercase;letter-spacing:0.04em;display:flex;align-items:center;gap:4px;">${_matchIcon(matched)}${label}</div>
+    <div style="font-size:12px;font-weight:700;color:${matched?'var(--text)':'var(--danger)'};line-height:1.25;${isMono?'font-family:var(--mono);font-size:11.5px;':''}">${value||'—'}</div>
+    ${extra||''}
+  </div>`;
+  const _fieldBlockNeutral = (label, value, isMono, extra) => `<div style="display:flex;flex-direction:column;gap:2px;">
+    <div style="font-size:9px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;">${label}</div>
+    <div style="font-size:12px;font-weight:700;color:var(--text);line-height:1.25;${isMono?'font-family:var(--mono);font-size:11.5px;':''}">${value||'—'}</div>
+    ${extra||''}
+  </div>`;
+  const _bioBadge = `<div style="font-size:9.5px;color:var(--success);font-weight:600;display:inline-flex;align-items:center;gap:3px;margin-top:3px;">${icon('shield',10)} ${es?'Verificado biométricamente':'Biometrically verified'}</div>`;
+  const compareBlock = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px;">
+    <div style="padding:11px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface-alt);display:flex;flex-direction:column;gap:8px;">
+      <div style="font-size:9px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;display:flex;align-items:center;gap:4px;">${icon('edit',11)} ${es?'INGRESADO HOY':'ENTERED TODAY'}</div>
+      ${_fieldBlock(es?'Nombre':'Name', inputNameDisplay||inputNameRaw, nameMatches, false)}
+      ${_fieldBlock(es?'Fecha de nacimiento':'Date of birth', inputDobFmt, dobMatches, true)}
+      ${_fieldBlock(inputType, inputNumFmt, docMatches, true)}
     </div>
-    <div class="dup-cmp-col dup-cmp-exist">
-      <div class="dup-cmp-l">${icon('userCheck',11)} ${es?'CLIENTE EN SISTEMA':'CUSTOMER ON FILE'}</div>
-      <div class="dup-cmp-nm">${fullName}</div>
-      <div class="dup-cmp-sub">${dobStr}${c.account?' · '+c.account:''}</div>
-      <div class="dup-cmp-doc">${icon(primaryDocIcon,12)} ${primary.type} ${primaryFmt}</div>
-      <div class="dup-cmp-bio">${icon('shield',11)} ${es?'Verificado biométricamente':'Biometrically verified'}</div>
+    <div style="padding:11px 12px;border:1px solid #C0DD97;border-radius:8px;background:#F0F7EE;display:flex;flex-direction:column;gap:8px;">
+      <div style="font-size:9px;font-weight:700;color:var(--success);text-transform:uppercase;letter-spacing:0.04em;display:flex;align-items:center;gap:4px;">${icon('userCheck',11)} ${es?'EN SISTEMA':'ON FILE'}</div>
+      ${_fieldBlockNeutral(es?'Nombre':'Name', fullName, false)}
+      ${_fieldBlockNeutral(es?'Fecha de nacimiento':'Date of birth', dobStr, true)}
+      ${_fieldBlockNeutral(primary.type, primaryFmt, true, existingDocBioVerified ? _bioBadge : '')}
     </div>
   </div>`;
 
@@ -4362,22 +4505,64 @@ function dupCustomerModal(){
       : `We found a customer with the same name and date of birth. The document you entered is of a <strong>different type</strong> than the one on file — probably an alternative document for the same person.`;
     bodyBlock = compareBlock;
     const addLabel = (inputType||'documento').toLowerCase();
-    ctas = `<button class="btn btn-primary" id="dupAddAndUse" style="flex:1;justify-content:center;">${icon('plus',13)} ${es?'Sí, agregar '+addLabel+' al cliente':'Yes, add '+addLabel+' to customer'}</button>
+    ctas = `<button class="btn btn-primary" id="dupAddAndUse" style="flex:1;justify-content:center;flex-direction:column;align-items:center;gap:2px;padding:11px 14px;line-height:1.2;">
+      <span style="display:inline-flex;align-items:center;gap:5px;">${icon('plus',13)} ${es?'Sí, agregar '+addLabel+' al cliente':'Yes, add '+addLabel+' to customer'}</span>
+      <span style="font-size:10px;font-weight:500;color:rgba(255,255,255,.82);line-height:1.25;">${es?'se guardará como documento secundario':'will be saved as secondary document'}</span>
+    </button>
             <button class="btn btn-secondary" id="dupOverride">${icon('user',13)} ${es?'Es otra persona — crear nuevo':'Not the same person — create new'}</button>
             <button type="button" id="dupCancel" style="background:transparent;border:none;color:var(--text-dim);font-size:11.5px;cursor:pointer;text-decoration:underline;margin-top:4px;font-family:inherit;text-align:center;width:100%;">${es?'Cancelar y revisar los datos':'Cancel and review data'}</button>`;
   } else if(level === 2){
-    // Nivel 2b · mismo tipo, número distinto → typo/renovación, sin opción de agregar
-    icon_color = 'var(--info-amber)';
-    icon_name = 'alertTriangle';
-    // Tag de nivel técnico removido (S4 H53) — el title + body + color ya comunican
+    // Nivel 2b · mismo tipo, número distinto → ramificar según si tiene línea de crédito + bio
+    // Caso A: sin línea ni bio → permitir corrección directa
+    // Caso B: con línea o bio verificada → no se puede corregir desde POS, solo abrir
+    const primaryDoc = (c.docs||[]).find(d=>d.primary) || (c.docs||[])[0];
+    const docBioVerified = !!(primaryDoc && primaryDoc.verifiedBio);
+    // hasCredit: cliente con línea activa (isNewCredit, isLegacy, o scenario=existing y sin reject/pastdue)
+    const hasCredit = !!(c.hasCredit || c.isLegacy || c.isNewCredit || (c.scenario==='existing' && !c.creditRejected && !c.pastDue));
+    const requiresEscalation = hasCredit || docBioVerified;
+
+    icon_color = requiresEscalation ? 'var(--danger)' : 'var(--info-amber)';
+    icon_name = requiresEscalation ? 'shield' : 'alertTriangle';
     title = es ? 'Documento distinto al registrado' : 'Document differs from one on file';
     body = es
-      ? `Encontramos un cliente con el mismo nombre y fecha de nacimiento, pero el <strong>${inputType}</strong> no coincide con el que tiene en sistema. Podría ser un error de tipeo, una renovación, o un cliente distinto que comparte estos datos.`
-      : `We found a customer with the same name and date of birth, but the <strong>${inputType}</strong> doesn't match the one on file. It could be a typo, a renewal, or a different customer who shares these data.`;
+      ? `Mismo nombre y fecha pero el <strong>${inputType}</strong> no coincide.`
+      : `Same name and date of birth but the <strong>${inputType}</strong> does not match.`;
     bodyBlock = compareBlock;
-    ctas = `<button class="btn btn-primary" id="dupUseExisting" style="flex:1;justify-content:center;">${icon('userCheck',13)} ${es?'Es la misma persona — abrir cliente existente':'Same person — open existing customer'}</button>
-            <button class="btn btn-secondary" id="dupOverride">${icon('user',13)} ${es?'Es otra persona — crear nuevo':'Not the same person — create new'}</button>
-            <button type="button" id="dupCancel" style="background:transparent;border:none;color:var(--text-dim);font-size:11.5px;cursor:pointer;text-decoration:underline;margin-top:4px;font-family:inherit;text-align:center;width:100%;">${es?'Cancelar y revisar los datos':'Cancel and review data'}</button>`;
+
+    if(requiresEscalation){
+      // Caso B: con línea de crédito + bio → no se puede corregir desde POS
+      const lastDigits = primary.number ? primary.number.slice(-4) : '';
+      const contextBlock = `<div style="margin-top:13px;padding:10px 12px;border-radius:8px;background:var(--danger-light);border:1px solid #F09595;color:#791F1F;font-size:11.5px;line-height:1.5;display:flex;align-items:flex-start;gap:8px;">
+        <span style="flex-shrink:0;margin-top:1px;color:#A32D2D;display:flex;">${icon('shield',13)}</span>
+        <span>${es
+          ? `Cliente <strong>con línea de crédito activa</strong> · ${inputType} verificado biométricamente · <strong>no se puede corregir desde POS</strong>.`
+          : `Customer <strong>has active credit line</strong> · ${inputType} biometrically verified · <strong>cannot be corrected from POS</strong>.`}</span>
+      </div>`;
+      bodyBlock = compareBlock + contextBlock;
+      ctas = `<button class="btn btn-primary" id="dupUseExisting" style="flex:1;justify-content:center;flex-direction:column;align-items:center;gap:2px;padding:11px 14px;line-height:1.2;">
+        <span style="display:inline-flex;align-items:center;gap:5px;">${icon('userCheck',13)} ${es?'Abrir cliente existente':'Open existing customer'}</span>
+        <span style="font-size:10px;font-weight:500;color:rgba(255,255,255,.82);line-height:1.25;">${es?`sigo la venta con el ${inputType} registrado${lastDigits?' (...'+lastDigits+')':''}`:'continue with registered '+inputType}</span>
+      </button>
+      <button class="btn btn-secondary" id="dupOverride">${icon('user',13)} ${es?'Es otra persona — crear nuevo':'Not the same person — create new'}</button>
+      <button type="button" id="dupCancel" style="background:transparent;border:none;color:var(--text-dim);font-size:11.5px;cursor:pointer;text-decoration:underline;margin-top:4px;font-family:inherit;text-align:center;width:100%;">${es?'Cancelar y revisar los datos':'Cancel and review data'}</button>`;
+    } else {
+      // Caso A: sin línea de crédito → permitir corrección directa
+      const oldLast = primary.number ? primary.number.slice(-4) : '';
+      const newLast = inputNum ? inputNum.slice(-4) : '';
+      const contextBlock = `<div style="margin-top:13px;padding:10px 12px;border-radius:8px;background:#EAF3DE;border:1px solid #97C459;color:#3B6D11;font-size:11.5px;line-height:1.5;display:flex;align-items:flex-start;gap:8px;">
+        <span style="flex-shrink:0;margin-top:1px;color:#176B45;display:flex;">${icon('checkCircle',13)}</span>
+        <span>${es
+          ? `Cliente <strong>sin línea de crédito</strong> · ${inputType} no verificado biométricamente · se puede corregir directamente.`
+          : `Customer <strong>without credit line</strong> · ${inputType} not biometrically verified · can be corrected directly.`}</span>
+      </div>`;
+      bodyBlock = compareBlock + contextBlock;
+      ctas = `<button class="btn btn-primary" id="dupCorrectDoc" style="flex:1;justify-content:center;flex-direction:column;align-items:center;gap:2px;padding:11px 14px;line-height:1.2;">
+        <span style="display:inline-flex;align-items:center;gap:5px;">${icon('edit',13)} ${es?`Corregir ${inputType} del cliente`:'Correct customer\'s '+inputType}</span>
+        <span style="font-size:10px;font-weight:500;color:rgba(255,255,255,.82);line-height:1.25;">${es?`reemplaza${oldLast?' ...'+oldLast:''}${newLast?' por el nuevo ...'+newLast:''}`:'replace registered with new number'}</span>
+      </button>
+      <button class="btn btn-secondary" id="dupOverride">${icon('user',13)} ${es?'Es otra persona — crear nuevo':'Not the same person — create new'}</button>
+      <button type="button" id="dupCancel" style="background:transparent;border:none;color:var(--text-dim);font-size:11.5px;cursor:pointer;text-decoration:underline;margin-top:4px;font-family:inherit;text-align:center;width:100%;">${es?'Cancelar y revisar los datos':'Cancel and review data'}</button>`;
+    }
   } else {
     // Level 3 — fuzzy name + DOB → soft warning
     icon_color = 'var(--info-amber)';
@@ -8030,11 +8215,14 @@ function _nameKey(s){
   return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim();
 }
 
-// Find a duplicate customer for the data being created.
-// Returns { level, customer, conflict } or null.
-//   level 1 → exact doc number match (different customer has the same doc on file)
-//   level 2 → same fullName + same DOB (strong match, doc may differ)
-//   level 3 → fuzzy name (Lev distance ≤ 2 on full name key) + same DOB
+// Find duplicate customer(s) for the data being created.
+// Returns { level, matches:[{customer, conflict?, subLevel?}, ...] } or null.
+// Acumula TODOS los matches del MISMO nivel (precedencia: L1 > L2 > L3 — si hay
+// matches en L1, no busca L2/L3; si hay L2, no busca L3). Múltiples matches en
+// el mismo nivel se devuelven todos para que el operador elija el correcto.
+//   level 1 → exact doc number match (raro tener varios — solo si hay data corrupta)
+//   level 2 → same fullName + same DOB (puede haber homónimos legítimos)
+//   level 3 → fuzzy name + same DOB (varios candidatos similares)
 function _findDuplicateCustomer(formData){
   if(!formData) return null;
   const inputDocType = formData.idType || 'DPI';
@@ -8044,29 +8232,34 @@ function _findDuplicateCustomer(formData){
   const registry = _customerRegistry();
 
   // ─ Level 1 · exact doc number match (any doc on any customer) ─
+  const l1Matches = [];
   if(inputDocNum){
     for(const c of registry){
       for(const d of _allDocs(c)){
         if(d.type === inputDocType && d.number === inputDocNum){
-          return { level:1, customer:c, conflict:d };
+          l1Matches.push({customer:c, conflict:d});
+          break; // un match por customer
         }
       }
     }
   }
+  if(l1Matches.length > 0) return { level:1, matches:l1Matches };
 
   // ─ Level 2 · exact name + DOB match (doc may be new) ─
   // Sub-level 2a: doc type DISTINTO al registrado (alias legítimo, se agrega como secundario)
   // Sub-level 2b: mismo tipo de doc, número distinto (typo, renovación, o homónimo — NO se agrega)
+  const l2Matches = [];
   if(inputName && inputDob){
     for(const c of registry){
       const cname = _nameKey((c.fn||'') + ' ' + (c.ln||''));
       if(cname === inputName && c.dob === inputDob){
         const existingTypes = (_allDocs(c)||[]).map(d => d.type);
         const subLevel = existingTypes.includes(inputDocType) ? '2b' : '2a';
-        return { level:2, subLevel, customer:c, conflict:null };
+        l2Matches.push({customer:c, conflict:null, subLevel});
       }
     }
   }
+  if(l2Matches.length > 0) return { level:2, matches:l2Matches };
 
   // ─ Level 3 · fuzzy name + DOB match ─
   // Dos vías de match (cualquiera dispara Nivel 3):
@@ -8074,6 +8267,7 @@ function _findDuplicateCustomer(formData){
   //  (B) Token-based — cada palabra del input matchea (exacto o con Lev≤1/2) alguna palabra del registro
   //      Captura el caso de palabras omitidas (ej: "Alvaro Escobar Dalton" vs "Alvaro Francisco Escobar Dalton")
   //      o reordenadas, que el Levenshtein letra-por-letra no maneja bien.
+  const l3Matches = [];
   if(inputName && inputDob){
     const inputTokens = inputName.split(/\s+/).filter(t => t.length >= 2);
     // tokensMatch: ¿a y b son la "misma palabra" tolerando 1-2 typos?
@@ -8088,17 +8282,18 @@ function _findDuplicateCustomer(formData){
     for(const c of registry){
       if(c.dob !== inputDob) continue;
       const cname = _nameKey((c.fn||'') + ' ' + (c.ln||''));
+      let matched = false;
       // (A) Levenshtein full-name (typos sin omisión de palabras)
       if(Math.abs(cname.length - inputName.length) <= 4){
         const dist = _srchLev(cname, inputName);
         const threshold = cname.length >= 12 ? 3 : 2;
         if(dist > 0 && dist <= threshold){
-          return { level:3, customer:c, conflict:null };
+          matched = true;
         }
       }
       // (B) Token-based: cada palabra del input encuentra match en el registro
       // Requiere ≥2 tokens en el input para evitar falsos positivos por solo el primer nombre
-      if(inputTokens.length >= 2){
+      if(!matched && inputTokens.length >= 2){
         const cnameTokens = cname.split(/\s+/).filter(t => t.length >= 2);
         if(cnameTokens.length >= inputTokens.length){
           const allMatch = inputTokens.every(it =>
@@ -8106,12 +8301,15 @@ function _findDuplicateCustomer(formData){
           );
           // Solo disparar si NO es match exacto (que ya cayó en Level 2)
           if(allMatch && inputName !== cname){
-            return { level:3, customer:c, conflict:null };
+            matched = true;
           }
         }
       }
+      if(matched) l3Matches.push({customer:c, conflict:null});
     }
   }
+  if(l3Matches.length > 0) return { level:3, matches:l3Matches };
+
   return null;
 }
 
@@ -8420,13 +8618,11 @@ function _srchRenderForm(){
   }
   if(s.tab === 'name'){
     return `<div class="srch-form-grid">
-      <div class="srch-field"><label>${es?'Primer nombre':'First name'}</label>${fieldX('srchFn', s.fnValue, '')}</div>
-      <div class="srch-field"><label>${es?'Primer apellido':'Last name'}</label>${fieldX('srchLn', s.lnValue, '')}</div>
+      <div class="srch-field"><label>${es?'Primer nombre':'First name'} <span class="opt" style="color:var(--danger);">*</span></label>${fieldX('srchFn', s.fnValue, '')}</div>
+      <div class="srch-field"><label>${es?'Primer apellido':'Last name'} <span class="opt" style="color:var(--danger);">*</span></label>${fieldX('srchLn', s.lnValue, '')}</div>
     </div>
-    <div class="srch-form-grid full"><div class="srch-field"><label>${es?'Segundo apellido':'Second last name'} <span class="opt">· ${es?'opcional':'optional'}</span></label>${fieldX('srchLn2', s.ln2Value, '')}</div></div>`;
-  }
-  if(s.tab === 'phone'){
-    return `<div class="srch-form-grid full"><div class="srch-field"><label>${es?'Teléfono':'Phone number'}</label>${fieldX('srchPhone', s.phoneValue, es?'Ingresá el número':'Enter phone number', 'numeric')}</div></div>`;
+    <div class="srch-form-grid full"><div class="srch-field"><label>${es?'Segundo apellido':'Second last name'} <span class="opt">· ${es?'opcional':'optional'}</span></label>${fieldX('srchLn2', s.ln2Value, '')}</div></div>
+    <div class="srch-form-grid full"><div class="srch-field"><label>${es?'Fecha de nacimiento':'Date of birth'} <span class="opt">· ${es?'opcional':'optional'}</span></label><input type="date" id="srchDob" value="${s.dobValue||''}" class="srch-input"/></div></div>`;
   }
   if(s.tab === 'account'){
     return `<div class="srch-form-grid full"><div class="srch-field"><label>${es?'Número de cuenta de crédito':'Credit account number'}</label>${fieldX('srchAccount', s.accountValue, es?'Ej. CRD-2026-00000':'e.g. CRD-2026-00000')}</div></div>`;
@@ -8450,7 +8646,6 @@ function pgSalesIdentify(){
   <div class="srch-tabs">
     <div class="srch-tab ${s.tab==='doc'?'active':''}" data-srch-tab="doc">${icon('fileText',14)} ${es?'Documento':'Document'}</div>
     <div class="srch-tab ${s.tab==='name'?'active':''}" data-srch-tab="name">${icon('user',14)} ${es?'Nombre':'Name'}</div>
-    <div class="srch-tab ${s.tab==='phone'?'active':''}" data-srch-tab="phone">${icon('phone',14)} ${es?'Teléfono':'Phone'}</div>
     <div class="srch-tab ${s.tab==='account'?'active':''}" data-srch-tab="account">${icon('creditCard',14)} ${es?'Cuenta':'Account'}</div>
   </div>
 
@@ -11777,18 +11972,20 @@ function bind(){
     // Doc type selector
     const dts = $('srchDocType'); if(dts) dts.onchange = e => { s.docType = e.target.value; };
 
-    // Toggle the Buscar button's disabled state based on whether any field in the active tab has content
+    // Toggle the Buscar button's disabled state based on tab-specific requirements
     const updateSearchBtn = () => {
       const ssb = $('btnSrchSearch');
       if(!ssb || ssb.classList.contains('srch-btn-loading')) return;
-      const q = (() => {
-        if(s.tab === 'doc')     return (s.docNumValue || '').trim();
-        if(s.tab === 'name')    return [s.fnValue, s.lnValue, s.ln2Value].filter(Boolean).join(' ').trim();
-        if(s.tab === 'phone')   return (s.phoneValue || '').trim();
-        if(s.tab === 'account') return (s.accountValue || '').trim();
-        return '';
-      })();
-      ssb.disabled = !q;
+      let canSearch = false;
+      if(s.tab === 'doc'){
+        canSearch = !!(s.docNumValue || '').trim();
+      } else if(s.tab === 'name'){
+        // Primer nombre Y primer apellido OBLIGATORIOS para buscar por nombre
+        canSearch = !!(s.fnValue || '').trim() && !!(s.lnValue || '').trim();
+      } else if(s.tab === 'account'){
+        canSearch = !!(s.accountValue || '').trim();
+      }
+      ssb.disabled = !canSearch;
     };
 
     // Persist field values to state (so they survive re-render during search loading)
@@ -11808,8 +12005,10 @@ function bind(){
     persistVal('srchFn', 'fnValue');
     persistVal('srchLn', 'lnValue');
     persistVal('srchLn2', 'ln2Value');
-    persistVal('srchPhone', 'phoneValue');
+    persistVal('srchDob', 'dobValue');
     persistVal('srchAccount', 'accountValue');
+    // Migración: si el state tenía tab 'phone' guardado de antes, reset a 'doc'
+    if(s.tab === 'phone'){ s.tab = 'doc'; render(); return; }
     // Initial button state on each render
     updateSearchBtn();
 
@@ -11829,7 +12028,7 @@ function bind(){
         if(el){
           el.value = '';
           // Sync to state
-          const map = {srchDocNum:'docNumValue',srchFn:'fnValue',srchLn:'lnValue',srchLn2:'ln2Value',srchPhone:'phoneValue',srchAccount:'accountValue'};
+          const map = {srchDocNum:'docNumValue',srchFn:'fnValue',srchLn:'lnValue',srchLn2:'ln2Value',srchDob:'dobValue',srchAccount:'accountValue'};
           if(map[id]) s[map[id]] = '';
           btn.classList.remove('visible');
           el.focus();
@@ -11851,10 +12050,14 @@ function bind(){
     });
 
     // Helper: build query string from current tab's field values
+    // En tab 'name': si hay DOB se concatena para que el ranker pueda filtrar por fecha
     const buildQuery = () => {
       if(s.tab === 'doc') return (s.docNumValue || '').trim();
-      if(s.tab === 'name') return [s.fnValue, s.lnValue, s.ln2Value].filter(Boolean).join(' ').trim();
-      if(s.tab === 'phone') return (s.phoneValue || '').trim();
+      if(s.tab === 'name'){
+        const parts = [s.fnValue, s.lnValue, s.ln2Value].filter(Boolean);
+        if(s.dobValue) parts.push(s.dobValue);
+        return parts.join(' ').trim();
+      }
       if(s.tab === 'account') return (s.accountValue || '').trim();
       return '';
     };
@@ -11863,7 +12066,7 @@ function bind(){
     window.srchClearAllFields = function(){
       const formEl = $('srchForm');
       if(formEl) formEl.querySelectorAll('input').forEach(i => i.value = '');
-      ['docNumValue','fnValue','lnValue','ln2Value','phoneValue','accountValue'].forEach(k => s[k]='');
+      ['docNumValue','fnValue','lnValue','ln2Value','dobValue','accountValue'].forEach(k => s[k]='');
       document.querySelectorAll('[data-srch-field-clear]').forEach(b => b.classList.remove('visible'));
       if(s._pendingTimer){ clearTimeout(s._pendingTimer); s._pendingTimer = null; }
       s.loading = false;
@@ -11941,13 +12144,8 @@ function bind(){
           if(sv.fnValue) state.salesNewData.firstName = sv.fnValue.trim().toUpperCase();
           if(sv.lnValue) state.salesNewData.lastName1 = sv.lnValue.trim().toUpperCase();
           if(sv.ln2Value) state.salesNewData.lastName2 = sv.ln2Value.trim().toUpperCase();
-        }
-        // Si buscaron por teléfono y no encontraron, pre-llenar el campo en pgSalesCreate
-        if(sv.tab === 'phone' && sv.phoneValue){
-          const raw = sv.phoneValue.trim();
-          const formatted = raw.startsWith('+') ? raw : '+502 '+raw.replace(/^\+?502\s?/,'');
-          state.salesNewData.phone = formatted;
-          if(state.pqData) state.pqData.phone = formatted;
+          // Pre-llenar DOB si lo usaron en el search
+          if(sv.dobValue) state.salesNewData.dob = sv.dobValue.trim();
         }
       }
       state.salesScenario = scenario;
@@ -12071,7 +12269,9 @@ function bind(){
     const closeDup=()=>{state._dupCheck=null;};
     const switchToMatched=(addDoc)=>{
       const dup=state._dupCheck;
-      const c=dup.customer;
+      // Retrocompat: si dup viene en shape nuevo sin customer top-level,
+      // usar el primer match (solo se invoca cuando hay un único candidato).
+      const c=dup.customer || (dup.matches && dup.matches[0] && dup.matches[0].customer);
       const d=state.salesNewData;
       // Optionally append the new doc to the matched customer (in-session mutation)
       if(addDoc && d && d.idNumber && c){
@@ -12099,6 +12299,27 @@ function bind(){
     };
     const ddu=$('dupUseExisting');if(ddu)ddu.onclick=()=>switchToMatched(false);
     const dda=$('dupAddAndUse');if(dda)dda.onclick=()=>switchToMatched(true);
+    const ddcorr=$('dupCorrectDoc');if(ddcorr)ddcorr.onclick=()=>{
+      // Caso 2b · Cliente sin línea: reemplazar el DPI primario por el nuevo
+      const dup=state._dupCheck;
+      const c=dup.customer || (dup.matches && dup.matches[0] && dup.matches[0].customer);
+      const d=state.salesNewData;
+      if(c && d && d.idNumber){
+        const newNum=d.idNumber.trim();
+        const newType=d.idType||'DPI';
+        // Buscar el doc primario actual (mismo tipo que el ingresado, en niveles 2b)
+        c.docs=c.docs||[];
+        const idx=c.docs.findIndex(x=>x.type===newType && x.primary);
+        const oldNum = idx>=0 ? c.docs[idx].number : '';
+        if(idx>=0){
+          c.docs[idx]={...c.docs[idx], number:newNum, correctedAt:new Date().toISOString(), correctedFrom:oldNum};
+        } else {
+          // fallback si no había primario del mismo tipo
+          c.docs.unshift({type:newType,number:newNum,primary:true,addedAt:new Date().toISOString(),addedVia:'correction',correctedFrom:oldNum});
+        }
+      }
+      switchToMatched(false);
+    };
     const ddo=$('dupOverride');if(ddo)ddo.onclick=()=>{
       // Bypass the dup check this submit cycle: mark override and re-trigger submit logic.
       closeDup();
@@ -12107,6 +12328,50 @@ function bind(){
       state._dupOverride=false;
     };
     const ddc=$('dupCancel');if(ddc)ddc.onclick=()=>{closeDup();render();};
+    // Multi-match candidate picker: when the multi-match modal is showing,
+    // each candidate is a button with [data-dup-pick-match]. Clicking it
+    // either auto-resolves to a single-match L1 (if the entered doc exactly
+    // matches one of the candidate's docs) or rewrites state._dupCheck to a
+    // single-match shape so the existing L1/2a/2b/3 renderer takes over.
+    document.querySelectorAll('[data-dup-pick-match]').forEach(el => {
+      el.onclick = () => {
+        const idx = parseInt(el.dataset.dupPickMatch, 10);
+        const dup = state._dupCheck;
+        if(!dup || !dup.matches || !dup.matches[idx]) return;
+        const picked = dup.matches[idx];
+        const c = picked.customer;
+        const d = state.salesNewData || {};
+        const inputType = d.idType || 'DPI';
+        const inputNum = (d.idNumber || '').toString().trim();
+        const docs = (c && c.docs) || [];
+        const exactMatch = docs.find(dd => dd.type === inputType && dd.number === inputNum);
+        if(exactMatch){
+          // Doc tipeado coincide exacto con uno del candidato → comportarse como L1 resuelto
+          state._dupCheck = null;
+          state.salesIdType = (_primaryDoc(c) || {}).type || 'DPI';
+          const prim = _primaryDoc(c) || {};
+          state.salesIdNumber = prim.number || '';
+          state.idType = state.salesIdType;
+          state.idNumber = state.salesIdNumber;
+          state.salesScenario = c.scenario;
+          if(!state.salesFlow) state._scenarioFromOrigination = true;
+          state._search = null;
+          state.salesNewData = {firstName:'',secondName:'',lastName1:'',lastName2:'',dob:'',idType:'DPI',idNumber:''};
+          navigateSalesScenario();
+          return;
+        }
+        // Sin match exacto → reducir a single-match para que se aplique la lógica de 2a/2b/3.
+        // Mantenemos top-level customer/conflict/subLevel para retrocompat con cualquier consumer viejo.
+        state._dupCheck = {
+          level: dup.level,
+          matches: [picked],
+          customer: c,
+          conflict: picked.conflict || null,
+          subLevel: picked.subLevel || null
+        };
+        render();
+      };
+    });
     // Click on overlay → cancel
     const dov=$('dupOverlay');if(dov)dov.onclick=(e)=>{if(e.target===dov){closeDup();render();}};
   }
@@ -12157,7 +12422,7 @@ function bind(){
     // Run duplicate detection against the registry — unless operator already overrode
     if(!state._dupOverride){
       const dup=_findDuplicateCustomer(d);
-      console.log('[DUP-DEBUG] dup check ran. result=', dup ? {level:dup.level, subLevel:dup.subLevel, customer:(dup.customer.fn||'')+' '+(dup.customer.ln||'')} : null);
+      console.log('[DUP-DEBUG] dup check ran. result=', dup ? {level:dup.level, matchCount:(dup.matches||[]).length, matches:(dup.matches||[]).map(m=>({sub:m.subLevel||null, name:(m.customer.fn||'')+' '+(m.customer.ln||'')}))} : null);
       if(dup){
         // Open modal — flow continues from the modal's CTAs
         state._dupCheck = dup;
